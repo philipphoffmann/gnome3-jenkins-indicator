@@ -1,0 +1,33 @@
+
+.helloworld-label {
+    font-size: 36px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: rgba(10,10,10,0.7);
+    border-radius: 5px;
+    padding: .5em;
+}
+
+.icon-blue {
+	background-image: url("blue.png");
+	width: 16px;
+	height: 16px;
+}
+
+.icon-yellow {
+	background-image: url("yellow.png");
+	width: 16px;
+	height: 16px;
+}
+
+.icon-red {
+	background-image: url("red.png");
+	width: 16px;
+	height: 16px;
+}
+
+.icon-clock {
+	background-image: url("clock.png");
+	width: 16px;
+	height: 16px;
+}
