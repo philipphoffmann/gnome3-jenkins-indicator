@@ -85,10 +85,10 @@ function init() {
 }
 
 function enable() {
-	if( _indicator==null ) _indicator = new JenkinsIndicator;
+	_indicator = new JenkinsIndicator;
     Main.panel.addToStatusArea('gnome-jenkins', _indicator);
 }
 
 function disable() {
-    Main.panel._rightBox.remove_child(_indicator);
+    _indicator.destroy();
 }
