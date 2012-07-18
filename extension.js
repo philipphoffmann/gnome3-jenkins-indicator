@@ -15,12 +15,14 @@ const JenkinsIndicator = new Lang.Class({
     Extends: PanelMenu.Button,
 
     _init: function() {
-        this.parent(0.25, 'Jenkins State', false );
+    	this.parent(0.25, 'Jenkins State', false );
 
         this._iconActor = new St.Icon({ icon_name: 'gnome-jenkins-icon',
                                         icon_type: St.IconType.SYMBOLIC,
                                         style_class: 'icon-clock' });
         this.actor.add_actor(this._iconActor);
+        
+        this._loop_active
 
 		this._request();
     },
@@ -64,6 +66,10 @@ const JenkinsIndicator = new Lang.Class({
 
 		// set new icon representing current jenkins state
 		this._iconActor.style_class = newIconClass;
+		
+	},
+	
+	_loop: function() {
 		
 	}
 });
