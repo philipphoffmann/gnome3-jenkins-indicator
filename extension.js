@@ -22,8 +22,10 @@ const JenkinsIndicator = new Lang.Class({
                                         style_class: 'icon-clock' });
         this.actor.add_actor(this._iconActor);
         
-        this._loop_active
-
+        this.actor.connect('button-press-event', Lang.bind(this, this._onClick));
+        
+        //this._loop_active
+        
 		this._request();
     },
 
@@ -71,6 +73,10 @@ const JenkinsIndicator = new Lang.Class({
 	
 	_loop: function() {
 		
+	},
+	
+	_onClick: function() {
+		this._request();
 	}
 });
 

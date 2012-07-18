@@ -8,6 +8,12 @@
     padding: .5em;
 }
 
+.icon-grey {
+	background-image: url("grey.png");
+	width: 16px;
+	height: 16px;
+}
+
 .icon-blue {
 	background-image: url("blue.png");
 	width: 16px;
