@@ -9,6 +9,9 @@ const PopupMenu = imports.ui.popupMenu;
 // auto-refresh timeout in milliseconds
 const TIMEOUT_AUTOREFRESH = 3000;
 
+// url to jenkins json api
+const JENKINS_JSON_API_URL = 'http://localhost:8080/api/json';
+
 let _indicator;
 
 const _httpSession = new Soup.SessionAsync();
@@ -56,7 +59,7 @@ const JenkinsIndicator = new Lang.Class({
 	// request local jenkins server for current state
 	request: function() {
 		// ajax request to local jenkins server
-		let request = Soup.Message.new('GET', 'http://localhost:8080/api/json');
+		let request = Soup.Message.new('GET', JENKINS_JSON_API_URL);
 		_httpSession.queue_message(request, function(_httpSession, message) {
 			// parse json
 			let jenkinsState = JSON.parse(request.response_body.data);
