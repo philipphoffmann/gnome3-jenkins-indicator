@@ -6,11 +6,15 @@ const Soup = imports.gi.Soup;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
-let _indicator, _loop_active;
+// auto-refresh timeout in milliseconds
+const TIMEOUT_AUTOREFRESH = 3000;
+
+let _indicator;
 
 const _httpSession = new Soup.SessionAsync();
 Soup.Session.prototype.add_feature.call(_httpSession, new Soup.ProxyResolverDefault());
 
+// represent a job in the popup menu with icon and job name
 const JobPopupMenuItem = new Lang.Class({
 	Name: 'JobPopupMenuItem',
 	Extends: PopupMenu.PopupBaseMenuItem,
@@ -29,46 +33,55 @@ const JobPopupMenuItem = new Lang.Class({
 	}
 });
 
+// represents the indicator in the top menu bar
 const JenkinsIndicator = new Lang.Class({
     Name: 'JenkinsIndicator',
     Extends: PanelMenu.Button,
 
     _init: function() {
     	this.parent(0.25, 'Jenkins State', false );
+    	
+    	this.autoRefresh = true;
 
+		// start off with a blue icon
         this._iconActor = new St.Icon({ icon_name: 'gnome-jenkins-icon',
                                         icon_type: St.IconType.SYMBOLIC,
-                                        style_class: 'icon-clock' });
+                                        style_class: this._mapColor2IconClass('blue') });
         this.actor.add_actor(this._iconActor);
         
-        this.actor.connect('button-press-event', Lang.bind(this, this._onClick));
+        // refresh when indicator is clicked
+        this.actor.connect('button-press-event', Lang.bind(this, this.request));
     },
 
+	// request local jenkins server for current state
 	request: function() {
-		// ajax request to jenkins server
+		// ajax request to local jenkins server
 		let request = Soup.Message.new('GET', 'http://localhost:8080/api/json');
-		let this_indicator = this;
 		_httpSession.queue_message(request, function(_httpSession, message) {
-			let jenkinsJSON = request.response_body.data;
-			let jenkinsState = JSON.parse(jenkinsJSON);
-			this_indicator._update(jenkinsState);
+			// parse json
+			let jenkinsState = JSON.parse(request.response_body.data);
+			
+			// update indicator icon and popupmenu contents
+			_indicator._update(jenkinsState);
 		});
 	},
 
+	// update indicator icon and popupmenu contents
 	_update: function(state) {
+		// default css icon class of indicator
 		let newIconClass = 'icon-blue';
-		let jobs = new Array();
-		
+
+		// set icon to red if provided state is not valid
 		if( state==null || state.jobs==null || state.jobs.length<=0 )
 			newIconClass = 'icon-red';
 		else
 		{
-			// determine job states
+			// determine jobs overall state for the indicator
 			for( let i=0 ; i<state.jobs.length ; ++i )
 			{
-				if( state.jobs[i].color=='blue_anime' ) { newIconClass = 'icon-clock'; 	break; }
-				if( state.jobs[i].color=='red' ) 		{ newIconClass = 'icon-red'; 	break; }
-				if( state.jobs[i].color=='yellow' ) 	{ newIconClass = 'icon-yellow'; break; }
+				if( state.jobs[i].color=='blue_anime' ) { this._mapColor2IconClass(state.jobs[i].color); break; }
+				if( state.jobs[i].color=='red' ) 		{ this._mapColor2IconClass(state.jobs[i].color); break; }
+				if( state.jobs[i].color=='yellow' ) 	{ this._mapColor2IconClass(state.jobs[i].color); break; }
 			}
 
 			// fill popupmenu with job names
@@ -77,17 +90,22 @@ const JenkinsIndicator = new Lang.Class({
 				this.menu.addMenuItem(new JobPopupMenuItem(this._mapColor2IconClass(state.jobs[i].color), state.jobs[i].name));
 		}
 
-		// set new icon representing current jenkins state
+		// set new indicator icon representing current jenkins state
 		this._iconActor.style_class = newIconClass;
 		
-		// add switch for observer mode
-		this.menu.addMenuItem(new PopupSwitchMenuItem("observe", this._loop_active));
-	},
-
-	_onClick: function() {
-		this._request();
-	},
+		// add switch for autorefresh mode
+		this._switch_autorefresh = new PopupMenu.PopupSwitchMenuItem("auto-refresh", this.autoRefresh);
+		this._switch_autorefresh.connect('toggled', function(){
+			// toggle autoRefresh state
+			_indicator.autoRefresh = !_indicator.autoRefresh;
+			
+			// try to restart refresh-loop
+			loop();
+		});
+		this.menu.addMenuItem(this._switch_autorefresh);
+	}, 
 	
+	// mapping of jenkins job states to css icon classes, feel free to add more here
 	_mapColor2IconClass: function(color) {
 		if( color=='disabled' ) 	return 'icon-grey';
 		if( color=='blue' ) 		return 'icon-blue';
@@ -98,12 +116,15 @@ const JenkinsIndicator = new Lang.Class({
 	}
 });
 
+// main loop for auto-refreshing
 function loop() {
-	if( _loop_active )
+	if( _indicator.autoRefresh )
 	{
-		global.log("loop");
-		_indicator.request();
-		Mainloop.timeout_add(3000, loop);
+		// only refresh if menu is not open (otherwise the menu would disappear for a moment)
+		if( !_indicator.menu.isOpen ) _indicator.request();
+		
+		// back to main loop after timeout
+		Mainloop.timeout_add(TIMEOUT_AUTOREFRESH, loop);
 	}
 }
 
@@ -112,15 +133,14 @@ function init() {
 }
 
 function enable() {
-	_indicator = new JenkinsIndicator;
+	// create indicator and add to status area
+	_indicator = new JenkinsIndicator;	
     Main.panel.addToStatusArea('gnome-jenkins', _indicator);
     
-    // enter update loop
-    _loop_active = true;
+    // enter auto-refresh loop
     loop();
 }
 
 function disable() {
-	_loop_active = false;
     _indicator.destroy();
 }
