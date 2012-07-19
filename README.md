@@ -5,7 +5,9 @@ gnome3-jenkins
 description:
 Gnome 3 Shell Extension to represent the current state of all jobs of a Jenkins CI Server.
 By default it monitors a local Jenkins instance by using its JSON API at http://localhost:8080/api/json.
+This is the default URL when installing jenkins on Ubuntu 12.04 using apt-get.
 See "configuration" for details on how to customize this for your needs.
+Feel free to mail me any problems, suggestions or feedback to mail@philipphoffmann.de :-)
 
 
 requirements:
@@ -34,9 +36,9 @@ configuration:
 There are two settings you can configure for this extension:
 
 1. The Jenkins CI Server JSON API URL:
-Open up extension.js, you should find a variable named "JENKINS_JSON_API_URL" at the very top.
-Set its value to your Jenkins web frontend URL and append "/api/json".
-You should check this URL in your browser to see if it is accessible.
+Open up extension.js, you should find a variable named "JENKINS_URL" at the very top.
+Set its value to your Jenkins web frontend URL.
+You can check if the JSON API is available in your web browser by appending "/api/json" to your web frontend URL (which is what the extension does to get its information).
 
 2. The auto-refresh interval:
 Also in extension.js, there is a variable named "TIMEOUT_AUTOREFRESH" (also at the very top of the file).
