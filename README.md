@@ -34,11 +34,12 @@ configuration:
 There are two settings you can configure for this extension:
 
 1. The Jenkins CI Server JSON API URL:
-Open up extension.js, you should find a variable named "JENKINS_JSON_API_URL".
+Open up extension.js, you should find a variable named "JENKINS_JSON_API_URL" at the very top.
 Set its value to your Jenkins web frontend URL and append "/api/json".
 You should check this URL in your browser to see if it is accessible.
 
 2. The auto-refresh interval:
+Also in extension.js, there is a variable named "TIMEOUT_AUTOREFRESH" (also at the very top of the file).
 You can change the auto-refresh interval that the extensions uses to track changes.
 It is set to 3 seconds (3000 milliseconds) by default, meaning that every 3 seconds the extension requests the Jenkins CI Server for the current state of all jobs.
 You can set this to whatever interval is fine for you.
