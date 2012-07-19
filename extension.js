@@ -82,9 +82,9 @@ const JenkinsIndicator = new Lang.Class({
 			// determine jobs overall state for the indicator
 			for( let i=0 ; i<state.jobs.length ; ++i )
 			{
-				if( state.jobs[i].color=='blue_anime' ) { this._mapColor2IconClass(state.jobs[i].color); break; }
-				if( state.jobs[i].color=='red' ) 		{ this._mapColor2IconClass(state.jobs[i].color); break; }
-				if( state.jobs[i].color=='yellow' ) 	{ this._mapColor2IconClass(state.jobs[i].color); break; }
+				if( state.jobs[i].color=='blue_anime' ) { newIconClass = this._mapColor2IconClass(state.jobs[i].color); break; }
+				if( state.jobs[i].color=='red' ) 		{ newIconClass = this._mapColor2IconClass(state.jobs[i].color); break; }
+				if( state.jobs[i].color=='yellow' ) 	{ newIconClass = this._mapColor2IconClass(state.jobs[i].color); break; }
 			}
 
 			// fill popupmenu with job names
