@@ -36,6 +36,16 @@ const JobPopupMenuItem = new Lang.Class({
 	}
 });
 
+// manages jobs popup menu items
+const JobPopupMenu = new Lang.Class({
+	Name: 'JobPopupMenu',
+	Extends: PopupMenu.PopupMenu,
+	
+	_init: function(sourceActor, arrowAlignment, arrowSide) {
+		this.parent(sourceActor, arrowAlignment, arrowSide);
+	}
+});
+
 // represents the indicator in the top menu bar
 const JenkinsIndicator = new Lang.Class({
     Name: 'JenkinsIndicator',
@@ -51,6 +61,9 @@ const JenkinsIndicator = new Lang.Class({
                                         icon_type: St.IconType.SYMBOLIC,
                                         style_class: this._mapColor2IconClass('blue') });
         this.actor.add_actor(this._iconActor);
+        
+        // add jobs popup menu
+		this.setMenu(new JobPopupMenu(this.actor, 0.25, St.Side.TOP, 0));
         
         // refresh when indicator is clicked
         this.actor.connect('button-press-event', Lang.bind(this, this.request));
