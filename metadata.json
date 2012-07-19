@@ -1,1 +1,1 @@
-{"shell-version": ["3.4.1"], "uuid": "gnome3-jenkins@philipphoffmann.de", "name": "gnome-jenkins", "description": "Display Jenkins CI server state"}
+{"shell-version": ["3.4.1"], "uuid": "gnome3-jenkins@philipphoffmann.de", "name": "Jenkins CI Server Indicator", "description": "Display Jenkins CI server state", "url": "https://github.com/philipphoffmann/gnome3-jenkins"}
