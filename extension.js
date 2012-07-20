@@ -2,6 +2,7 @@ const Lang = imports.lang;
 const St = imports.gi.St;
 const Main = imports.ui.main;
 const Mainloop = imports.mainloop;
+const Gio = imports.gi.Gio;
 const Soup = imports.gi.Soup;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
@@ -28,13 +29,17 @@ function mapColor2IconClass(color) {
 	else						{ global.log('unkown color: ' + color); return 'icon-grey'; }
 }
 
+function urlAppend(domain, uri)
+{
+	return domain + (domain.charAt(domain.length-1)!='/' ? '/' : '') + uri;
+}
+
 // represent a job in the popup menu with icon and job name
 const JobPopupMenuItem = new Lang.Class({
 	Name: 'JobPopupMenuItem',
 	Extends: PopupMenu.PopupBaseMenuItem,
 
-    _init: function(icon_class, text, params)
-    {
+    _init: function(icon_class, text, params) {
     	this.parent(params);
 
         this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
@@ -46,13 +51,18 @@ const JobPopupMenuItem = new Lang.Class({
         this.addActor(this.box);
 	},
 	
+	// clicking a job menu item opens the job in web frontend with default browser
+	activate: function() {
+		Gio.app_info_launch_default_for_uri(urlAppend(JENKINS_URL, 'job/' + this.getJobName()), global.create_app_launch_context());
+	},
+	
 	// return job name
-	getJobName: function(){
+	getJobName: function() {
 		return this.label.text;
 	},
 
 	// update menu item text and icon
-	updateJob: function(job_state){
+	updateJob: function(job_state) {
 		this.label.text = job_state.name;
 		this.icon.style_class = mapColor2IconClass(job_state.color);
 	}
@@ -155,7 +165,7 @@ const JenkinsIndicator = new Lang.Class({
 	// request local jenkins server for current state
 	request: function() {
 		// ajax request to local jenkins server
-		let request = Soup.Message.new('GET', JENKINS_URL + (JENKINS_URL.charAt(JENKINS_URL.length-1)!='/' ? '/' : '') + 'api/json');
+		let request = Soup.Message.new('GET', urlAppend(JENKINS_URL, 'api/json'));
 		_httpSession.queue_message(request, function(_httpSession, message) {
 			// parse json
 			let jenkinsState = JSON.parse(request.response_body.data);
