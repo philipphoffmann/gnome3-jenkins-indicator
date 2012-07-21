@@ -24,11 +24,6 @@ installation (manually):
 
 2. Assuming that you have the gnome shell running hit Alt+F2, type "r" or "restart" (without quotation marks), hit enter. the shell should now restart.
 
-3. In a terminal run
-
-gsettings set org.gnome.shell enabled-extensions "['gnome3-jenkins@philipphoffmann.de']"
-
-to enable the extension. It should then be visible in your status bar.
 If everything is set up correctly you should be able to click the extension icon to bring up a popup menu with all your Jenkins jobs. 
 
 
