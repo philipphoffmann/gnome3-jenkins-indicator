@@ -1,3 +1,7 @@
+/**
+ * @author Philipp Hoffmann
+ */
+
 const Lang = imports.lang;
 const St = imports.gi.St;
 const Main = imports.ui.main;
@@ -6,6 +10,15 @@ const Gio = imports.gi.Gio;
 const Soup = imports.gi.Soup;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
+
+// set text domain for localized strings
+const Gettext = imports.gettext.domain('gnome3-jenkins');
+const _ = Gettext.gettext;
+
+// import convenience module (for localization)
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+const Convenience = Me.imports.convenience;
 
 // auto-refresh timeout in milliseconds
 const TIMEOUT_AUTOREFRESH = 3000;
@@ -148,7 +161,7 @@ const JenkinsIndicator = new Lang.Class({
 		this.setMenu(new JobPopupMenu(this.actor, 0.25, St.Side.TOP, 0));
 		
 		// add switch for autorefresh mode
-		this._switch_autorefresh = new PopupMenu.PopupSwitchMenuItem("auto-refresh", this.autoRefresh);
+		this._switch_autorefresh = new PopupMenu.PopupSwitchMenuItem(_("auto-refresh"), this.autoRefresh);
 		this._switch_autorefresh.connect('toggled', function(){
 			// toggle autoRefresh state
 			_indicator.autoRefresh = !_indicator.autoRefresh;
@@ -193,7 +206,6 @@ const JenkinsIndicator = new Lang.Class({
 			// determine jobs overall state for the indicator
 			for( let i=0 ; i<state.jobs.length ; ++i )
 			{
-				global.log(state.jobs[i].color);
 				if( state.jobs[i].color=='blue_anime' ) { newIconClass = mapColor2IconClass(state.jobs[i].color); break; }
 				if( state.jobs[i].color=='red' ) 		{ newIconClass = mapColor2IconClass(state.jobs[i].color); break; }
 				if( state.jobs[i].color=='yellow' ) 	{ newIconClass = mapColor2IconClass(state.jobs[i].color); break; }
@@ -218,7 +230,8 @@ function loop() {
 }
 
 function init() {
-
+	// load localization dictionaries
+	Convenience.initLocalization();
 }
 
 function enable() {

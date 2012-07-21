@@ -1,0 +1,4 @@
+
+# translations strings for gnome3-jenkins gnome shell extension
+msgid "auto-refresh"
+msgstr "Automatisch aktualisieren"
