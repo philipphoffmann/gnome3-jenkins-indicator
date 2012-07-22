@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schemalist gettext-domain="gnome3-jenkins">
+	<schema path="/org/gnome/shell/extensions/jenkins-indicator/" id="org.gnome.shell.extensions.jenkins-indicator">
+		<key type="s" name="jenkins-url">
+			<default>'http://localhost:8080/'</default>
+			<summary>Jenkins CI Server web frontend URL</summary>
+			<description>This is the URL of the web frontend provided by your Jenkins CI Server</description>
+		</key>
+		<key type="i" name="autorefresh-interval">
+			<default>3</default>
+			<summary>auto-refresh interval (seconds)</summary>
+			<description>This is the interval in seconds in which the extensions checks the Jenkins CI Server for the jobs state</description>
+		</key>
+	</schema>
+</schemalist>

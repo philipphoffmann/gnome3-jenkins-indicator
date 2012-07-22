@@ -1,0 +1,33 @@
+# translations strings for jenkins-indicator gnome shell extension
+
+# plugin translations
+msgid "auto-refresh"
+msgstr "Automatisch aktualisieren"
+
+msgid "settings"
+msgstr "Einstellungen"
+
+msgid "Error"
+msgstr "Fehler"
+
+msgid "unknown error"
+msgstr "unbekannter Fehler"
+
+msgid "no jobs found"
+msgstr "Keine Jobs gefunden"
+
+msgid "invalid Jenkins CI Server web frontend URL"
+msgstr "ungültige Jenkins CI Server Web Frontend URL"
+
+# settings dialog translations
+msgid "Jenkins connection"
+msgstr "Jenkins Verbindung"
+
+msgid "Jenkins CI Server web frontend URL"
+msgstr "Jenkins CI Server Web Frontend URL"
+
+msgid "preferences"
+msgstr "Einstellungen"
+
+msgid "auto-refresh interval (seconds)"
+msgstr "Interval für autom. Aktualisierung (Sekunden)"
