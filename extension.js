@@ -34,6 +34,8 @@ function mapColor2IconClass(color) {
 	if( color=='yellow' ) 		return 'icon-yellow';
 	if( color=='red' ) 			return 'icon-red';
 	if( color=='blue_anime' ) 	return 'icon-clock';
+	if( color=='yellow_anime' ) return 'icon-clock';
+	if( color=='red_anime' ) 	return 'icon-clock';
 	else						{ global.log('unkown color: ' + color); return 'icon-grey'; }
 }
 
@@ -242,9 +244,11 @@ const JenkinsIndicator = new Lang.Class({
 			// determine jobs overall state for the indicator
 			for( let i=0 ; i<state.jobs.length ; ++i )
 			{
-				if( state.jobs[i].color=="blue_anime" ) { newIconClass = mapColor2IconClass(state.jobs[i].color); break; }
-				if( state.jobs[i].color=="red" ) 		{ newIconClass = mapColor2IconClass(state.jobs[i].color); break; }
-				if( state.jobs[i].color=="yellow" ) 	{ newIconClass = mapColor2IconClass(state.jobs[i].color); break; }
+				if( state.jobs[i].color=="red_anime" ) 		{ newIconClass = mapColor2IconClass(state.jobs[i].color); break; }
+				if( state.jobs[i].color=="yellow_anime" ) 	{ newIconClass = mapColor2IconClass(state.jobs[i].color); break; }
+				if( state.jobs[i].color=="blue_anime" ) 	{ newIconClass = mapColor2IconClass(state.jobs[i].color); break; }
+				if( state.jobs[i].color=="red" ) 			{ newIconClass = mapColor2IconClass(state.jobs[i].color); break; }
+				if( state.jobs[i].color=="yellow" ) 		{ newIconClass = mapColor2IconClass(state.jobs[i].color); break; }
 			}
 		}
 
