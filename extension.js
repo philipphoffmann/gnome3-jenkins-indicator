@@ -26,6 +26,16 @@ let _indicator, settings;
 const _httpSession = new Soup.SessionAsync();
 Soup.Session.prototype.add_feature.call(_httpSession, new Soup.ProxyResolverDefault());
 
+// job state ranks to determine the style of the overall indicator (highest rank/lowest array index is prefered)
+let jobStateRanks = [
+	"red_anime",
+	"yellow_anime",
+	"blue_anime",
+	"red",
+	"yellow",
+	"blue"
+];
+
 // mapping of jenkins job states to css icon classes, feel free to add more here
 function mapColor2IconClass(color) {
 	if( color=='disabled' ) 	return 'icon-grey';
@@ -233,27 +243,25 @@ const JenkinsIndicator = new Lang.Class({
 		
 		// update indicator icon
 		
-		// default css icon class of indicator
-		let newIconClass = "icon-blue";
+		// default state of indicator
+		let overallJobState = "blue";
 
-		// set icon to red if provided state is not valid
+		// set state to red if provided state is not valid
 		if( state==undefined || state==null || state.jobs==null || state.jobs.length<=0 )
-			newIconClass = "icon-red";
+			overallJobState = "red";
 		else
 		{
 			// determine jobs overall state for the indicator
 			for( let i=0 ; i<state.jobs.length ; ++i )
 			{
-				if( state.jobs[i].color=="red_anime" ) 		{ newIconClass = mapColor2IconClass(state.jobs[i].color); break; }
-				if( state.jobs[i].color=="yellow_anime" ) 	{ newIconClass = mapColor2IconClass(state.jobs[i].color); break; }
-				if( state.jobs[i].color=="blue_anime" ) 	{ newIconClass = mapColor2IconClass(state.jobs[i].color); break; }
-				if( state.jobs[i].color=="red" ) 			{ newIconClass = mapColor2IconClass(state.jobs[i].color); break; }
-				if( state.jobs[i].color=="yellow" ) 		{ newIconClass = mapColor2IconClass(state.jobs[i].color); break; }
+				// set overall job state to highest ranked state
+				if( jobStateRanks.indexOf(state.jobs[i].color)>-1 && jobStateRanks.indexOf(state.jobs[i].color)<jobStateRanks.indexOf(overallJobState) )
+					overallJobState = state.jobs[i].color;
 			}
 		}
 
 		// set new indicator icon representing current jenkins state
-		this._iconActor.style_class = newIconClass;
+		this._iconActor.style_class = mapColor2IconClass(overallJobState);
 	},
 	
 	showError: function(text) {
