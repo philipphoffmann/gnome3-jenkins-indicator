@@ -11,5 +11,10 @@
 			<summary>auto-refresh interval (seconds)</summary>
 			<description>This is the interval in seconds in which the extensions checks the Jenkins CI Server for the jobs state</description>
 		</key>
+		<key type="b" name="filter-disabled-jobs">
+			<default>true</default>
+			<summary>filter disabled jobs</summary>
+			<description>If enabled, disabled jobs will not appear in the popup menu. Disable to show all jobs.</description>
+		</key>
 	</schema>
 </schemalist>

@@ -238,6 +238,10 @@ const JenkinsIndicator = new Lang.Class({
 	// update indicator icon and popupmenu contents
 	_update: function(state) {
 		state = state || {jobs:[]};
+		
+		// filter jobs to be shown
+		state.jobs = this._filterJobs(state.jobs);
+		
 		// update popup menu
 		this.menu.updateJobs(state.jobs);
 		
@@ -264,6 +268,21 @@ const JenkinsIndicator = new Lang.Class({
 		this._iconActor.style_class = mapColor2IconClass(overallJobState);
 	},
 	
+	// filters jobs so disabled jobs are not shown
+	_filterJobs: function(jobs) {
+		jobs = jobs || [];
+		
+		for( var i=0 ; i<jobs.length ; ++i )
+		{
+			// forget about disabled jobs if setting is enabled
+			if( settings.get_boolean("filter-disabled-jobs") && jobs[i].color=="disabled" )
+				jobs.splice(i,1);
+		}
+		
+		return jobs;
+	},
+	
+	// displays an error message in the popup menu
 	showError: function(text) {
 		// set default error message if none provided
 		text = text || "unknown error";

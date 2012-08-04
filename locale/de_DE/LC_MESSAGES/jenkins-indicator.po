@@ -31,3 +31,6 @@ msgstr "Einstellungen"
 
 msgid "auto-refresh interval (seconds)"
 msgstr "Interval für autom. Aktualisierung (Sekunden)"
+
+msgid "filter disabled jobs"
+msgstr "Inaktive Jobs ausblenden"
