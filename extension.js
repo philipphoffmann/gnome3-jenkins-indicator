@@ -179,7 +179,7 @@ const JenkinsIndicator = new Lang.Class({
         this.actor.add_actor(this._iconActor);
         
         // add jobs popup menu
-		this.setMenu(new JobPopupMenu(this.actor, 0.25, St.Side.TOP, 0));
+		this.setMenu(new JobPopupMenu(this.actor, 0.25, St.Side.TOP));
 		
 		// add seperator to popup menu
 		this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
