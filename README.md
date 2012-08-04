@@ -30,8 +30,10 @@ You can configure the following settings:
 Set its value to your Jenkins web frontend URL.
 You can check if the JSON API is available in your web browser by appending `/api/json` to your web frontend URL (which is what the extension does to get its information).
 
-### 2. The auto-refresh interval:
-You can change the auto-refresh interval that the extensions uses to track changes.
+### 2. The auto-refresh:
+By default the extension automatically requests the Jenkins CI Server for the state of all jobs at a given interval.
+You can turn this feature off or on.
+You can also change the auto-refresh interval that the extensions uses to track changes.
 It is set to 3 seconds (3000 milliseconds) by default, meaning that every 3 seconds the extension requests the Jenkins CI Server for the current state of all jobs.
 You can set this to whatever interval is fine for you.
 
