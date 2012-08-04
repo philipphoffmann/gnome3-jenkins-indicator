@@ -1,29 +1,29 @@
 .icon-grey {
-	background-image: url("grey.png");
+	background-image: url("icons/grey.png");
 	width: 16px;
 	height: 16px;
 }
 
 .icon-blue {
-	background-image: url("blue.png");
+	background-image: url("icons/blue.png");
 	width: 16px;
 	height: 16px;
 }
 
 .icon-yellow {
-	background-image: url("yellow.png");
+	background-image: url("icons/yellow.png");
 	width: 16px;
 	height: 16px;
 }
 
 .icon-red {
-	background-image: url("red.png");
+	background-image: url("icons/red.png");
 	width: 16px;
 	height: 16px;
 }
 
 .icon-clock {
-	background-image: url("clock.png");
+	background-image: url("icons/clock.png");
 	width: 16px;
 	height: 16px;
 }
