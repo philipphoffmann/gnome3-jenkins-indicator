@@ -18,6 +18,21 @@ function init() {
     settings = convenience.getSettings(extension, SETTINGS_SCHEMA);
 }
 
+// builds a line (label + switch) for a job filter setting
+function buildFilterSetting(label, setting_name)
+{
+	let hboxFilterAbortedJobs = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+	let labelFilterAbortedJobs = new Gtk.Label({label: label, xalign: 0});
+	let inputFilterAbortedJobs = new Gtk.Switch({active: settings.get_boolean(setting_name)});
+
+	inputFilterAbortedJobs.connect("notify::active", Lang.bind(this, function(input){settings.set_boolean(setting_name, input.get_active()); }));
+
+    hboxFilterAbortedJobs.pack_start(labelFilterAbortedJobs, true, true, 0);
+	hboxFilterAbortedJobs.add(inputFilterAbortedJobs);
+	
+	return hboxFilterAbortedJobs;
+}
+
 function buildPrefsWidget() {
     let frame = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL,
                               border_width: 10 });
@@ -41,8 +56,8 @@ function buildPrefsWidget() {
 	vbox.add(hboxJenkinsUrl);
 	
 	
-	// *** preferences ***
-	let labelPreferences = new Gtk.Label({ label: "<b>" + _("preferences") + "</b>", use_markup: true, xalign: 0 });
+	// *** auto-refresh ***
+	let labelPreferences = new Gtk.Label({ label: "<b>" + _("auto-refresh") + "</b>", use_markup: true, xalign: 0 });
 	vbox.add(labelPreferences);
 	
 	// auto refresh
@@ -67,16 +82,28 @@ function buildPrefsWidget() {
 	hboxAutorefreshInterval.add(inputAutorefreshInterval);
 	vbox.add(hboxAutorefreshInterval);
 	
-	// filter disables jobs
-	let hboxFilterDisabledJobs = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-	let labelFilterDisabledJobs = new Gtk.Label({label: _("filter disabled jobs"), xalign: 0});
-	let inputFilterDisabledJobs = new Gtk.Switch({active: settings.get_boolean("filter-disabled-jobs")});
-
-	inputFilterDisabledJobs.connect("notify::active", Lang.bind(this, function(input){settings.set_boolean("filter-disabled-jobs", input.get_active()); }));
-
-    hboxFilterDisabledJobs.pack_start(labelFilterDisabledJobs, true, true, 0);
-	hboxFilterDisabledJobs.add(inputFilterDisabledJobs);
-	vbox.add(hboxFilterDisabledJobs);
+	
+	// *** job filters ***
+	let labelPreferences = new Gtk.Label({ label: "<b>" + _("job filters") + "</b>", use_markup: true, xalign: 0 });
+	vbox.add(labelPreferences);
+	
+	// show running jobs
+	vbox.add(buildFilterSetting(_('show running jobs'), 'show-running-jobs'));
+	
+	// show successful jobs
+	vbox.add(buildFilterSetting(_('show successful jobs'), 'show-successful-jobs'));
+	
+	// show unstable jobs
+	vbox.add(buildFilterSetting(_('show unstable jobs'), 'show-unstable-jobs'));
+	
+	// show failed jobs
+	vbox.add(buildFilterSetting(_('show failed jobs'), 'show-failed-jobs'));
+	
+	// show disabled jobs
+	vbox.add(buildFilterSetting(_('show disabled jobs'), 'show-disabled-jobs'));
+	
+	// show aborted jobs
+	vbox.add(buildFilterSetting(_('show aborted jobs'), 'show-aborted-jobs'));
 
 
 	frame.add(vbox);    

@@ -32,5 +32,23 @@ msgstr "Einstellungen"
 msgid "auto-refresh interval (seconds)"
 msgstr "Interval für autom. Aktualisierung (Sekunden)"
 
-msgid "filter disabled jobs"
-msgstr "Inaktive Jobs ausblenden"
+msgid "job filters"
+msgstr "Job Filter"
+
+msgid "show running jobs"
+msgstr "Laufende Jobs anzeigen"
+
+msgid "show successful jobs"
+msgstr "Erfolgreiche Jobs anzeigen"
+
+msgid "show unstable jobs"
+msgstr "Instabile Jobs anzeigen"
+
+msgid "show failed jobs"
+msgstr "Fehlgeschlagene Jobs anzeigen"
+
+msgid "show disabled jobs"
+msgstr "Inaktive Jobs anzeigen"
+
+msgid "show aborted jobs"
+msgstr "Abgebrochene Jobs anzeigen"

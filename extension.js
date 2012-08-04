@@ -270,15 +270,30 @@ const JenkinsIndicator = new Lang.Class({
 		this._iconActor.style_class = mapColor2IconClass(overallJobState);
 	},
 	
-	// filters jobs so disabled jobs are not shown
+	// filters jobs according to filter settings
 	_filterJobs: function(jobs) {
 		jobs = jobs || [];
 		
 		for( var i=0 ; i<jobs.length ; ++i )
 		{
-			// forget about disabled jobs if setting is enabled
-			if( settings.get_boolean("filter-disabled-jobs") && jobs[i].color=="disabled" )
+			// forget about filtered jobs if respective filter is enabled
+			if(
+				(!settings.get_boolean("show-running-jobs") && (
+					jobs[i].color=="blue_anime" || 
+					jobs[i].color=="yellow_anime" ||
+					jobs[i].color=="red_anime" ||
+					jobs[i].color=="grey_anime"
+				)) ||
+				(!settings.get_boolean("show-successful-jobs") && jobs[i].color=="blue") ||
+				(!settings.get_boolean("show-unstable-jobs") && jobs[i].color=="yellow") ||
+				(!settings.get_boolean("show-failed-jobs") && jobs[i].color=="red") ||
+				(!settings.get_boolean("show-disabled-jobs") && jobs[i].color=="disabled") ||
+				(!settings.get_boolean("show-aborted-jobs") && jobs[i].color=="aborted")
+			)
+			{
 				jobs.splice(i,1);
+				--i;
+			}
 		}
 		
 		return jobs;
