@@ -33,13 +33,15 @@ let jobStateRanks = [
 	"blue_anime",
 	"red",
 	"yellow",
-	"blue"
+	"blue",
+	"aborted",
+	"disabled"
 ];
 
 // mapping of jenkins job states to css icon classes, feel free to add more here
 function mapColor2IconClass(color) {
+	if( color=='aborted' ) 		return 'icon-grey';
 	if( color=='disabled' ) 	return 'icon-grey';
-	if( color=='grey' ) 		return 'icon-grey';
 	if( color=='blue' ) 		return 'icon-blue';
 	if( color=='yellow' ) 		return 'icon-yellow';
 	if( color=='red' ) 			return 'icon-red';
