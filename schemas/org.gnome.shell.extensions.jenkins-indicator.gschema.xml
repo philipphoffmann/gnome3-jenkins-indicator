@@ -6,6 +6,11 @@
 			<summary>Jenkins CI Server web frontend URL</summary>
 			<description>This is the URL of the web frontend provided by your Jenkins CI Server</description>
 		</key>
+		<key type="b" name="autorefresh">
+			<default>true</default>
+			<summary>auto-refresh</summary>
+			<description>If enabled, the Jenkins CI Server will be checked at the given interval. If disabled, the Jenkins CI Server will only be checked when opening the popup menu</description>
+		</key>
 		<key type="i" name="autorefresh-interval">
 			<default>3</default>
 			<summary>auto-refresh interval (seconds)</summary>

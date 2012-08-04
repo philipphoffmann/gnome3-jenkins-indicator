@@ -22,6 +22,10 @@ function changedJenkinsUrl(input) {
 	settings.set_string("jenkins-url", input.text);
 }
 
+function changedAutoRefresh(input) {
+	settings.set_boolean("autorefresh", input.get_active());
+}
+
 function changedAutorefreshInterval(input) {
 	settings.set_int("autorefresh-interval", input.text);
 }
@@ -37,7 +41,7 @@ function buildPrefsWidget() {
     let vbox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL,
                              margin_left: 20 });
     
-    labelJenkinsConnection = new Gtk.Label({ label: "<b>" + _("Jenkins connection") + "</b>", use_markup: true, xalign: 0 });
+    let labelJenkinsConnection = new Gtk.Label({ label: "<b>" + _("Jenkins connection") + "</b>", use_markup: true, xalign: 0 });
 
 	// jenkins url
     let hboxJenkinsUrl = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
@@ -50,7 +54,17 @@ function buildPrefsWidget() {
 	hboxJenkinsUrl.add(inputJenkinsUrl);
 	
 	
-	labelPreferences = new Gtk.Label({ label: "<b>" + _("preferences") + "</b>", use_markup: true, xalign: 0 });
+	let labelPreferences = new Gtk.Label({ label: "<b>" + _("preferences") + "</b>", use_markup: true, xalign: 0 });
+	
+	// auto refresh
+	let hboxAutoRefresh = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+	let labelAutoRefresh = new Gtk.Label({label: _("auto-refresh"), xalign: 0});
+	let inputAutoRefresh = new Gtk.Switch({active: settings.get_boolean("autorefresh")});
+
+	inputAutoRefresh.connect("notify::active", Lang.bind(this, changedAutoRefresh));
+
+    hboxAutoRefresh.pack_start(labelAutoRefresh, true, true, 0);
+	hboxAutoRefresh.add(inputAutoRefresh);
 	
 	// auto refresh interval
 	let hboxAutorefreshInterval = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
@@ -77,6 +91,7 @@ function buildPrefsWidget() {
 	vbox.add(hboxJenkinsUrl);
 	
 	vbox.add(labelPreferences)
+	vbox.add(hboxAutoRefresh);
 	vbox.add(hboxAutorefreshInterval);
 	vbox.add(hboxFilterDisabledJobs);
 	

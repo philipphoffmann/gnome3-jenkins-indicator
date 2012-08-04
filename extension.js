@@ -172,8 +172,6 @@ const JenkinsIndicator = new Lang.Class({
     _init: function() {
     	this.parent(0.25, "Jenkins Indicator", false );
     	
-    	this.autoRefresh = true;
-
 		// start off with a blue icon
         this._iconActor = new St.Icon({ icon_name: "gnome-jenkins-icon",
                                         icon_type: St.IconType.SYMBOLIC,
@@ -183,16 +181,8 @@ const JenkinsIndicator = new Lang.Class({
         // add jobs popup menu
 		this.setMenu(new JobPopupMenu(this.actor, 0.25, St.Side.TOP, 0));
 		
-		// add switch for autorefresh mode
-		this._switch_autorefresh = new PopupMenu.PopupSwitchMenuItem(_("auto-refresh"), this.autoRefresh);
-		this._switch_autorefresh.connect("toggled", function(){
-			// toggle autoRefresh state
-			_indicator.autoRefresh = !_indicator.autoRefresh;
-			
-			// try to restart refresh-loop
-			loop();
-		});
-		this.menu.addMenuItem(this._switch_autorefresh);
+		// add seperator to popup menu
+		this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 		
 		// add link to settings dialog
 		this._menu_settings = new PopupMenu.PopupMenuItem(_("settings"));
@@ -205,6 +195,16 @@ const JenkinsIndicator = new Lang.Class({
         
         // refresh when indicator is clicked
         this.actor.connect("button-press-event", Lang.bind(this, this.request));
+        
+        // enter main loop for refreshing
+        this._mainloop = Mainloop.timeout_add(settings.get_int("autorefresh-interval")*1000, Lang.bind(this, function(){
+        	// request new job states if auto-refresh is enabled
+        	if( settings.get_boolean("autorefresh") )
+        		this.request();
+        	
+        	// returning true is important for restarting the mainloop after timeout
+        	return true;
+        }));
     },
 
 	// request local jenkins server for current state
@@ -301,20 +301,14 @@ const JenkinsIndicator = new Lang.Class({
 		
 		// set indicator state to red
 		this._iconActor.style_class = "icon-red";
+	},
+	
+	// destroys the indicator
+	destroy: function() {
+		// destroy the mainloop used for updating the indicator
+		Mainloop.source_remove(this._mainloop);
 	}
 });
-
-// main loop for auto-refreshing
-function loop() {
-	if( _indicator.autoRefresh )
-	{
-		// refresh indicator state
-		_indicator.request();
-
-		// back to main loop after timeout
-		Mainloop.timeout_add(settings.get_int("autorefresh-interval")*1000, loop);
-	}
-}
 
 function init() {
 	// load localization dictionaries
@@ -328,9 +322,6 @@ function enable() {
 	// create indicator and add to status area
 	_indicator = new JenkinsIndicator;	
     Main.panel.addToStatusArea("jenkins-indicator", _indicator);
-    
-    // enter auto-refresh loop
-    loop();
 }
 
 function disable() {
