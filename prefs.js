@@ -78,6 +78,7 @@ function buildPrefsWidget() {
 	let hboxAutorefreshInterval = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
 	let labelAutorefreshInterval = new Gtk.Label({label: _("auto-refresh interval (seconds)"), xalign: 0});
 	let inputAutorefreshInterval = new Gtk.SpinButton({ numeric: true, adjustment: new Gtk.Adjustment({value: settings.get_int("autorefresh-interval"), lower: 1, upper: 600, step_increment: 1}) });
+	inputAutorefreshInterval.set_editable(inputAutoRefresh.get_active());
 	
 	inputAutorefreshInterval.connect("changed", Lang.bind(this, function(input){ settings.set_int("autorefresh-interval", input.get_value()); }));
 
