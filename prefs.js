@@ -19,30 +19,32 @@ function init() {
 }
 
 // builds a line (label + switch) for a job filter setting
-function buildFilterSetting(label, setting_name)
+function buildFilterSetting(icon, label, setting_name)
 {
-	let hboxFilterAbortedJobs = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-	let labelFilterAbortedJobs = new Gtk.Label({label: label, xalign: 0});
-	let inputFilterAbortedJobs = new Gtk.Switch({active: settings.get_boolean(setting_name)});
+	let hboxFilterJobs = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+	let iconFilterJobs = new Gtk.Image({file: extension.dir.get_path() + "/icons/" + icon + ".png"});
+	let labelFilterJobs = new Gtk.Label({label: label, xalign: 0});
+	let inputFilterJobs = new Gtk.Switch({active: settings.get_boolean(setting_name)});
 
-	inputFilterAbortedJobs.connect("notify::active", Lang.bind(this, function(input){settings.set_boolean(setting_name, input.get_active()); }));
+	inputFilterJobs.connect("notify::active", Lang.bind(this, function(input){settings.set_boolean(setting_name, input.get_active()); }));
 
-    hboxFilterAbortedJobs.pack_start(labelFilterAbortedJobs, true, true, 0);
-	hboxFilterAbortedJobs.add(inputFilterAbortedJobs);
+    hboxFilterJobs.pack_start(iconFilterJobs, false, false, 0);
+    hboxFilterJobs.pack_start(labelFilterJobs, true, true, 0);
+	hboxFilterJobs.add(inputFilterJobs);
 	
-	return hboxFilterAbortedJobs;
+	return hboxFilterJobs;
 }
 
 function buildPrefsWidget() {
-    let frame = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL,
-                              border_width: 10 });
+    let frame = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, border_width: 10 });
 
-    let vbox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL,
-                             margin_left: 20 });
+    let vbox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
     
     // *** jenkins connection ***
     let labelJenkinsConnection = new Gtk.Label({ label: "<b>" + _("Jenkins connection") + "</b>", use_markup: true, xalign: 0 });
     vbox.add(labelJenkinsConnection);
+    
+    let vboxJenkinsConnection = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, margin_left: 20, margin_bottom: 15 });
 
 	// jenkins url
     let hboxJenkinsUrl = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
@@ -53,12 +55,16 @@ function buildPrefsWidget() {
 
     hboxJenkinsUrl.pack_start(labelJenkinsUrl, true, true, 0);
 	hboxJenkinsUrl.add(inputJenkinsUrl);
-	vbox.add(hboxJenkinsUrl);
+	vboxJenkinsConnection.add(hboxJenkinsUrl);
+	
+	vbox.add(vboxJenkinsConnection);
 	
 	
 	// *** auto-refresh ***
 	let labelPreferences = new Gtk.Label({ label: "<b>" + _("auto-refresh") + "</b>", use_markup: true, xalign: 0 });
 	vbox.add(labelPreferences);
+	
+	let vboxAutoRefresh = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, margin_left: 20, margin_bottom: 15 });
 	
 	// auto refresh
 	let hboxAutoRefresh = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
@@ -72,7 +78,7 @@ function buildPrefsWidget() {
 
     hboxAutoRefresh.pack_start(labelAutoRefresh, true, true, 0);
 	hboxAutoRefresh.add(inputAutoRefresh);
-	vbox.add(hboxAutoRefresh);
+	vboxAutoRefresh.add(hboxAutoRefresh);
 	
 	// auto refresh interval
 	let hboxAutorefreshInterval = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
@@ -84,30 +90,36 @@ function buildPrefsWidget() {
 
     hboxAutorefreshInterval.pack_start(labelAutorefreshInterval, true, true, 0);
 	hboxAutorefreshInterval.add(inputAutorefreshInterval);
-	vbox.add(hboxAutorefreshInterval);
+	vboxAutoRefresh.add(hboxAutorefreshInterval);
+	
+	vbox.add(vboxAutoRefresh);
 	
 	
 	// *** job filters ***
 	let labelPreferences = new Gtk.Label({ label: "<b>" + _("job filters") + "</b>", use_markup: true, xalign: 0 });
 	vbox.add(labelPreferences);
 	
+	let vboxFilters = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, margin_left: 20, margin_bottom: 15 });
+	
 	// show running jobs
-	vbox.add(buildFilterSetting(_('show running jobs'), 'show-running-jobs'));
+	vboxFilters.add(buildFilterSetting("clock", _('show running jobs'), 'show-running-jobs'));
 	
 	// show successful jobs
-	vbox.add(buildFilterSetting(_('show successful jobs'), 'show-successful-jobs'));
+	vboxFilters.add(buildFilterSetting("blue", _('show successful jobs'), 'show-successful-jobs'));
 	
 	// show unstable jobs
-	vbox.add(buildFilterSetting(_('show unstable jobs'), 'show-unstable-jobs'));
+	vboxFilters.add(buildFilterSetting("yellow", _('show unstable jobs'), 'show-unstable-jobs'));
 	
 	// show failed jobs
-	vbox.add(buildFilterSetting(_('show failed jobs'), 'show-failed-jobs'));
+	vboxFilters.add(buildFilterSetting("red", _('show failed jobs'), 'show-failed-jobs'));
 	
 	// show disabled jobs
-	vbox.add(buildFilterSetting(_('show disabled jobs'), 'show-disabled-jobs'));
+	vboxFilters.add(buildFilterSetting("grey", _('show disabled jobs'), 'show-disabled-jobs'));
 	
 	// show aborted jobs
-	vbox.add(buildFilterSetting(_('show aborted jobs'), 'show-aborted-jobs'));
+	vboxFilters.add(buildFilterSetting("grey", _('show aborted jobs'), 'show-aborted-jobs'));
+	
+	vbox.add(vboxFilters);
 
 
 	frame.add(vbox);    
