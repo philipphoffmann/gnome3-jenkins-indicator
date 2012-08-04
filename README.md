@@ -20,9 +20,9 @@ I will make the extension publicly available on extensions.gnome.org. Until then
 
 
 installation (manually):
-1. Copy all files to ~/.local/share/gnome-shell/extensions/gnome3-jenkins@philipphoffmann.de
+1. Copy all files to `~/.local/share/gnome-shell/extensions/gnome3-jenkins@philipphoffmann.de`
 
-2. Assuming that you have the gnome shell running hit Alt+F2, type "r" or "restart" (without quotation marks), hit enter. the shell should now restart.
+2. Assuming that you have the gnome shell running hit Alt+F2, type `r` or `restart` (without the ticks), hit enter. the shell should now restart.
 
 If everything is set up correctly you should be able to click the extension icon to bring up a popup menu with all your Jenkins jobs. 
 
@@ -31,12 +31,12 @@ configuration:
 There are two settings you can configure for this extension:
 
 1. The Jenkins CI Server JSON API URL:
-Open up extension.js, you should find a variable named "JENKINS_URL" at the very top.
+Open up extension.js, you should find a variable named `JENKINS_URL` at the very top.
 Set its value to your Jenkins web frontend URL.
-You can check if the JSON API is available in your web browser by appending "/api/json" to your web frontend URL (which is what the extension does to get its information).
+You can check if the JSON API is available in your web browser by appending `/api/json` to your web frontend URL (which is what the extension does to get its information).
 
 2. The auto-refresh interval:
-Also in extension.js, there is a variable named "TIMEOUT_AUTOREFRESH" (also at the very top of the file).
+Also in extension.js, there is a variable named `TIMEOUT_AUTOREFRESH" (also at the very top of the file).
 You can change the auto-refresh interval that the extensions uses to track changes.
 It is set to 3 seconds (3000 milliseconds) by default, meaning that every 3 seconds the extension requests the Jenkins CI Server for the current state of all jobs.
 You can set this to whatever interval is fine for you.
