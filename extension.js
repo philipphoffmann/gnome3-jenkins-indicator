@@ -254,7 +254,7 @@ const JenkinsIndicator = new Lang.Class({
 			// determine jobs overall state for the indicator
 			for( let i=0 ; i<state.jobs.length ; ++i )
 			{
-				// set overall job state to highest ranked state
+				// set overall job state to highest ranked (most important) state
 				if( jobStateRanks.indexOf(state.jobs[i].color)>-1 && jobStateRanks.indexOf(state.jobs[i].color)<jobStateRanks.indexOf(overallJobState) )
 					overallJobState = state.jobs[i].color;
 			}
