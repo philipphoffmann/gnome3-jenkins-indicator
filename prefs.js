@@ -46,16 +46,16 @@ function buildPrefsWidget() {
     
     let vboxJenkinsConnection = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, margin_left: 20, margin_bottom: 15 });
 
-	// jenkins url
-    let hboxJenkinsUrl = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-	let labelJenkinsUrl = new Gtk.Label({label: _("Jenkins CI Server web frontend URL"), xalign: 0});
-	let inputJenkinsUrl = new Gtk.Entry({ hexpand: true, text: settings.get_string("jenkins-url") });
+		// jenkins url
+	    let hboxJenkinsUrl = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+		let labelJenkinsUrl = new Gtk.Label({label: _("Jenkins CI Server web frontend URL"), xalign: 0});
+		let inputJenkinsUrl = new Gtk.Entry({ hexpand: true, text: settings.get_string("jenkins-url") });
+		
+		inputJenkinsUrl.connect("changed", Lang.bind(this, function(input){	settings.set_string("jenkins-url", input.text); }));
 	
-	inputJenkinsUrl.connect("changed", Lang.bind(this, function(input){	settings.set_string("jenkins-url", input.text); }));
-
-    hboxJenkinsUrl.pack_start(labelJenkinsUrl, true, true, 0);
-	hboxJenkinsUrl.add(inputJenkinsUrl);
-	vboxJenkinsConnection.add(hboxJenkinsUrl);
+	    hboxJenkinsUrl.pack_start(labelJenkinsUrl, true, true, 0);
+		hboxJenkinsUrl.add(inputJenkinsUrl);
+		vboxJenkinsConnection.add(hboxJenkinsUrl);
 	
 	vbox.add(vboxJenkinsConnection);
 	
@@ -66,31 +66,31 @@ function buildPrefsWidget() {
 	
 	let vboxAutoRefresh = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, margin_left: 20, margin_bottom: 15 });
 	
-	// auto refresh
-	let hboxAutoRefresh = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-	let labelAutoRefresh = new Gtk.Label({label: _("auto-refresh"), xalign: 0});
-	let inputAutoRefresh = new Gtk.Switch({active: settings.get_boolean("autorefresh")});
-
-	inputAutoRefresh.connect("notify::active", Lang.bind(this, function(input){
-		settings.set_boolean("autorefresh", input.get_active());
-		inputAutorefreshInterval.set_editable(input.get_active());
-	}));
-
-    hboxAutoRefresh.pack_start(labelAutoRefresh, true, true, 0);
-	hboxAutoRefresh.add(inputAutoRefresh);
-	vboxAutoRefresh.add(hboxAutoRefresh);
+		// auto refresh
+		let hboxAutoRefresh = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+		let labelAutoRefresh = new Gtk.Label({label: _("auto-refresh"), xalign: 0});
+		let inputAutoRefresh = new Gtk.Switch({active: settings.get_boolean("autorefresh")});
 	
-	// auto refresh interval
-	let hboxAutorefreshInterval = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-	let labelAutorefreshInterval = new Gtk.Label({label: _("auto-refresh interval (seconds)"), xalign: 0});
-	let inputAutorefreshInterval = new Gtk.SpinButton({ numeric: true, adjustment: new Gtk.Adjustment({value: settings.get_int("autorefresh-interval"), lower: 1, upper: 600, step_increment: 1}) });
-	inputAutorefreshInterval.set_editable(inputAutoRefresh.get_active());
+		inputAutoRefresh.connect("notify::active", Lang.bind(this, function(input){
+			settings.set_boolean("autorefresh", input.get_active());
+			inputAutorefreshInterval.set_editable(input.get_active());
+		}));
 	
-	inputAutorefreshInterval.connect("changed", Lang.bind(this, function(input){ settings.set_int("autorefresh-interval", input.get_value()); }));
-
-    hboxAutorefreshInterval.pack_start(labelAutorefreshInterval, true, true, 0);
-	hboxAutorefreshInterval.add(inputAutorefreshInterval);
-	vboxAutoRefresh.add(hboxAutorefreshInterval);
+	    hboxAutoRefresh.pack_start(labelAutoRefresh, true, true, 0);
+		hboxAutoRefresh.add(inputAutoRefresh);
+		vboxAutoRefresh.add(hboxAutoRefresh);
+		
+		// auto refresh interval
+		let hboxAutorefreshInterval = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+		let labelAutorefreshInterval = new Gtk.Label({label: _("auto-refresh interval (seconds)"), xalign: 0});
+		let inputAutorefreshInterval = new Gtk.SpinButton({ numeric: true, adjustment: new Gtk.Adjustment({value: settings.get_int("autorefresh-interval"), lower: 1, upper: 600, step_increment: 1}) });
+		inputAutorefreshInterval.set_editable(inputAutoRefresh.get_active());
+		
+		inputAutorefreshInterval.connect("changed", Lang.bind(this, function(input){ settings.set_int("autorefresh-interval", input.get_value()); }));
+	
+	    hboxAutorefreshInterval.pack_start(labelAutorefreshInterval, true, true, 0);
+		hboxAutorefreshInterval.add(inputAutorefreshInterval);
+		vboxAutoRefresh.add(hboxAutorefreshInterval);
 	
 	vbox.add(vboxAutoRefresh);
 	
@@ -101,23 +101,23 @@ function buildPrefsWidget() {
 	
 	let vboxFilters = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, margin_left: 20, margin_bottom: 15 });
 	
-	// show running jobs
-	vboxFilters.add(buildFilterSetting("clock", _('show running jobs'), 'show-running-jobs'));
-	
-	// show successful jobs
-	vboxFilters.add(buildFilterSetting("blue", _('show successful jobs'), 'show-successful-jobs'));
-	
-	// show unstable jobs
-	vboxFilters.add(buildFilterSetting("yellow", _('show unstable jobs'), 'show-unstable-jobs'));
-	
-	// show failed jobs
-	vboxFilters.add(buildFilterSetting("red", _('show failed jobs'), 'show-failed-jobs'));
-	
-	// show disabled jobs
-	vboxFilters.add(buildFilterSetting("grey", _('show disabled jobs'), 'show-disabled-jobs'));
-	
-	// show aborted jobs
-	vboxFilters.add(buildFilterSetting("grey", _('show aborted jobs'), 'show-aborted-jobs'));
+		// show running jobs
+		vboxFilters.add(buildFilterSetting("clock", _('show running jobs'), 'show-running-jobs'));
+		
+		// show successful jobs
+		vboxFilters.add(buildFilterSetting("blue", _('show successful jobs'), 'show-successful-jobs'));
+		
+		// show unstable jobs
+		vboxFilters.add(buildFilterSetting("yellow", _('show unstable jobs'), 'show-unstable-jobs'));
+		
+		// show failed jobs
+		vboxFilters.add(buildFilterSetting("red", _('show failed jobs'), 'show-failed-jobs'));
+		
+		// show disabled jobs
+		vboxFilters.add(buildFilterSetting("grey", _('show disabled jobs'), 'show-disabled-jobs'));
+		
+		// show aborted jobs
+		vboxFilters.add(buildFilterSetting("grey", _('show aborted jobs'), 'show-aborted-jobs'));
 	
 	vbox.add(vboxFilters);
 
