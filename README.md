@@ -28,16 +28,18 @@ If everything is set up correctly you should be able to click the extension icon
 
 
 configuration:
-There are two settings you can configure for this extension:
+You can configure the extension using the regular extension settings dialog either by clicking **settings** in the extension popup menu or by running `gnome-shell-extension-prefs` and selection the **Jenkins CI Server Indicator** in the drop down menu. 
+
+You can configure the following settings:
 
 1. The Jenkins CI Server JSON API URL:
-Open up extension.js, you should find a variable named `JENKINS_URL` at the very top.
 Set its value to your Jenkins web frontend URL.
 You can check if the JSON API is available in your web browser by appending `/api/json` to your web frontend URL (which is what the extension does to get its information).
 
 2. The auto-refresh interval:
-Also in extension.js, there is a variable named `TIMEOUT_AUTOREFRESH" (also at the very top of the file).
 You can change the auto-refresh interval that the extensions uses to track changes.
 It is set to 3 seconds (3000 milliseconds) by default, meaning that every 3 seconds the extension requests the Jenkins CI Server for the current state of all jobs.
 You can set this to whatever interval is fine for you.
 
+3. Filter disabled jobs:
+If this setting is enabled, disabled jobs will not appear in the popup menu of the indicator.
