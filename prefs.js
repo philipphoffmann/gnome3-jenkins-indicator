@@ -65,7 +65,10 @@ function buildPrefsWidget() {
 	let labelAutoRefresh = new Gtk.Label({label: _("auto-refresh"), xalign: 0});
 	let inputAutoRefresh = new Gtk.Switch({active: settings.get_boolean("autorefresh")});
 
-	inputAutoRefresh.connect("notify::active", Lang.bind(this, function(input){	settings.set_boolean("autorefresh", input.get_active()); }));
+	inputAutoRefresh.connect("notify::active", Lang.bind(this, function(input){
+		settings.set_boolean("autorefresh", input.get_active());
+		inputAutorefreshInterval.set_editable(input.get_active());
+	}));
 
     hboxAutoRefresh.pack_start(labelAutoRefresh, true, true, 0);
 	hboxAutoRefresh.add(inputAutoRefresh);
@@ -74,9 +77,9 @@ function buildPrefsWidget() {
 	// auto refresh interval
 	let hboxAutorefreshInterval = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
 	let labelAutorefreshInterval = new Gtk.Label({label: _("auto-refresh interval (seconds)"), xalign: 0});
-	let inputAutorefreshInterval = new Gtk.Entry({ hexpand: true, text: ""+settings.get_int("autorefresh-interval") });
+	let inputAutorefreshInterval = new Gtk.SpinButton({ numeric: true, adjustment: new Gtk.Adjustment({value: settings.get_int("autorefresh-interval"), lower: 1, upper: 600, step_increment: 1}) });
 	
-	inputAutorefreshInterval.connect("changed", Lang.bind(this, function(input){ settings.set_int("autorefresh-interval", input.text); }));
+	inputAutorefreshInterval.connect("changed", Lang.bind(this, function(input){ settings.set_int("autorefresh-interval", input.get_value()); }));
 
     hboxAutorefreshInterval.pack_start(labelAutorefreshInterval, true, true, 0);
 	hboxAutorefreshInterval.add(inputAutorefreshInterval);
