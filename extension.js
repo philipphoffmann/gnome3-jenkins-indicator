@@ -96,7 +96,7 @@ const JobPopupMenuItem = new Lang.Class({
 	// update menu item text and icon
 	updateJob: function(job_state) {
 		this.label.text = job_state.name;
-		this.icon.style_class = mapColor2IconClass(job_state.color);
+		this.icon.icon_name = mapColor2IconClass(job_state.color);
 	}
 });
 
