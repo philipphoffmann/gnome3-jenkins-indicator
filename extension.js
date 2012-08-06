@@ -21,6 +21,9 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 
+// few static settings
+const iconSize = 16;
+
 let _indicator, settings;
 
 const _httpSession = new Soup.SessionAsync();
@@ -40,15 +43,15 @@ let jobStateRanks = [
 
 // mapping of jenkins job states to css icon classes, feel free to add more here
 function mapColor2IconClass(color) {
-	if( color=='aborted' ) 		return 'icon-grey';
-	if( color=='disabled' ) 	return 'icon-grey';
-	if( color=='blue' ) 		return 'icon-blue';
-	if( color=='yellow' ) 		return 'icon-yellow';
-	if( color=='red' ) 			return 'icon-red';
-	if( color=='blue_anime' ) 	return 'icon-clock';
-	if( color=='yellow_anime' ) return 'icon-clock';
-	if( color=='red_anime' ) 	return 'icon-clock';
-	else						{ global.log('unkown color: ' + color); return 'icon-grey'; }
+	if( color=='aborted' ) 		return 'grey';
+	if( color=='disabled' ) 	return 'grey';
+	if( color=='blue' ) 		return 'blue';
+	if( color=='yellow' ) 		return 'yellow';
+	if( color=='red' ) 			return 'red';
+	if( color=='blue_anime' ) 	return 'clock';
+	if( color=='yellow_anime' ) return 'clock';
+	if( color=='red_anime' ) 	return 'clock';
+	else						{ global.log('unkown color: ' + color); return 'grey'; }
 }
 
 function urlAppend(domain, uri)
@@ -68,7 +71,11 @@ const JobPopupMenuItem = new Lang.Class({
     	this.parent(params);
 
         this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
-        this.icon = new St.Icon({ icon_name: 'job-icon-'+text, icon_type: St.IconType.SYMBOLIC, style_class: icon_class });
+        //this.icon = new St.Icon({icon_name: 'job-icon-'+text, icon_type: St.IconType.SYMBOLIC, style_class: icon_class });
+        this.icon = new St.Icon({ 	icon_name: icon_class,
+                                	icon_type: St.IconType.FULLCOLOR,
+                                	icon_size: iconSize,
+                                	style_class: "system-status-icon" });
 		this.label = new St.Label({ text: text });
 		
         this.box.add(this.icon);
@@ -173,9 +180,10 @@ const JenkinsIndicator = new Lang.Class({
     	this.parent(0.25, "Jenkins Indicator", false );
     	
 		// start off with a blue icon
-        this._iconActor = new St.Icon({ icon_name: "gnome-jenkins-icon",
-                                        icon_type: St.IconType.SYMBOLIC,
-                                        style_class: mapColor2IconClass("blue") });
+        this._iconActor = new St.Icon({ icon_name: "blue",
+                                        icon_type: St.IconType.FULLCOLOR,
+                                        icon_size: iconSize,
+                                        style_class: "system-status-icon" });
         this.actor.add_actor(this._iconActor);
         
         // add jobs popup menu
@@ -267,7 +275,7 @@ const JenkinsIndicator = new Lang.Class({
 		}
 
 		// set new indicator icon representing current jenkins state
-		this._iconActor.style_class = mapColor2IconClass(overallJobState);
+		this._iconActor.icon_name = mapColor2IconClass(overallJobState);
 	},
 	
 	// filters jobs according to filter settings
@@ -325,12 +333,16 @@ const JenkinsIndicator = new Lang.Class({
 	}
 });
 
-function init() {
+function init(extensionMeta) {
 	// load localization dictionaries
 	Convenience.initLocalization();
 	
 	// load extension settings
 	settings = Convenience.getSettings();
+	
+	// add include path for icons
+	let theme = imports.gi.Gtk.IconTheme.get_default();
+    theme.append_search_path(extensionMeta.path + "/icons");
 }
 
 function enable() {
