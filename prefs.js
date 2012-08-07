@@ -1,5 +1,6 @@
 const Lang = imports.lang;
 const Gtk = imports.gi.Gtk;
+const Gdk = imports.gi.Gdk;
 
 const Gettext = imports.gettext.domain('jenkins-indicator');
 const _ = Gettext.gettext;

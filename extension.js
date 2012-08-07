@@ -29,31 +29,44 @@ let _indicator, settings;
 const _httpSession = new Soup.SessionAsync();
 Soup.Session.prototype.add_feature.call(_httpSession, new Soup.ProxyResolverDefault());
 
-// job state ranks to determine the style of the overall indicator (highest rank/lowest array index is prefered)
-let jobStateRanks = [
-	"red_anime",
-	"yellow_anime",
-	"blue_anime",
-	"red",
-	"yellow",
-	"blue",
-	"aborted",
-	"disabled"
-];
+// returns icons and state ranks for job states
+const jobStates = new function(){
+	// define job states (colors) and their corresponding icon, feel free to add more here
+	let states = [
+		{ color: 'red_anime', 		icon: 'clock' },
+		{ color: 'yellow_anime', 	icon: 'clock' },
+		{ color: 'blue_anime', 		icon: 'clock' },
+		{ color: 'red', 			icon: 'red' },
+		{ color: 'yellow', 			icon: 'yellow' },
+		{ color: 'blue', 			icon: 'blue' },
+		{ color: 'aborted', 		icon: 'grey' },
+		{ color: 'disabled', 		icon: 'grey' }
+	];
+	
+	// returns the rank of a job state, highest rank is 0, -1 means that the job state is unknown
+	// this is used to determine the state of the overall indicator which shows the state of the highest ranked job
+	this.getRank = function(job_color)
+	{
+		for( let i=0 ; i<states.length ; ++i )
+		{
+			if( job_color==states[i].color ) return i;
+		}
+		return -1;
+	};
+	
+	// returns the corresponding icon name of a job state 
+	this.getIcon = function(job_color)
+	{
+		for( let i=0 ; i<states.length ; ++i )
+		{
+			if( job_color==states[i].color ) return states[i].icon;
+		}
+		global.log('unkown color: ' + job_color);
+		return 'grey';
+	};
+};
 
-// mapping of jenkins job states to css icon classes, feel free to add more here
-function mapColor2IconClass(color) {
-	if( color=='aborted' ) 		return 'grey';
-	if( color=='disabled' ) 	return 'grey';
-	if( color=='blue' ) 		return 'blue';
-	if( color=='yellow' ) 		return 'yellow';
-	if( color=='red' ) 			return 'red';
-	if( color=='blue_anime' ) 	return 'clock';
-	if( color=='yellow_anime' ) return 'clock';
-	if( color=='red_anime' ) 	return 'clock';
-	else						{ global.log('unkown color: ' + color); return 'grey'; }
-}
-
+// append a uri to a domain regardless whether domains ends with '/' or not
 function urlAppend(domain, uri)
 {
 	if( domain.length>=1 )
@@ -67,12 +80,11 @@ const JobPopupMenuItem = new Lang.Class({
 	Name: 'JobPopupMenuItem',
 	Extends: PopupMenu.PopupBaseMenuItem,
 
-    _init: function(icon_class, text, params) {
+    _init: function(icon_name, text, params) {
     	this.parent(params);
 
         this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
-        //this.icon = new St.Icon({icon_name: 'job-icon-'+text, icon_type: St.IconType.SYMBOLIC, style_class: icon_class });
-        this.icon = new St.Icon({ 	icon_name: icon_class,
+        this.icon = new St.Icon({ 	icon_name: icon_name,
                                 	icon_type: St.IconType.FULLCOLOR,
                                 	icon_size: iconSize,
                                 	style_class: "system-status-icon" });
@@ -94,9 +106,9 @@ const JobPopupMenuItem = new Lang.Class({
 	},
 
 	// update menu item text and icon
-	updateJob: function(job_state) {
-		this.label.text = job_state.name;
-		this.icon.icon_name = mapColor2IconClass(job_state.color);
+	updateJob: function(job) {
+		this.label.text = job.name;
+		this.icon.icon_name = jobStates.getIcon(job.color);
 	}
 });
 
@@ -145,7 +157,7 @@ const JobPopupMenu = new Lang.Class({
 			// otherwise insert as new job
 			else
 			{
-				this.addMenuItem(new JobPopupMenuItem(mapColor2IconClass(new_jobs[i].color), new_jobs[i].name), i);
+				this.addMenuItem(new JobPopupMenuItem(jobStates.getIcon(new_jobs[i].color), new_jobs[i].name), i);
 			}
 		}
 		
@@ -179,8 +191,8 @@ const JenkinsIndicator = new Lang.Class({
     _init: function() {
     	this.parent(0.25, "Jenkins Indicator", false );
     	
-		// start off with a blue icon
-        this._iconActor = new St.Icon({ icon_name: "blue",
+		// start off with a blue overall indicator
+        this._iconActor = new St.Icon({ icon_name: jobStates.getIcon("blue"),
                                         icon_type: St.IconType.FULLCOLOR,
                                         icon_size: iconSize,
                                         style_class: "system-status-icon" });
@@ -246,36 +258,37 @@ const JenkinsIndicator = new Lang.Class({
 	},
 
 	// update indicator icon and popupmenu contents
-	_update: function(state) {
-		state = state || {jobs:[]};
+	_update: function(jenkinsState) {
+		jenkinsState 		= jenkinsState || {};
+		jenkinsState.jobs 	= jenkinsState.jobs || [];
 		
 		// filter jobs to be shown
-		state.jobs = this._filterJobs(state.jobs);
+		jenkinsState.jobs = this._filterJobs(jenkinsState.jobs);
 		
 		// update popup menu
-		this.menu.updateJobs(state.jobs);
+		this.menu.updateJobs(jenkinsState.jobs);
 		
-		// update indicator icon
+		// update overall indicator icon
 		
-		// default state of indicator
-		let overallJobState = "blue";
+		// default state of overall indicator
+		let overallState = "blue";
 
-		// set state to red if provided state is not valid
-		if( state==undefined || state==null || state.jobs==null || state.jobs.length<=0 )
-			overallJobState = "red";
+		// set state to red if there are no jobs
+		if( jenkinsState.jobs.length<=0 )
+			overallState = "red";
 		else
 		{
 			// determine jobs overall state for the indicator
-			for( let i=0 ; i<state.jobs.length ; ++i )
+			for( let i=0 ; i<jenkinsState.jobs.length ; ++i )
 			{
 				// set overall job state to highest ranked (most important) state
-				if( jobStateRanks.indexOf(state.jobs[i].color)>-1 && jobStateRanks.indexOf(state.jobs[i].color)<jobStateRanks.indexOf(overallJobState) )
-					overallJobState = state.jobs[i].color;
+				if( jobStates.getRank(jenkinsState.jobs[i].color)>-1 && jobStates.getRank(jenkinsState.jobs[i].color)<jobStates.getRank(overallState) )
+					overallState = jenkinsState.jobs[i].color;
 			}
 		}
 
-		// set new indicator icon representing current jenkins state
-		this._iconActor.icon_name = mapColor2IconClass(overallJobState);
+		// set new overall indicator icon representing current jenkins state
+		this._iconActor.icon_name = jobStates.getIcon(overallState);
 	},
 	
 	// filters jobs according to filter settings
