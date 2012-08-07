@@ -22,7 +22,7 @@ function init() {
 function buildFilterSetting(icon, label, setting_name)
 {
 	let hboxFilterJobs = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-	let iconFilterJobs = new Gtk.Image({file: extension.dir.get_path() + "/icons/" + icon + ".png"});
+	let iconFilterJobs = new Gtk.Image({file: extension.dir.get_path() + "/icons/prefs/" + icon + ".png"});
 	let labelFilterJobs = new Gtk.Label({label: label, xalign: 0});
 	let inputFilterJobs = new Gtk.Switch({active: settings.get_boolean(setting_name)});
 
