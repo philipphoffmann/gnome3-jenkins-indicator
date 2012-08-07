@@ -12,7 +12,7 @@ Feel free to mail me any problems, suggestions or feedback to mail@philipphoffma
 - Jenkins CI Server (with json api publicly available, see configuration)
 
 ## installation (automatically):
-I will make the extension publicly available on extensions.gnome.org. Until then you have to stick to installing the extension manually. 
+I will make the extension publicly available on [extensions.gnome.org](https://extensions.gnome.org). Until then you have to stick to installing the extension manually. 
 
 ## installation (manually):
 1. Copy all files to `~/.local/share/gnome-shell/extensions/gnome3-jenkins@philipphoffmann.de`
@@ -30,7 +30,7 @@ You can configure the following settings:
 Set its value to your Jenkins web frontend URL.
 You can check if the JSON API is available in your web browser by appending `/api/json` to your web frontend URL (which is what the extension does to get its information).
 
-### 2. The auto-refresh:
+### 2. Auto-refreshing:
 By default the extension automatically requests the Jenkins CI Server for the state of all jobs at a given interval.
 You can turn this feature off or on.
 You can also change the auto-refresh interval that the extensions uses to track changes.
