@@ -343,6 +343,9 @@ const JenkinsIndicator = new Lang.Class({
 	destroy: function() {
 		// destroy the mainloop used for updating the indicator
 		Mainloop.source_remove(this._mainloop);
+		
+		// call parent destroy function
+		this.parent();
 	}
 });
 
