@@ -3,5 +3,5 @@
 	"uuid": "jenkins-indicator@philipphoffmann.de",
 	"name": "Jenkins CI Server Indicator",
 	"description": "Provides an overview of all jobs on your Jenkins CI Server.",
-	"url": "https://github.com/philipphoffmann/gnome3-jenkins-indicator"
+	"url": "http://www.philipphoffmann.de/2012/08/gnome-3-shell-extension-jenkins-ci-server-indicator/"
 }
