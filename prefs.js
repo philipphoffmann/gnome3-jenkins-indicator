@@ -3,7 +3,6 @@ const Gtk = imports.gi.Gtk;
 
 const Gettext = imports.gettext.domain('jenkins-indicator');
 const _ = Gettext.gettext;
-const N_ = function(e) { return e; };
 
 let extension = imports.misc.extensionUtils.getCurrentExtension();
 let convenience = extension.imports.convenience;
