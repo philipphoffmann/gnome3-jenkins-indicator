@@ -1,6 +1,5 @@
 const Lang = imports.lang;
 const Gtk = imports.gi.Gtk;
-const Gdk = imports.gi.Gdk;
 
 const Gettext = imports.gettext.domain('jenkins-indicator');
 const _ = Gettext.gettext;
@@ -23,7 +22,7 @@ function init() {
 function buildFilterSetting(icon, label, setting_name)
 {
 	let hboxFilterJobs = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-	let iconFilterJobs = new Gtk.Image({file: extension.dir.get_path() + "/icons/" + icon + ".svg"});
+	let iconFilterJobs = new Gtk.Image({file: extension.dir.get_path() + "/icons/prefs/" + icon + ".png"});
 	let labelFilterJobs = new Gtk.Label({label: label, xalign: 0});
 	let inputFilterJobs = new Gtk.Switch({active: settings.get_boolean(setting_name)});
 
