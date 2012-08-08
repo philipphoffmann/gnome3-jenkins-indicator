@@ -234,7 +234,7 @@ const JenkinsIndicator = new Lang.Class({
         
         // add jobs popup menu
 		this.setMenu(new JobPopupMenu(this.actor, 0.25, St.Side.TOP));
-		
+
 		// add seperator to popup menu
 		this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 		
@@ -358,7 +358,7 @@ const JenkinsIndicator = new Lang.Class({
 		this.menu.addMenuItem(new PopupMenu.PopupMenuItem(_("Error") + ": " + _(text), {style_class: 'error'}), 0);
 		
 		// set indicator state to error
-		this._iconActor.style_class = jobStates.getIcon(jobStates.getErrorState());
+		this._iconActor.icon_name = jobStates.getIcon(jobStates.getErrorState());
 	},
 	
 	// destroys the indicator
