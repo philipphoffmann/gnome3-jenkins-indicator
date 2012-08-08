@@ -63,5 +63,10 @@
 			<summary>show aborted jobs</summary>
 			<description>If enabled, aborted jobs will appear in the popup menu. Disable to hide aborted jobs.</description>
 		</key>
+		<key type="b" name="green-balls-plugin">
+			<default>false</default>
+			<summary>show aborted jobs</summary>
+      <description>If enabled, green icon is used instead of the blune one.</description>
+    </key>
 	</schema>
 </schemalist>

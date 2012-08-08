@@ -30,7 +30,7 @@ const _httpSession = new Soup.SessionAsync();
 Soup.Session.prototype.add_feature.call(_httpSession, new Soup.ProxyResolverDefault());
 
 // returns icons and state ranks for job states
-const jobStates = new function(){
+const jobStates = new function() {
 	// define job states (colors) and their corresponding icon, feel free to add more here
 	// this array is also used to determine the rank of a job state, low array index refers to a high rank
 	// filter refers to the name of the filter setting (whether to show matching jobs or not)
@@ -46,7 +46,7 @@ const jobStates = new function(){
 		{ color: 'aborted', 		icon: 'grey', 	filter: 'show-aborted-jobs'},
 		{ color: 'disabled', 		icon: 'grey', 	filter: 'show-disabled-jobs' }
 	];
-	
+
 	// returns the rank of a job state, highest rank is 0, -1 means that the job state is unknown
 	// this is used to determine the state of the overall indicator which shows the state of the highest ranked job
 	this.getRank = function(job_color)
@@ -57,20 +57,23 @@ const jobStates = new function(){
 		}
 		return -1;
 	};
-	
-	// returns the corresponding icon name of a job state 
+
+	// returns the corresponding icon name of a job state
 	this.getIcon = function(job_color)
 	{
 		for( let i=0 ; i<states.length ; ++i )
 		{
-			if( job_color==states[i].color ) return states[i].icon;
+			if( job_color==states[i].color ) {
+        global.log(states[i].color + "  " + states[i].icon);
+        return states[i].icon;
+      }
 		}
-		// if job color is unknown, use the grey icon 
+		// if job color is unknown, use the grey icon
 		global.log('unkown color: ' + job_color);
 		return 'grey';
 	};
-	
-	// returns the corresponding icon name of a job state 
+
+	// returns the corresponding icon name of a job state
 	this.getFilter = function(job_color)
 	{
 		for( let i=0 ; i<states.length ; ++i )
@@ -81,19 +84,35 @@ const jobStates = new function(){
 		global.log('unkown color: ' + job_color);
 		return 'show-disabled-jobs';
 	};
-	
+
 	// returns the default job state to use for overall indicator
 	this.getDefaultState = function()
 	{
 		// return lowest ranked job state
 		return states[states.length-1].color;
 	};
-	
+
 	// return the color of the error state for the overall indicator
 	this.getErrorState = function()
 	{
 		return "red";
 	};
+
+	this.toggleGreenBallPlugin = function() {
+		global.log("toggle");
+		for( let i=0 ; i<states.length ; i++ )
+		{
+			global.log(states[i].color + " " + states[i].icon);
+			if( states[i].color=='blue') {
+				if (states[i].icon == 'blue') {
+					states[i].icon = 'green';
+				} else {
+					states[i].icon = 'blue';
+				}
+				break;
+			}
+		}
+	}
 };
 
 // append a uri to a domain regardless whether domains ends with '/' or not
@@ -112,24 +131,23 @@ const JobPopupMenuItem = new Lang.Class({
 
     _init: function(job, params) {
     	this.parent(params);
-
         this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
         this.icon = new St.Icon({ 	icon_name: jobStates.getIcon(job.color),
                                 	icon_type: St.IconType.FULLCOLOR,
                                 	icon_size: iconSize,
                                 	style_class: "system-status-icon" });
 		this.label = new St.Label({ text: job.name });
-		
+
         this.box.add(this.icon);
         this.box.add(this.label);
         this.addActor(this.box);
 	},
-	
+
 	// clicking a job menu item opens the job in web frontend with default browser
 	activate: function() {
 		Gio.app_info_launch_default_for_uri(urlAppend(settings.get_string("jenkins-url"), 'job/' + this.getJobName()), global.create_app_launch_context());
 	},
-	
+
 	// return job name
 	getJobName: function() {
 		return this.label.text;
@@ -140,7 +158,7 @@ const JobPopupMenuItem = new Lang.Class({
 		// notification for finished job if job icon used to be clock (if enabled in settings)
 		if( settings.get_boolean('notification-finished-jobs') && this.icon.icon_name=='clock' && jobStates.getIcon(job.color)!='clock' )
 			Main.notify(_('Job finished'), _('Your Jenkins job %s just finished building.').format(job.name));
-		
+
 		this.label.text = job.name;
 		this.icon.icon_name = jobStates.getIcon(job.color);
 	}
@@ -150,11 +168,11 @@ const JobPopupMenuItem = new Lang.Class({
 const JobPopupMenu = new Lang.Class({
 	Name: 'JobPopupMenu',
 	Extends: PopupMenu.PopupMenu,
-	
+
 	_init: function(sourceActor, arrowAlignment, arrowSide) {
 		this.parent(sourceActor, arrowAlignment, arrowSide);
 	},
-	
+
 	// insert, delete and update all job items in popup menu
 	updateJobs: function(new_jobs) {
 		// provide error message if no jobs were found
@@ -163,11 +181,11 @@ const JobPopupMenu = new Lang.Class({
 			_indicator.showError("no jobs found");
 			return;
 		}
-		
+
 		// remove previous error message
 		if( this._getMenuItems().length==3 && this._getMenuItems()[0] instanceof PopupMenu.PopupMenuItem )
 			this._getMenuItems()[0].destroy();
-		
+
 		// check all new job items
 		for( let i=0 ; i<new_jobs.length ; ++i )
 		{
@@ -182,7 +200,7 @@ const JobPopupMenu = new Lang.Class({
 					break;
 				}
 			}
-			
+
 			// update matched job
 			if( matching_job!=null )
 			{
@@ -194,7 +212,7 @@ const JobPopupMenu = new Lang.Class({
 				this.addMenuItem(new JobPopupMenuItem(new_jobs[i]), i);
 			}
 		}
-		
+
 		// check for jobs that need to be removed
 		for( let j = 0 ; j<this._getMenuItems().length-2 ; ++j )
 		{
@@ -207,7 +225,7 @@ const JobPopupMenu = new Lang.Class({
 					break;
 				}
 			}
-			
+
 			// remove job if not found
 			if( !job_found )
 			{
@@ -224,20 +242,20 @@ const JenkinsIndicator = new Lang.Class({
 
     _init: function() {
     	this.parent(0.25, "Jenkins Indicator", false );
-    	
+
 		// start off with a blue overall indicator
         this._iconActor = new St.Icon({ icon_name: jobStates.getIcon(jobStates.getDefaultState()),
                                         icon_type: St.IconType.FULLCOLOR,
                                         icon_size: iconSize,
                                         style_class: "system-status-icon" });
         this.actor.add_actor(this._iconActor);
-        
+
         // add jobs popup menu
 		this.setMenu(new JobPopupMenu(this.actor, 0.25, St.Side.TOP));
 
 		// add seperator to popup menu
 		this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-		
+
 		// add link to settings dialog
 		this._menu_settings = new PopupMenu.PopupMenuItem(_("settings"));
 		this._menu_settings.connect("activate", function(){
@@ -248,16 +266,16 @@ const JenkinsIndicator = new Lang.Class({
       			}
 		});
 		this.menu.addMenuItem(this._menu_settings);
-        
+
         // refresh when indicator is clicked
         this.actor.connect("button-press-event", Lang.bind(this, this.request));
-        
+
         // enter main loop for refreshing
         this._mainloop = Mainloop.timeout_add(settings.get_int("autorefresh-interval")*1000, Lang.bind(this, function(){
         	// request new job states if auto-refresh is enabled
         	if( settings.get_boolean("autorefresh") )
         		this.request();
-        	
+
         	// returning true is important for restarting the mainloop after timeout
         	return true;
         }));
@@ -280,7 +298,7 @@ const JenkinsIndicator = new Lang.Class({
 				{
 					// parse json
 					let jenkinsState = JSON.parse(request.response_body.data);
-					
+
 					// update indicator icon and popupmenu contents
 					_indicator._update(jenkinsState);
 				}
@@ -297,15 +315,15 @@ const JenkinsIndicator = new Lang.Class({
 	_update: function(jenkinsState) {
 		jenkinsState 		= jenkinsState || {};
 		jenkinsState.jobs 	= jenkinsState.jobs || [];
-		
+
 		// filter jobs to be shown
 		jenkinsState.jobs = this._filterJobs(jenkinsState.jobs);
-		
+
 		// update popup menu
 		this.menu.updateJobs(jenkinsState.jobs);
-		
+
 		// update overall indicator icon
-		
+
 		// default state of overall indicator
 		let overallState = jobStates.getDefaultState();
 
@@ -326,11 +344,11 @@ const JenkinsIndicator = new Lang.Class({
 		// set new overall indicator icon representing current jenkins state
 		this._iconActor.icon_name = jobStates.getIcon(overallState);
 	},
-	
+
 	// filters jobs according to filter settings
 	_filterJobs: function(jobs) {
 		jobs = jobs || [];
-		
+
 		for( var i=0 ; i<jobs.length ; ++i )
 		{
 			// filter job if user decided not to show jobs with this state (in settings dialog)
@@ -340,10 +358,10 @@ const JenkinsIndicator = new Lang.Class({
 				--i;
 			}
 		}
-		
+
 		return jobs;
 	},
-	
+
 	// displays an error message in the popup menu
 	showError: function(text) {
 		// set default error message if none provided
@@ -355,19 +373,19 @@ const JenkinsIndicator = new Lang.Class({
 			for( let i=0 ; i<this.menu._getMenuItems().length-1 ; ++i )
 				this.menu._getMenuItems()[0].destroy();
 		}
-		
+
 		// show error message in popup menu
 		this.menu.addMenuItem(new PopupMenu.PopupMenuItem(_("Error") + ": " + _(text), {style_class: 'error'}), 0);
-		
+
 		// set indicator state to error
 		this._iconActor.icon_name = jobStates.getIcon(jobStates.getErrorState());
 	},
-	
+
 	// destroys the indicator
 	destroy: function() {
 		// destroy the mainloop used for updating the indicator
 		Mainloop.source_remove(this._mainloop);
-		
+
 		// call parent destroy function
 		this.parent();
 	}
@@ -376,10 +394,15 @@ const JenkinsIndicator = new Lang.Class({
 function init(extensionMeta) {
 	// load localization dictionaries
 	Convenience.initLocalization();
-	
+
 	// load extension settings
 	settings = Convenience.getSettings();
-	
+
+	if (settings.get_boolean('green-balls-plugin')) {
+		jobStates.toggleGreenBallPlugin();
+	}
+	settings.connect('changed::green-balls-plugin', Lang.bind(this, jobStates.toggleGreenBallPlugin));
+
 	// add include path for icons
 	let theme = imports.gi.Gtk.IconTheme.get_default();
     theme.append_search_path(extensionMeta.path + "/icons");
@@ -387,7 +410,7 @@ function init(extensionMeta) {
 
 function enable() {
 	// create indicator and add to status area
-	_indicator = new JenkinsIndicator;	
+	_indicator = new JenkinsIndicator;
     Main.panel.addToStatusArea("jenkins-indicator", _indicator);
 }
 
