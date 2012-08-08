@@ -12,12 +12,13 @@ Feel free to mail me any problems, suggestions or feedback to mail@philipphoffma
 - Jenkins CI Server (with json api publicly available, see configuration)
 
 ## installation (automatically):
-I will make the extension publicly available on [extensions.gnome.org](https://extensions.gnome.org). Until then you have to stick to installing the extension manually. 
+I will make the extension publicly available on [extensions.gnome.org](https://extensions.gnome.org).
+Until then you have to stick to installing the extension manually. 
 
 ## installation (manually):
-1. Copy all files to `~/.local/share/gnome-shell/extensions/gnome3-jenkins@philipphoffmann.de`
+1. Copy all files to `~/.local/share/gnome-shell/extensions/jenkins-indicator@philipphoffmann.de`
 
-2. Assuming that you have the gnome shell running hit Alt+F2, type `r` or `restart` (without the ticks), hit enter. the shell should now restart.
+2. Assuming that you have the gnome shell running hit Alt+F2, type `r` or `restart` (without the ticks), hit enter. The shell should now restart.
 
 If everything is set up correctly you should be able to click the extension icon to bring up a popup menu with all your Jenkins jobs. 
 
