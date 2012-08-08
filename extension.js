@@ -32,6 +32,7 @@ Soup.Session.prototype.add_feature.call(_httpSession, new Soup.ProxyResolverDefa
 // returns icons and state ranks for job states
 const jobStates = new function(){
 	// define job states (colors) and their corresponding icon, feel free to add more here
+	// this array is also used to determine the rank of a job state, low array index refers to a high rank
 	let states = [
 		{ color: 'red_anime', 		icon: 'clock' },
 		{ color: 'yellow_anime', 	icon: 'clock' },
@@ -39,6 +40,7 @@ const jobStates = new function(){
 		{ color: 'red', 			icon: 'red' },
 		{ color: 'yellow', 			icon: 'yellow' },
 		{ color: 'blue', 			icon: 'blue' },
+		{ color: 'grey', 			icon: 'grey' },
 		{ color: 'aborted', 		icon: 'grey' },
 		{ color: 'disabled', 		icon: 'grey' }
 	];
@@ -312,6 +314,7 @@ const JenkinsIndicator = new Lang.Class({
 				(!settings.get_boolean("show-successful-jobs") && jobs[i].color=="blue") ||
 				(!settings.get_boolean("show-unstable-jobs") && jobs[i].color=="yellow") ||
 				(!settings.get_boolean("show-failed-jobs") && jobs[i].color=="red") ||
+				(!settings.get_boolean("show-neverbuilt-jobs") && jobs[i].color=="grey") ||
 				(!settings.get_boolean("show-disabled-jobs") && jobs[i].color=="disabled") ||
 				(!settings.get_boolean("show-aborted-jobs") && jobs[i].color=="aborted")
 			)

@@ -48,6 +48,11 @@
 			<summary>show failed jobs</summary>
 			<description>If enabled, jobs with the last build not being successful will appear in the popup menu. Disable to hide failed jobs.</description>
 		</key>
+		<key type="b" name="show-neverbuilt-jobs">
+			<default>false</default>
+			<summary>show never built jobs</summary>
+			<description>If enabled, never built jobs will appear in the popup menu. Disable to hide never built jobs.</description>
+		</key>
 		<key type="b" name="show-disabled-jobs">
 			<default>false</default>
 			<summary>show disabled jobs</summary>

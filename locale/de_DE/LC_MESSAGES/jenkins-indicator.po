@@ -59,6 +59,9 @@ msgstr "Instabile Jobs anzeigen"
 msgid "show failed jobs"
 msgstr "Fehlgeschlagene Jobs anzeigen"
 
+msgid "show never built jobs"
+msgstr "Noch nie gestartete Jobs anzeigen"
+
 msgid "show disabled jobs"
 msgstr "Inaktive Jobs anzeigen"
 

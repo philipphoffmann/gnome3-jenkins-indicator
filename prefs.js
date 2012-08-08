@@ -135,6 +135,9 @@ function buildPrefsWidget() {
 		vboxFilters.add(buildFilterSetting("red", _('show failed jobs'), 'show-failed-jobs'));
 		
 		// show disabled jobs
+		vboxFilters.add(buildFilterSetting("grey", _('show never built jobs'), 'show-neverbuilt-jobs'));
+		
+		// show disabled jobs
 		vboxFilters.add(buildFilterSetting("grey", _('show disabled jobs'), 'show-disabled-jobs'));
 		
 		// show aborted jobs
