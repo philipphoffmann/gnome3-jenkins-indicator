@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <schemalist gettext-domain="gnome3-jenkins">
 	<schema path="/org/gnome/shell/extensions/jenkins-indicator/" id="org.gnome.shell.extensions.jenkins-indicator">
-		<!-- jenkins conncetion -->
+		<!-- jenkins connection -->
 		<key type="s" name="jenkins-url">
 			<default>'http://localhost:8080/'</default>
 			<summary>Jenkins CI Server web frontend URL</summary>
@@ -18,6 +18,13 @@
 			<default>3</default>
 			<summary>auto-refresh interval (seconds)</summary>
 			<description>This is the interval in seconds in which the extensions checks the Jenkins CI Server for the jobs state.</description>
+		</key>
+		
+		<!-- notification settings -->
+		<key type="b" name="notification-finished-jobs">
+			<default>true</default>
+			<summary>notification for finished jobs</summary>
+			<description>If enabled, you will be notified in the message tray once a job has finished.</description>
 		</key>
 		
 		<!-- job filters -->

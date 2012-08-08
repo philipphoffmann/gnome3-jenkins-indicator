@@ -107,6 +107,10 @@ const JobPopupMenuItem = new Lang.Class({
 
 	// update menu item text and icon
 	updateJob: function(job) {
+		// notification for finished job if job icon used to be clock (if enabled in settings)
+		if( settings.get_boolean('notification-finished-jobs') && this.icon.icon_name=='clock' && jobStates.getIcon(job.color)!='clock' )
+			Main.notify(_('Job finished'), _('Your Jenkins job %s just finished building.').format(job.name));
+		
 		this.label.text = job.name;
 		this.icon.icon_name = jobStates.getIcon(job.color);
 	}

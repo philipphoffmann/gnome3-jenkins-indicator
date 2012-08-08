@@ -94,6 +94,28 @@ function buildPrefsWidget() {
 	vbox.add(vboxAutoRefresh);
 	
 	
+	// *** notifications ***
+	let labelNotifications = new Gtk.Label({ label: "<b>" + _("notifications") + "</b>", use_markup: true, xalign: 0 });
+	vbox.add(labelNotifications);
+	
+	let vboxNotifications = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, margin_left: 20, margin_bottom: 15 });
+	
+		// notification for finished jobs
+		let hboxNotificationFinishedJobs = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+		let labelNotificationFinishedJobs = new Gtk.Label({label: _("notification for finished jobs"), xalign: 0});
+		let inputNotificationFinishedJobs = new Gtk.Switch({active: settings.get_boolean("notification-finished-jobs")});
+	
+		inputNotificationFinishedJobs.connect("notify::active", Lang.bind(this, function(input){
+			settings.set_boolean("notification-finished-jobs", input.get_active());
+		}));
+	
+	    hboxNotificationFinishedJobs.pack_start(labelNotificationFinishedJobs, true, true, 0);
+		hboxNotificationFinishedJobs.add(inputNotificationFinishedJobs);
+		vboxNotifications.add(hboxNotificationFinishedJobs);
+
+	vbox.add(vboxNotifications);
+	
+	
 	// *** job filters ***
 	let labelPreferences = new Gtk.Label({ label: "<b>" + _("job filters") + "</b>", use_markup: true, xalign: 0 });
 	vbox.add(labelPreferences);

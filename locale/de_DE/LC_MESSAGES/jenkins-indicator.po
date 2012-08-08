@@ -19,6 +19,12 @@ msgstr "Keine Jobs gefunden"
 msgid "invalid Jenkins CI Server web frontend URL"
 msgstr "ungültige Jenkins CI Server Web Frontend URL"
 
+msgid "Job finished"
+msgstr "Job abgeschlossen"
+
+msgid "Your Jenkins job %s just finished building."
+msgstr "Der Build für den Job %s ist abgeschlossen."
+
 # settings dialog translations
 msgid "Jenkins connection"
 msgstr "Jenkins Verbindung"
@@ -31,6 +37,12 @@ msgstr "Einstellungen"
 
 msgid "auto-refresh interval (seconds)"
 msgstr "Interval für autom. Aktualisierung (Sekunden)"
+
+msgid "notifications"
+msgstr "Benachrichtigungen"
+
+msgid "notification for finished jobs"
+msgstr "Benachrichtigung für abgeschlossene Jobs"
 
 msgid "job filters"
 msgstr "Job Filter"
