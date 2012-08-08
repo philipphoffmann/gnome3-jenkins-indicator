@@ -33,16 +33,18 @@ Soup.Session.prototype.add_feature.call(_httpSession, new Soup.ProxyResolverDefa
 const jobStates = new function(){
 	// define job states (colors) and their corresponding icon, feel free to add more here
 	// this array is also used to determine the rank of a job state, low array index refers to a high rank
+	// filter refers to the name of the filter setting (whether to show matching jobs or not)
 	let states = [
-		{ color: 'red_anime', 		icon: 'clock' },
-		{ color: 'yellow_anime', 	icon: 'clock' },
-		{ color: 'blue_anime', 		icon: 'clock' },
-		{ color: 'red', 			icon: 'red' },
-		{ color: 'yellow', 			icon: 'yellow' },
-		{ color: 'blue', 			icon: 'blue' },
-		{ color: 'grey', 			icon: 'grey' },
-		{ color: 'aborted', 		icon: 'grey' },
-		{ color: 'disabled', 		icon: 'grey' }
+		{ color: 'red_anime', 		icon: 'clock', 	filter: 'show-running-jobs' },
+		{ color: 'yellow_anime', 	icon: 'clock', 	filter: 'show-running-jobs' },
+		{ color: 'blue_anime', 		icon: 'clock', 	filter: 'show-running-jobs' },
+		{ color: 'grey_anime', 		icon: 'clock', 	filter: 'show-running-jobs' },
+		{ color: 'red', 			icon: 'red', 	filter: 'show-failed-jobs' },
+		{ color: 'yellow', 			icon: 'yellow', filter: 'show-unstable-jobs' },
+		{ color: 'blue', 			icon: 'blue', 	filter: 'show-successful-jobs' },
+		{ color: 'grey', 			icon: 'grey', 	filter: 'show-neverbuilt-jobs' },
+		{ color: 'aborted', 		icon: 'grey', 	filter: 'show-aborted-jobs'},
+		{ color: 'disabled', 		icon: 'grey', 	filter: 'show-disabled-jobs' }
 	];
 	
 	// returns the rank of a job state, highest rank is 0, -1 means that the job state is unknown
@@ -63,8 +65,21 @@ const jobStates = new function(){
 		{
 			if( job_color==states[i].color ) return states[i].icon;
 		}
+		// if job color is unknown, use the grey icon 
 		global.log('unkown color: ' + job_color);
 		return 'grey';
+	};
+	
+	// returns the corresponding icon name of a job state 
+	this.getFilter = function(job_color)
+	{
+		for( let i=0 ; i<states.length ; ++i )
+		{
+			if( job_color==states[i].color ) return states[i].filter;
+		}
+		// if job color is unknown, use the filter setting for disabled jobs
+		global.log('unkown color: ' + job_color);
+		return 'show-disabled-jobs';
 	};
 };
 
@@ -303,21 +318,8 @@ const JenkinsIndicator = new Lang.Class({
 		
 		for( var i=0 ; i<jobs.length ; ++i )
 		{
-			// forget about filtered jobs if respective filter is enabled
-			if(
-				(!settings.get_boolean("show-running-jobs") && (
-					jobs[i].color=="blue_anime" || 
-					jobs[i].color=="yellow_anime" ||
-					jobs[i].color=="red_anime" ||
-					jobs[i].color=="grey_anime"
-				)) ||
-				(!settings.get_boolean("show-successful-jobs") && jobs[i].color=="blue") ||
-				(!settings.get_boolean("show-unstable-jobs") && jobs[i].color=="yellow") ||
-				(!settings.get_boolean("show-failed-jobs") && jobs[i].color=="red") ||
-				(!settings.get_boolean("show-neverbuilt-jobs") && jobs[i].color=="grey") ||
-				(!settings.get_boolean("show-disabled-jobs") && jobs[i].color=="disabled") ||
-				(!settings.get_boolean("show-aborted-jobs") && jobs[i].color=="aborted")
-			)
+			// filter job if user decided not to show jobs with this state (in settings dialog)
+			if( !settings.get_boolean(jobStates.getFilter(jobs[i].color)) )
 			{
 				jobs.splice(i,1);
 				--i;
