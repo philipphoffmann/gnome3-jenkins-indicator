@@ -88,6 +88,12 @@ const jobStates = new function(){
 		// return lowest ranked job state
 		return states[states.length-1].color;
 	};
+	
+	// return the color of the error state for the overall indicator
+	this.getErrorState = function()
+	{
+		return "red";
+	};
 };
 
 // append a uri to a domain regardless whether domains ends with '/' or not
@@ -303,7 +309,7 @@ const JenkinsIndicator = new Lang.Class({
 
 		// set state to red if there are no jobs
 		if( jenkinsState.jobs.length<=0 )
-			overallState = "red";
+			overallState = jobStates.getErrorState();
 		else
 		{
 			// determine jobs overall state for the indicator
@@ -351,8 +357,8 @@ const JenkinsIndicator = new Lang.Class({
 		// show error message in popup menu
 		this.menu.addMenuItem(new PopupMenu.PopupMenuItem(_("Error") + ": " + _(text), {style_class: 'error'}), 0);
 		
-		// set indicator state to red
-		this._iconActor.style_class = "icon-red";
+		// set indicator state to error
+		this._iconActor.style_class = jobStates.getIcon(jobStates.getErrorState());
 	},
 	
 	// destroys the indicator
