@@ -110,15 +110,15 @@ const JobPopupMenuItem = new Lang.Class({
 	Name: 'JobPopupMenuItem',
 	Extends: PopupMenu.PopupBaseMenuItem,
 
-    _init: function(icon_name, text, params) {
+    _init: function(job, params) {
     	this.parent(params);
 
         this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
-        this.icon = new St.Icon({ 	icon_name: icon_name,
+        this.icon = new St.Icon({ 	icon_name: jobStates.getIcon(job.color),
                                 	icon_type: St.IconType.FULLCOLOR,
                                 	icon_size: iconSize,
                                 	style_class: "system-status-icon" });
-		this.label = new St.Label({ text: text });
+		this.label = new St.Label({ text: job.name });
 		
         this.box.add(this.icon);
         this.box.add(this.label);
@@ -191,7 +191,7 @@ const JobPopupMenu = new Lang.Class({
 			// otherwise insert as new job
 			else
 			{
-				this.addMenuItem(new JobPopupMenuItem(jobStates.getIcon(new_jobs[i].color), new_jobs[i].name), i);
+				this.addMenuItem(new JobPopupMenuItem(new_jobs[i]), i);
 			}
 		}
 		
