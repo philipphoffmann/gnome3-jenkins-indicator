@@ -81,6 +81,13 @@ const jobStates = new function(){
 		global.log('unkown color: ' + job_color);
 		return 'show-disabled-jobs';
 	};
+	
+	// returns the default job state to use for overall indicator
+	this.getDefaultState = function()
+	{
+		// return lowest ranked job state
+		return states[states.length-1].color;
+	};
 };
 
 // append a uri to a domain regardless whether domains ends with '/' or not
@@ -213,7 +220,7 @@ const JenkinsIndicator = new Lang.Class({
     	this.parent(0.25, "Jenkins Indicator", false );
     	
 		// start off with a blue overall indicator
-        this._iconActor = new St.Icon({ icon_name: jobStates.getIcon("blue"),
+        this._iconActor = new St.Icon({ icon_name: jobStates.getIcon(jobStates.getDefaultState()),
                                         icon_type: St.IconType.FULLCOLOR,
                                         icon_size: iconSize,
                                         style_class: "system-status-icon" });
@@ -292,7 +299,7 @@ const JenkinsIndicator = new Lang.Class({
 		// update overall indicator icon
 		
 		// default state of overall indicator
-		let overallState = "blue";
+		let overallState = jobStates.getDefaultState();
 
 		// set state to red if there are no jobs
 		if( jenkinsState.jobs.length<=0 )
