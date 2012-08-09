@@ -437,10 +437,10 @@ const JenkinsIndicator = new Lang.Class({
 
 function init(extensionMeta) {
 	// load localization dictionaries
-	Convenience.initLocalization();
+	Convenience.initTranslations('jenkins-indicator');
 
 	// load extension settings
-	settings = Convenience.getSettings();
+	settings = Convenience.getSettings('org.gnome.shell.extensions.jenkins-indicator');
 
 	// start off with green icons if green balls plugin is enabled
 	if (settings.get_boolean('green-balls-plugin'))

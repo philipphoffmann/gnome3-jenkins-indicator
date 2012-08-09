@@ -13,8 +13,8 @@ const SETTINGS_SCHEMA = 'org.gnome.shell.extensions.jenkins-indicator';
 const SETTINGS_JENKINS_URL_KEY = 'jenkins-url';
 
 function init() {
-    convenience.initLocalization(extension);
-    settings = convenience.getSettings(extension, SETTINGS_SCHEMA);
+    convenience.initTranslations('jenkins-indicator');
+    settings = convenience.getSettings(SETTINGS_SCHEMA);
 }
 
 // builds a line (icon + label + switch) for a setting
