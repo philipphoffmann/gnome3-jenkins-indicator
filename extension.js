@@ -99,10 +99,8 @@ const jobStates = new function() {
 	};
 
 	this.toggleGreenBallPlugin = function() {
-		global.log("toggle");
 		for( let i=0 ; i<states.length ; i++ )
 		{
-			global.log(states[i].color + " " + states[i].icon);
 			if( states[i].color=='blue') {
 				if (states[i].icon == 'blue') {
 					states[i].icon = 'green';
