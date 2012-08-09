@@ -68,5 +68,5 @@ msgstr "Inaktive Jobs anzeigen"
 msgid "show aborted jobs"
 msgstr "Abgebrochene Jobs anzeigen"
 
-msgid "'Green Baals' plugin"
-msgstr "'Green Baals' plugin"
+msgid "'Green Balls' plugin"
+msgstr "'Green Balls' plugin"
