@@ -11,6 +11,10 @@ const Shell = imports.gi.Shell;
 const Soup = imports.gi.Soup;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
+const MessageTray = imports.ui.messageTray;
+
+// this is the messagetray of the current session
+const SessionMessageTray = imports.ui.main.messageTray;
 
 // set text domain for localized strings
 const Gettext = imports.gettext.domain('jenkins-indicator');
@@ -122,6 +126,36 @@ function urlAppend(domain, uri)
 		return uri;
 }
 
+// source for handling job notifications 
+const JobNotificationSource = new Lang.Class({
+    Name: 'JobNotificationSource',
+    Extends: MessageTray.Source,
+
+    _init: function() {
+    	// set notification source title
+        this.parent(_("Jenkins jobs"));
+
+		// set notification source icon
+        this._setSummaryIcon(this.createNotificationIcon());
+        
+        // add myself to the message try
+        SessionMessageTray.add(this);
+    },
+
+	// set jenkins logo for notification source icon
+    createNotificationIcon: function() {
+        return new St.Icon({ icon_name: 'headshot',
+                             icon_type: St.IconType.FULLCOLOR,
+                             icon_size: this.ICON_SIZE });
+    },
+
+	// gets called when a notification is clicked
+    open: function(notification) {
+    	// close the clicked notification
+        notification.destroy();
+    }
+});
+
 // represent a job in the popup menu with icon and job name
 const JobPopupMenuItem = new Lang.Class({
 	Name: 'JobPopupMenuItem',
@@ -155,8 +189,18 @@ const JobPopupMenuItem = new Lang.Class({
 	updateJob: function(job) {
 		// notification for finished job if job icon used to be clock (if enabled in settings)
 		if( settings.get_boolean('notification-finished-jobs') && this.icon.icon_name=='clock' && jobStates.getIcon(job.color)!='clock' )
-			Main.notify(_('Job finished'), _('Your Jenkins job %s just finished building.').format(job.name));
-
+		{
+			// create notification for the finished job
+		    let notification = new MessageTray.Notification(_indicator.notification_source, _('Job finished'), _('Your Jenkins job %s just finished building.').format(job.name));
+		    
+		    // use transient messages if persistent messages are disabled in settings
+		    if( settings.get_boolean('stack-notifications')==false )
+		    	notification.setTransient(true);
+		    
+		    // notify the user
+		    _indicator.notification_source.notify(notification);
+		}
+		
 		this.label.text = job.name;
 		this.icon.icon_name = jobStates.getIcon(job.color);
 	}
@@ -267,6 +311,9 @@ const JenkinsIndicator = new Lang.Class({
 
         // refresh when indicator is clicked
         this.actor.connect("button-press-event", Lang.bind(this, this.request));
+
+        // create a new source for notifications
+        this.notification_source = new JobNotificationSource();
 
         // enter main loop for refreshing
         this._mainloop = Mainloop.timeout_add(settings.get_int("autorefresh-interval")*1000, Lang.bind(this, function(){

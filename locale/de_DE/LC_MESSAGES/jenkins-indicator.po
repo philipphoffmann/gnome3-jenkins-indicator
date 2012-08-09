@@ -19,6 +19,9 @@ msgstr "Keine Jobs gefunden"
 msgid "invalid Jenkins CI Server web frontend URL"
 msgstr "ungültige Jenkins CI Server Web Frontend URL"
 
+msgid "Jenkins jobs"
+msgstr "Jenkins Jobs"
+
 msgid "Job finished"
 msgstr "Job abgeschlossen"
 
@@ -32,6 +35,9 @@ msgstr "Jenkins Verbindung"
 msgid "Jenkins CI Server web frontend URL"
 msgstr "Jenkins CI Server Web Frontend URL"
 
+msgid "'Green Balls' plugin"
+msgstr "'Green Balls' Plugin"
+
 msgid "preferences"
 msgstr "Einstellungen"
 
@@ -43,6 +49,9 @@ msgstr "Benachrichtigungen"
 
 msgid "notification for finished jobs"
 msgstr "Benachrichtigung für abgeschlossene Jobs"
+
+msgid "stack notifications in message tray"
+msgstr "Benachrichtigungen im MessageTray sammeln"
 
 msgid "job filters"
 msgstr "Job Filter"
@@ -67,6 +76,3 @@ msgstr "Inaktive Jobs anzeigen"
 
 msgid "show aborted jobs"
 msgstr "Abgebrochene Jobs anzeigen"
-
-msgid "'Green Balls' plugin"
-msgstr "'Green Balls' plugin"

@@ -7,6 +7,11 @@
 			<summary>Jenkins CI Server web frontend URL</summary>
 			<description>This is the URL of the web frontend provided by your Jenkins CI Server.</description>
 		</key>
+		<key type="b" name="green-balls-plugin">
+			<default>false</default>
+			<summary>toggle green balls plugin</summary>
+      		<description>If enabled, green icon is used instead of the blue one.</description>
+    	</key>
 		
 		<!-- auto refresh settings -->
 		<key type="b" name="autorefresh">
@@ -25,6 +30,11 @@
 			<default>true</default>
 			<summary>notification for finished jobs</summary>
 			<description>If enabled, you will be notified in the message tray once a job has finished.</description>
+		</key>
+		<key type="b" name="stack-notifications">
+			<default>true</default>
+			<summary>stack notifications in message tray</summary>
+			<description>If enabled, notifications will be stacked in the message tray until you read them. Disable to use transient notifications.</description>
 		</key>
 		
 		<!-- job filters -->
@@ -63,10 +73,5 @@
 			<summary>show aborted jobs</summary>
 			<description>If enabled, aborted jobs will appear in the popup menu. Disable to hide aborted jobs.</description>
 		</key>
-		<key type="b" name="green-balls-plugin">
-			<default>false</default>
-			<summary>show aborted jobs</summary>
-      <description>If enabled, green icon is used instead of the blune one.</description>
-    </key>
 	</schema>
 </schemalist>
