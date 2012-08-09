@@ -11,6 +11,7 @@ const Shell = imports.gi.Shell;
 const Soup = imports.gi.Soup;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
+const MessageTray = imports.ui.messageTray;
 
 // set text domain for localized strings
 const Gettext = imports.gettext.domain('jenkins-indicator');
@@ -24,7 +25,7 @@ const Convenience = Me.imports.convenience;
 // few static settings
 const iconSize = 16;
 
-let _indicator, settings;
+let _indicator, settings, messageTray, source;
 
 const _httpSession = new Soup.SessionAsync();
 Soup.Session.prototype.add_feature.call(_httpSession, new Soup.ProxyResolverDefault());
@@ -105,6 +106,28 @@ function urlAppend(domain, uri)
 		return uri;
 }
 
+// source for handling job notifications 
+const JobNotificationSource = new Lang.Class({
+    Name: 'JobNotificationSource',
+    Extends: MessageTray.Source,
+
+    _init: function() {
+        this.parent(_("Jenkins Jobs"));
+
+        this._setSummaryIcon(this.createNotificationIcon());
+    },
+
+    createNotificationIcon: function() {
+        return new St.Icon({ icon_name: 'headshot',
+                             icon_type: St.IconType.FULLCOLOR,
+                             icon_size: this.ICON_SIZE });
+    },
+
+    open: function() {
+        this.destroy();
+    }
+});
+
 // represent a job in the popup menu with icon and job name
 const JobPopupMenuItem = new Lang.Class({
 	Name: 'JobPopupMenuItem',
@@ -139,7 +162,19 @@ const JobPopupMenuItem = new Lang.Class({
 	updateJob: function(job) {
 		// notification for finished job if job icon used to be clock (if enabled in settings)
 		if( settings.get_boolean('notification-finished-jobs') && this.icon.icon_name=='clock' && jobStates.getIcon(job.color)!='clock' )
-			Main.notify(_('Job finished'), _('Your Jenkins job %s just finished building.').format(job.name));
+		{
+			//Main.notify(_('Job finished'), _('Your Jenkins job %s just finished building.').format(job.name));
+			let msg = _('Job finished');
+			let details = _('Your Jenkins job %s just finished building.').format(job.name);
+			if( messageTray==undefined )
+				messageTray = new MessageTray.MessageTray();
+			if( messageTray.contains(source)!=-1 )
+				source = new JobNotificationSource();
+			messageTray.add(source);
+		    let notification = new MessageTray.Notification(source, msg, details);
+		    //notification.setTransient(true);
+		    source.notify(notification);
+		}
 		
 		this.label.text = job.name;
 		this.icon.icon_name = jobStates.getIcon(job.color);
