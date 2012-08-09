@@ -189,6 +189,10 @@ const JobPopupMenuItem = new Lang.Class({
 		// notification for finished job if job icon used to be clock (if enabled in settings)
 		if( settings.get_boolean('notification-finished-jobs') && this.icon.icon_name=='clock' && jobStates.getIcon(job.color)!='clock' )
 		{
+			// create notification source first time we have to display notifications
+			if( _indicator.notification_source==undefined )
+				_indicator.notification_source = new JobNotificationSource();
+				
 			// create notification for the finished job
 		    let notification = new MessageTray.Notification(_indicator.notification_source, _('Job finished'), _('Your Jenkins job %s just finished building.').format(job.name));
 		    
@@ -311,8 +315,8 @@ const JenkinsIndicator = new Lang.Class({
         // refresh when indicator is clicked
         this.actor.connect("button-press-event", Lang.bind(this, this.request));
 
-        // create a new source for notifications
-        this.notification_source = new JobNotificationSource();
+        // we will use this later to add a notification source as soon as a notification needs to be displayed
+        this.notification_source;
 
         // enter main loop for refreshing
         this._mainloop = Mainloop.timeout_add(settings.get_int("autorefresh-interval")*1000, Lang.bind(this, function(){
