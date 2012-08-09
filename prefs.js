@@ -112,6 +112,19 @@ function buildPrefsWidget() {
 	    hboxNotificationFinishedJobs.pack_start(labelNotificationFinishedJobs, true, true, 0);
 		hboxNotificationFinishedJobs.add(inputNotificationFinishedJobs);
 		vboxNotifications.add(hboxNotificationFinishedJobs);
+		
+		// stack notifications
+		let hboxStackNotifications = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+		let labelStackNotifications = new Gtk.Label({label: _("stack notifications in message tray"), xalign: 0});
+		let inputStackNotifications = new Gtk.Switch({active: settings.get_boolean("stack-notifications")});
+	
+		inputStackNotifications.connect("notify::active", Lang.bind(this, function(input){
+			settings.set_boolean("stack-notifications", input.get_active());
+		}));
+	
+	    hboxStackNotifications.pack_start(labelStackNotifications, true, true, 0);
+		hboxStackNotifications.add(inputStackNotifications);
+		vboxNotifications.add(hboxStackNotifications);
 
 	vbox.add(vboxNotifications);
 	

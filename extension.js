@@ -175,9 +175,14 @@ const JobPopupMenuItem = new Lang.Class({
 			if( notification_source==undefined )
 				notification_source = new JobNotificationSource();
 			
-			// notify about the finished job
+			// create notification for the finished job
 		    let notification = new MessageTray.Notification(notification_source, _('Job finished'), _('Your Jenkins job %s just finished building.').format(job.name));
-		    //notification.setTransient(true);
+		    
+		    // use transient messages if persistent messages are disabled in settings
+		    if( settings.get_boolean('stack-notifications')==false )
+		    	notification.setTransient(true);
+		    
+		    // notify the user
 		    notification_source.notify(notification);
 		}
 		

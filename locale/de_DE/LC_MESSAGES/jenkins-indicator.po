@@ -44,6 +44,9 @@ msgstr "Benachrichtigungen"
 msgid "notification for finished jobs"
 msgstr "Benachrichtigung für abgeschlossene Jobs"
 
+msgid "stack notifications in message tray"
+msgstr "Benachrichtigungen im MessageTray sammeln"
+
 msgid "job filters"
 msgstr "Job Filter"
 
