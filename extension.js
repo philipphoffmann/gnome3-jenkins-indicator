@@ -214,6 +214,8 @@ const JobPopupMenuItem = new Lang.Class({
 		this.icon.destroy();
 		this.label.destroy();
 		this.box.destroy();
+		
+		this.parent();
 	}
 });
 
