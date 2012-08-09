@@ -189,6 +189,7 @@ const JobPopupMenuItem = new Lang.Class({
 		// notification for finished job if job icon used to be clock (if enabled in settings)
 		if( settings.get_boolean('notification-finished-jobs') && this.icon.icon_name=='clock' && jobStates.getIcon(job.color)!='clock' )
 		{
+			global.log(_indicator.notification_source);
 			// create notification source first time we have to display notifications
 			if( _indicator.notification_source==undefined )
 				_indicator.notification_source = new JobNotificationSource();
@@ -206,6 +207,13 @@ const JobPopupMenuItem = new Lang.Class({
 		
 		this.label.text = job.name;
 		this.icon.icon_name = jobStates.getIcon(job.color);
+	},
+	
+	// destroys the job popup menu item
+	destroy: function() {
+		this.icon.destroy();
+		this.label.destroy();
+		this.box.destroy();
 	}
 });
 
@@ -433,6 +441,9 @@ const JenkinsIndicator = new Lang.Class({
 	destroy: function() {
 		// destroy the mainloop used for updating the indicator
 		Mainloop.source_remove(this._mainloop);
+		
+		// destroy notification source
+		this.notification_source.destroy();
 
 		// call parent destroy function
 		this.parent();
