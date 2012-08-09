@@ -13,6 +13,9 @@ const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const MessageTray = imports.ui.messageTray;
 
+// this is the messagetray of the current session
+const SessionMessageTray = imports.ui.main.messageTray;
+
 // set text domain for localized strings
 const Gettext = imports.gettext.domain('jenkins-indicator');
 const _ = Gettext.gettext;
@@ -25,7 +28,7 @@ const Convenience = Me.imports.convenience;
 // few static settings
 const iconSize = 16;
 
-let _indicator, settings, messageTray, source;
+let _indicator, settings, notification_source;
 
 const _httpSession = new Soup.SessionAsync();
 Soup.Session.prototype.add_feature.call(_httpSession, new Soup.ProxyResolverDefault());
@@ -115,6 +118,9 @@ const JobNotificationSource = new Lang.Class({
         this.parent(_("Jenkins Jobs"));
 
         this._setSummaryIcon(this.createNotificationIcon());
+        
+        // add myself to the message try
+        SessionMessageTray.add(this);
     },
 
     createNotificationIcon: function() {
@@ -123,8 +129,10 @@ const JobNotificationSource = new Lang.Class({
                              icon_size: this.ICON_SIZE });
     },
 
-    open: function() {
-        this.destroy();
+	// gets called when a notification is clicked
+    open: function(notification) {
+    	// close the clicked notification
+        notification.destroy();
     }
 });
 
@@ -163,17 +171,14 @@ const JobPopupMenuItem = new Lang.Class({
 		// notification for finished job if job icon used to be clock (if enabled in settings)
 		if( settings.get_boolean('notification-finished-jobs') && this.icon.icon_name=='clock' && jobStates.getIcon(job.color)!='clock' )
 		{
-			//Main.notify(_('Job finished'), _('Your Jenkins job %s just finished building.').format(job.name));
-			let msg = _('Job finished');
-			let details = _('Your Jenkins job %s just finished building.').format(job.name);
-			if( messageTray==undefined )
-				messageTray = new MessageTray.MessageTray();
-			if( messageTray.contains(source)!=-1 )
-				source = new JobNotificationSource();
-			messageTray.add(source);
-		    let notification = new MessageTray.Notification(source, msg, details);
+			// create new notification source if none available
+			if( notification_source==undefined )
+				notification_source = new JobNotificationSource();
+			
+			// notify about the finished job
+		    let notification = new MessageTray.Notification(notification_source, _('Job finished'), _('Your Jenkins job %s just finished building.').format(job.name));
 		    //notification.setTransient(true);
-		    source.notify(notification);
+		    notification_source.notify(notification);
 		}
 		
 		this.label.text = job.name;
