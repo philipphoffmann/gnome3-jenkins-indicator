@@ -17,8 +17,8 @@ function init() {
     settings = convenience.getSettings(extension, SETTINGS_SCHEMA);
 }
 
-// builds a line (label + switch) for a job filter setting
-function buildFilterSetting(icon, label, setting_name)
+// builds a line (icon + label + switch) for a setting
+function buildIconSwitchSetting(icon, label, setting_name)
 {
 	let hboxFilterJobs = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
 	let iconFilterJobs = new Gtk.Image({file: extension.dir.get_path() + "/icons/prefs/" + icon + ".png"});
@@ -55,7 +55,9 @@ function buildPrefsWidget() {
 	    hboxJenkinsUrl.pack_start(labelJenkinsUrl, true, true, 0);
 		hboxJenkinsUrl.add(inputJenkinsUrl);
 		vboxJenkinsConnection.add(hboxJenkinsUrl);
-		vboxJenkinsConnection.add(buildFilterSetting("green", _("'Green Balls' plugin"), 'green-balls-plugin'));
+		
+		// green balls plugin
+		vboxJenkinsConnection.add(buildIconSwitchSetting("green", _("'Green Balls' plugin"), 'green-balls-plugin'));
 
 	vbox.add(vboxJenkinsConnection);
 
@@ -137,25 +139,25 @@ function buildPrefsWidget() {
 	let vboxFilters = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, margin_left: 20, margin_bottom: 15 });
 
 		// show running jobs
-		vboxFilters.add(buildFilterSetting("clock", _('show running jobs'), 'show-running-jobs'));
+		vboxFilters.add(buildIconSwitchSetting("clock", _('show running jobs'), 'show-running-jobs'));
 
 		// show successful jobs
-		vboxFilters.add(buildFilterSetting("blue", _('show successful jobs'), 'show-successful-jobs'));
+		vboxFilters.add(buildIconSwitchSetting("blue", _('show successful jobs'), 'show-successful-jobs'));
 
 		// show unstable jobs
-		vboxFilters.add(buildFilterSetting("yellow", _('show unstable jobs'), 'show-unstable-jobs'));
+		vboxFilters.add(buildIconSwitchSetting("yellow", _('show unstable jobs'), 'show-unstable-jobs'));
 
 		// show failed jobs
-		vboxFilters.add(buildFilterSetting("red", _('show failed jobs'), 'show-failed-jobs'));
+		vboxFilters.add(buildIconSwitchSetting("red", _('show failed jobs'), 'show-failed-jobs'));
 
 		// show disabled jobs
-		vboxFilters.add(buildFilterSetting("grey", _('show never built jobs'), 'show-neverbuilt-jobs'));
+		vboxFilters.add(buildIconSwitchSetting("grey", _('show never built jobs'), 'show-neverbuilt-jobs'));
 
 		// show disabled jobs
-		vboxFilters.add(buildFilterSetting("grey", _('show disabled jobs'), 'show-disabled-jobs'));
+		vboxFilters.add(buildIconSwitchSetting("grey", _('show disabled jobs'), 'show-disabled-jobs'));
 
 		// show aborted jobs
-		vboxFilters.add(buildFilterSetting("grey", _('show aborted jobs'), 'show-aborted-jobs'));
+		vboxFilters.add(buildIconSwitchSetting("grey", _('show aborted jobs'), 'show-aborted-jobs'));
 	vbox.add(vboxFilters);
 
 

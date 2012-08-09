@@ -67,10 +67,7 @@ const jobStates = new function() {
 	{
 		for( let i=0 ; i<states.length ; ++i )
 		{
-			if( job_color==states[i].color ) {
-        global.log(states[i].color + "  " + states[i].icon);
-        return states[i].icon;
-      }
+			if( job_color==states[i].color ) return states[i].icon;
 		}
 		// if job color is unknown, use the grey icon
 		global.log('unkown color: ' + job_color);
@@ -102,15 +99,17 @@ const jobStates = new function() {
 		return "red";
 	};
 
+	// enables/disables the green ball plugin
 	this.toggleGreenBallPlugin = function() {
 		for( let i=0 ; i<states.length ; i++ )
 		{
-			if( states[i].color=='blue') {
-				if (states[i].icon == 'blue') {
+			if( states[i].color=='blue')
+			{
+				if (states[i].icon == 'blue')
 					states[i].icon = 'green';
-				} else {
+				else
 					states[i].icon = 'blue';
-				}
+
 				break;
 			}
 		}
@@ -443,9 +442,11 @@ function init(extensionMeta) {
 	// load extension settings
 	settings = Convenience.getSettings();
 
-	if (settings.get_boolean('green-balls-plugin')) {
+	// start off with green icons if green balls plugin is enabled
+	if (settings.get_boolean('green-balls-plugin'))
 		jobStates.toggleGreenBallPlugin();
-	}
+
+	// enable/disable green balls plugin if setting changed
 	settings.connect('changed::green-balls-plugin', Lang.bind(this, jobStates.toggleGreenBallPlugin));
 
 	// add include path for icons
