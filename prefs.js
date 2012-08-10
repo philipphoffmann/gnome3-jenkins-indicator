@@ -10,7 +10,6 @@ let convenience = extension.imports.convenience;
 let settings;
 
 const SETTINGS_SCHEMA = 'org.gnome.shell.extensions.jenkins-indicator';
-const SETTINGS_JENKINS_URL_KEY = 'jenkins-url';
 
 function init() {
     convenience.initTranslations('jenkins-indicator');
