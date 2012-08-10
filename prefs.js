@@ -1,26 +1,24 @@
 const Lang = imports.lang;
 const Gtk = imports.gi.Gtk;
 
-const Gettext = imports.gettext.domain('jenkins-indicator');
-const _ = Gettext.gettext;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Convenience = Me.imports.convenience;
 
-let extension = imports.misc.extensionUtils.getCurrentExtension();
-let convenience = extension.imports.convenience;
+const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
+const _ = Gettext.gettext;
 
 let settings;
 
-const SETTINGS_SCHEMA = 'org.gnome.shell.extensions.jenkins-indicator';
-
 function init() {
-    convenience.initTranslations('jenkins-indicator');
-    settings = convenience.getSettings(SETTINGS_SCHEMA);
+    Convenience.initTranslations(Me.metadata['gettext-domain']);
+    settings = Convenience.getSettings(Me.metadata['settings-schema']);
 }
 
 // builds a line (icon + label + switch) for a setting
 function buildIconSwitchSetting(icon, label, setting_name)
 {
 	let hboxFilterJobs = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-	let iconFilterJobs = new Gtk.Image({file: extension.dir.get_path() + "/icons/prefs/" + icon + ".png"});
+	let iconFilterJobs = new Gtk.Image({file: Me.dir.get_path() + "/icons/prefs/" + icon + ".png"});
 	let labelFilterJobs = new Gtk.Label({label: label, xalign: 0});
 	let inputFilterJobs = new Gtk.Switch({active: settings.get_boolean(setting_name)});
 
