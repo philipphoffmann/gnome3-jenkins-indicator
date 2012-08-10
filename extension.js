@@ -235,14 +235,9 @@ const JobPopupMenu = new Lang.Class({
 			return;
 		}
 
-		global.log(this._getMenuItems().length);
-		global.log(this._getMenuItems()[0] instanceof PopupMenu.PopupMenuItem);
 		// remove previous error message
 		if( this._getMenuItems().length==3 && this._getMenuItems()[0] instanceof PopupMenu.PopupMenuItem )
-		{
-			global.log("error remove");
 			this._getMenuItems()[0].destroy();
-		}
 
 		// check all new job items
 		for( let i=0 ; i<new_jobs.length ; ++i )
