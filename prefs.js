@@ -4,14 +4,13 @@ const Gtk = imports.gi.Gtk;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 
-const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
-const _ = Gettext.gettext;
+const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;
 
 let settings;
 
 function init() {
-    Convenience.initTranslations(Me.metadata['gettext-domain']);
-    settings = Convenience.getSettings(Me.metadata['settings-schema']);
+    Convenience.initTranslations();
+    settings = Convenience.getSettings();
 }
 
 // builds a line (icon + label + switch) for a setting

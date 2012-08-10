@@ -16,17 +16,15 @@ const MessageTray = imports.ui.messageTray;
 // this is the messagetray of the current session
 const SessionMessageTray = imports.ui.main.messageTray;
 
-// set text domain for localized strings
-const Gettext = imports.gettext.domain('jenkins-indicator');
-const _ = Gettext.gettext;
-
 // import convenience module (for localization)
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 
+// set text domain for localized strings
+const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;
+
 // few static settings
-const iconSize = 16;
+const ICON_SIZE = 16;
 
 let _indicator, settings;
 
@@ -165,7 +163,7 @@ const JobPopupMenuItem = new Lang.Class({
         this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
         this.icon = new St.Icon({ 	icon_name: jobStates.getIcon(job.color),
                                 	icon_type: St.IconType.FULLCOLOR,
-                                	icon_size: iconSize,
+                                	icon_size: ICON_SIZE,
                                 	style_class: "system-status-icon" });
 		this.label = new St.Label({ text: job.name });
 
@@ -301,7 +299,7 @@ const JenkinsIndicator = new Lang.Class({
 		// start off with a blue overall indicator
         this._iconActor = new St.Icon({ icon_name: jobStates.getIcon(jobStates.getDefaultState()),
                                         icon_type: St.IconType.FULLCOLOR,
-                                        icon_size: iconSize,
+                                        icon_size: ICON_SIZE,
                                         style_class: "system-status-icon" });
         this.actor.add_actor(this._iconActor);
 
@@ -454,10 +452,10 @@ const JenkinsIndicator = new Lang.Class({
 
 function init(extensionMeta) {
 	// load localization dictionaries
-	Convenience.initTranslations(Me.metadata['gettext-domain']);
+	Convenience.initTranslations();
 
 	// load extension settings
-	settings = Convenience.getSettings(Me.metadata['settings-schema']);
+	settings = Convenience.getSettings();
 
 	// start off with green icons if green balls plugin is enabled
 	if (settings.get_boolean('green-balls-plugin'))
