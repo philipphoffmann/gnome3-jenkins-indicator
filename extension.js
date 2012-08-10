@@ -235,9 +235,14 @@ const JobPopupMenu = new Lang.Class({
 			return;
 		}
 
+		global.log(this._getMenuItems().length);
+		global.log(this._getMenuItems()[0] instanceof PopupMenu.PopupMenuItem);
 		// remove previous error message
 		if( this._getMenuItems().length==3 && this._getMenuItems()[0] instanceof PopupMenu.PopupMenuItem )
+		{
+			global.log("error remove");
 			this._getMenuItems()[0].destroy();
+		}
 
 		// check all new job items
 		for( let i=0 ; i<new_jobs.length ; ++i )
@@ -423,11 +428,8 @@ const JenkinsIndicator = new Lang.Class({
 		text = text || "unknown error";
 
 		// remove all job menu entries and previous error messages
-		if( this.menu._getMenuItems().length>2 )
-		{
-			for( let i=0 ; i<this.menu._getMenuItems().length-1 ; ++i )
-				this.menu._getMenuItems()[0].destroy();
-		}
+		while( this.menu._getMenuItems().length>2 )
+			this.menu._getMenuItems()[0].destroy();
 
 		// show error message in popup menu
 		this.menu.addMenuItem(new PopupMenu.PopupMenuItem(_("Error") + ": " + _(text), {style_class: 'error'}), 0);
