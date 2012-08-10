@@ -473,6 +473,9 @@ function enable() {
 	// create indicator and add to status area
 	_indicator = new JenkinsIndicator;
     Main.panel.addToStatusArea("jenkins-indicator", _indicator);
+    
+    // update indicator as soon as settings change
+    settings.connect('changed', _indicator.request);
 }
 
 function disable() {
