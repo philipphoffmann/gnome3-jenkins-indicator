@@ -22,11 +22,32 @@ msgstr "ungültige Jenkins CI Server Web Frontend URL"
 msgid "Jenkins jobs"
 msgstr "Jenkins Jobs"
 
-msgid "Job finished"
-msgstr "Job abgeschlossen"
+msgid "Job finished building"
+msgstr "Job Build abgeschlossen"
 
-msgid "Your Jenkins job %s just finished building."
-msgstr "Der Build für den Job %s ist abgeschlossen."
+msgid "Your Jenkins job %s just finished building (%s)."
+msgstr "Der Build für den Job %s ist abgeschlossen (%s)."
+
+msgid "running"
+msgstr "laufend"
+
+msgid "failed"
+msgstr "fehlgeschlagen"
+
+msgid "unstable"
+msgstr "instabil"
+
+msgid "successful"
+msgstr "erfolgreich"
+
+msgid "never built"
+msgstr "nie gestartet"
+
+msgid "aborted"
+msgstr "abgebrochen"
+
+msgid "disabled"
+msgstr "inaktiv"
 
 # settings dialog translations
 msgid "Jenkins connection"

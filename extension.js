@@ -36,17 +36,18 @@ const jobStates = new function() {
 	// define job states (colors) and their corresponding icon, feel free to add more here
 	// this array is also used to determine the rank of a job state, low array index refers to a high rank
 	// filter refers to the name of the filter setting (whether to show matching jobs or not)
+	// name is used for notifications about job changes
 	let states = [
-		{ color: 'red_anime', 		icon: 'clock', 	filter: 'show-running-jobs' },
-		{ color: 'yellow_anime', 	icon: 'clock', 	filter: 'show-running-jobs' },
-		{ color: 'blue_anime', 		icon: 'clock', 	filter: 'show-running-jobs' },
-		{ color: 'grey_anime', 		icon: 'clock', 	filter: 'show-running-jobs' },
-		{ color: 'red', 			icon: 'red', 	filter: 'show-failed-jobs' },
-		{ color: 'yellow', 			icon: 'yellow', filter: 'show-unstable-jobs' },
-		{ color: 'blue', 			icon: 'blue', 	filter: 'show-successful-jobs' },
-		{ color: 'grey', 			icon: 'grey', 	filter: 'show-neverbuilt-jobs' },
-		{ color: 'aborted', 		icon: 'grey', 	filter: 'show-aborted-jobs'},
-		{ color: 'disabled', 		icon: 'grey', 	filter: 'show-disabled-jobs' }
+		{ color: 'red_anime', 		icon: 'clock', 	filter: 'show-running-jobs', 	name: 'running' },
+		{ color: 'yellow_anime', 	icon: 'clock', 	filter: 'show-running-jobs', 	name: 'running' },
+		{ color: 'blue_anime', 		icon: 'clock', 	filter: 'show-running-jobs', 	name: 'running' },
+		{ color: 'grey_anime', 		icon: 'clock', 	filter: 'show-running-jobs', 	name: 'running' },
+		{ color: 'red', 			icon: 'red', 	filter: 'show-failed-jobs',		name: 'failed' },
+		{ color: 'yellow', 			icon: 'yellow', filter: 'show-unstable-jobs',	name: 'unstable' },
+		{ color: 'blue', 			icon: 'blue', 	filter: 'show-successful-jobs', name: 'successful' },
+		{ color: 'grey', 			icon: 'grey', 	filter: 'show-neverbuilt-jobs', name: 'never built' },
+		{ color: 'aborted', 		icon: 'grey', 	filter: 'show-aborted-jobs',	name: 'aborted' },
+		{ color: 'disabled', 		icon: 'grey', 	filter: 'show-disabled-jobs',	name: 'disabled' }
 	];
 
 	// returns the rank of a job state, highest rank is 0, -1 means that the job state is unknown
@@ -82,6 +83,18 @@ const jobStates = new function() {
 		// if job color is unknown, use the filter setting for disabled jobs
 		global.log('unkown color: ' + job_color);
 		return 'show-disabled-jobs';
+	};
+	
+	// returns the corresponding icon name of a job state
+	this.getName = function(job_color)
+	{
+		for( let i=0 ; i<states.length ; ++i )
+		{
+			if( job_color==states[i].color ) return _(states[i].name);
+		}
+		// if job color is unknown, use the filter setting for disabled jobs
+		global.log('unkown color: ' + job_color);
+		return 'unknown';
 	};
 
 	// returns the default job state to use for overall indicator
@@ -187,13 +200,12 @@ const JobPopupMenuItem = new Lang.Class({
 		// notification for finished job if job icon used to be clock (if enabled in settings)
 		if( settings.get_boolean('notification-finished-jobs') && this.icon.icon_name=='clock' && jobStates.getIcon(job.color)!='clock' )
 		{
-			global.log(_indicator.notification_source);
 			// create notification source first time we have to display notifications
 			if( _indicator.notification_source==undefined )
 				_indicator.notification_source = new JobNotificationSource();
-				
+			
 			// create notification for the finished job
-		    let notification = new MessageTray.Notification(_indicator.notification_source, _('Job finished'), _('Your Jenkins job %s just finished building.').format(job.name));
+		    let notification = new MessageTray.Notification(_indicator.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (%s).').format(job.name, jobStates.getName(job.color)));
 		    
 		    // use transient messages if persistent messages are disabled in settings
 		    if( settings.get_boolean('stack-notifications')==false )
