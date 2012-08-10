@@ -32,7 +32,7 @@
 			<description>If enabled, you will be notified in the message tray once a job has finished.</description>
 		</key>
 		<key type="b" name="stack-notifications">
-			<default>true</default>
+			<default>false</default>
 			<summary>stack notifications in message tray</summary>
 			<description>If enabled, notifications will be stacked in the message tray until you read them. Disable to use transient notifications.</description>
 		</key>
