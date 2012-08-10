@@ -314,9 +314,8 @@ const JenkinsIndicator = new Lang.Class({
 		this._menu_settings.connect("activate", function(){
 			// call gnome settings tool for this extension
 			let app = Shell.AppSystem.get_default().lookup_app("gnome-shell-extension-prefs.desktop");
-			if( app!=null ) {
+			if( app!=null )
 				app.launch(global.display.get_current_time_roundtrip(), ['extension:///' + Me.uuid], -1, null);
-      			}
 		});
 		this.menu.addMenuItem(this._menu_settings);
 
