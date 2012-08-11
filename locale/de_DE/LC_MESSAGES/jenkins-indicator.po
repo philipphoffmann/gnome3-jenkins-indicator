@@ -25,8 +25,8 @@ msgstr "Jenkins Jobs"
 msgid "Job finished building"
 msgstr "Job Build abgeschlossen"
 
-msgid "Your Jenkins job %s just finished building (%s)."
-msgstr "Der Build für den Job %s ist abgeschlossen (%s)."
+msgid "Your Jenkins job %s just finished building (<b>%s</b>)."
+msgstr "Der Build für den Job %s ist abgeschlossen (<b>%s</b>)."
 
 msgid "running"
 msgstr "laufend"

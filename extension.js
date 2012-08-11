@@ -24,7 +24,8 @@ const Convenience = Me.imports.convenience;
 const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;
 
 // few static settings
-const ICON_SIZE = 16;
+const ICON_SIZE_INDICATOR = 16;
+const ICON_SIZE_NOTIFICATION = 24;
 
 let _indicator, settings;
 
@@ -156,7 +157,7 @@ const JobNotificationSource = new Lang.Class({
     createNotificationIcon: function() {
         return new St.Icon({ icon_name: 'headshot',
                              icon_type: St.IconType.FULLCOLOR,
-                             icon_size: this.ICON_SIZE });
+                             icon_size: ICON_SIZE_INDICATOR });
     },
 
 	// gets called when a notification is clicked
@@ -176,7 +177,7 @@ const JobPopupMenuItem = new Lang.Class({
         this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
         this.icon = new St.Icon({ 	icon_name: jobStates.getIcon(job.color),
                                 	icon_type: St.IconType.FULLCOLOR,
-                                	icon_size: ICON_SIZE,
+                                	icon_size: ICON_SIZE_INDICATOR,
                                 	style_class: "system-status-icon" });
 		this.label = new St.Label({ text: job.name });
 
@@ -205,7 +206,13 @@ const JobPopupMenuItem = new Lang.Class({
 				_indicator.notification_source = new JobNotificationSource();
 			
 			// create notification for the finished job
-		    let notification = new MessageTray.Notification(_indicator.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (%s).').format(job.name, jobStates.getName(job.color)));
+		    let notification = new MessageTray.Notification(_indicator.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, jobStates.getName(job.color)), {
+		    	bannerMarkup: true,
+		    	icon: new St.Icon({ icon_name: jobStates.getIcon(job.color),
+                                	icon_type: St.IconType.FULLCOLOR,
+                                	icon_size: ICON_SIZE_NOTIFICATION,
+                                	style_class: "system-status-icon" })
+		    });
 		    
 		    // use transient messages if persistent messages are disabled in settings
 		    if( settings.get_boolean('stack-notifications')==false )
@@ -311,7 +318,7 @@ const JenkinsIndicator = new Lang.Class({
 		// start off with a blue overall indicator
         this._iconActor = new St.Icon({ icon_name: jobStates.getIcon(jobStates.getDefaultState()),
                                         icon_type: St.IconType.FULLCOLOR,
-                                        icon_size: ICON_SIZE,
+                                        icon_size: ICON_SIZE_INDICATOR,
                                         style_class: "system-status-icon" });
         this.actor.add_actor(this._iconActor);
 
