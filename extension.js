@@ -314,6 +314,9 @@ const JenkinsIndicator = new Lang.Class({
 
     _init: function() {
     	this.parent(0.25, "Jenkins Indicator", false );
+    	
+    	// start off if no jobs to display
+    	this.jobs = []
 
 		// start off with a blue overall indicator
         this._iconActor = new St.Icon({ icon_name: jobStates.getIcon(jobStates.getDefaultState()),
@@ -361,11 +364,11 @@ const JenkinsIndicator = new Lang.Class({
 		let request = Soup.Message.new('GET', urlAppend(settings.get_string("jenkins-url"), 'api/json'));
 		if( request )
 		{
-			_httpSession.queue_message(request, function(_httpSession, message) {
+			_httpSession.queue_message(request, Lang.bind(this, function(_httpSession, message) {
 				// http error
 				if( message.status_code!==200 )
 				{
-					_indicator.showError("invalid Jenkins CI Server web frontend URL");
+					this.showError("invalid Jenkins CI Server web frontend URL");
 				}
 				// http ok
 				else
@@ -373,10 +376,13 @@ const JenkinsIndicator = new Lang.Class({
 					// parse json
 					let jenkinsState = JSON.parse(request.response_body.data);
 
-					// update indicator icon and popupmenu contents
-					_indicator._update(jenkinsState);
+					// update jobs
+					this.jobs = jenkinsState.jobs;
+					
+					// update indicator (icon and popupmenu contents)
+					this.update();
 				}
-			});
+			}));
 		}
 		// no valid url was provided in settings dialog
 		else
@@ -386,15 +392,12 @@ const JenkinsIndicator = new Lang.Class({
 	},
 
 	// update indicator icon and popupmenu contents
-	_update: function(jenkinsState) {
-		jenkinsState 		= jenkinsState || {};
-		jenkinsState.jobs 	= jenkinsState.jobs || [];
-
+	update: function() {
 		// filter jobs to be shown
-		jenkinsState.jobs = this._filterJobs(jenkinsState.jobs);
+		let displayJobs = this._filterJobs(this.jobs);
 
 		// update popup menu
-		this.menu.updateJobs(jenkinsState.jobs);
+		this.menu.updateJobs(displayJobs);
 
 		// update overall indicator icon
 
@@ -402,16 +405,16 @@ const JenkinsIndicator = new Lang.Class({
 		let overallState = jobStates.getDefaultState();
 
 		// set state to red if there are no jobs
-		if( jenkinsState.jobs.length<=0 )
+		if( displayJobs.length<=0 )
 			overallState = jobStates.getErrorState();
 		else
 		{
 			// determine jobs overall state for the indicator
-			for( let i=0 ; i<jenkinsState.jobs.length ; ++i )
+			for( let i=0 ; i<displayJobs.length ; ++i )
 			{
 				// set overall job state to highest ranked (most important) state
-				if( jobStates.getRank(jenkinsState.jobs[i].color)>-1 && jobStates.getRank(jenkinsState.jobs[i].color)<jobStates.getRank(overallState) )
-					overallState = jenkinsState.jobs[i].color;
+				if( jobStates.getRank(displayJobs[i].color)>-1 && jobStates.getRank(displayJobs[i].color)<jobStates.getRank(overallState) )
+					overallState = displayJobs[i].color;
 			}
 		}
 
@@ -422,18 +425,16 @@ const JenkinsIndicator = new Lang.Class({
 	// filters jobs according to filter settings
 	_filterJobs: function(jobs) {
 		jobs = jobs || [];
+		let filteredJobs = [];
 
 		for( var i=0 ; i<jobs.length ; ++i )
 		{
 			// filter job if user decided not to show jobs with this state (in settings dialog)
-			if( !settings.get_boolean(jobStates.getFilter(jobs[i].color)) )
-			{
-				jobs.splice(i,1);
-				--i;
-			}
+			if( settings.get_boolean(jobStates.getFilter(jobs[i].color)) )
+				filteredJobs[filteredJobs.length] = jobs[i]
 		}
 
-		return jobs;
+		return filteredJobs;
 	},
 
 	// displays an error message in the popup menu
@@ -476,9 +477,6 @@ function init(extensionMeta) {
 	if (settings.get_boolean('green-balls-plugin'))
 		jobStates.toggleGreenBallPlugin();
 
-	// enable/disable green balls plugin if setting changed
-	settings.connect('changed::green-balls-plugin', Lang.bind(this, jobStates.toggleGreenBallPlugin));
-
 	// add include path for icons
 	let theme = imports.gi.Gtk.IconTheme.get_default();
     theme.append_search_path(extensionMeta.path + "/icons");
@@ -489,8 +487,23 @@ function enable() {
 	_indicator = new JenkinsIndicator;
     Main.panel.addToStatusArea("jenkins-indicator", _indicator);
     
-    // update indicator as soon as settings change
-    settings.connect('changed', _indicator.request);
+    // try to kick off request as soon as auto-refresh/connection settings change
+    settings.connect('changed::jenkins-url', Lang.bind(_indicator, _indicator.request));
+    settings.connect('changed::auto-refresh', Lang.bind(_indicator, _indicator.request));
+    settings.connect('changed::autorefresh-interval', Lang.bind(_indicator, _indicator.request));
+    
+    // enable/disable green balls plugin if setting changed
+    settings.connect('changed::green-balls-plugin', jobStates.toggleGreenBallPlugin);
+    
+    // update indicator as soon as filter settings change or green balls plugin setting is changed
+    settings.connect('changed::green-balls-plugin', Lang.bind(_indicator, _indicator.update));
+    settings.connect('changed::show-running-jobs', Lang.bind(_indicator, _indicator.update));
+    settings.connect('changed::show-successful-jobs', Lang.bind(_indicator, _indicator.update));
+    settings.connect('changed::show-unstable-jobs', Lang.bind(_indicator, _indicator.update));
+    settings.connect('changed::show-failed-jobs', Lang.bind(_indicator, _indicator.update));
+    settings.connect('changed::show-neverbuilt-jobs', Lang.bind(_indicator, _indicator.update));
+    settings.connect('changed::show-disabled-jobs', Lang.bind(_indicator, _indicator.update));
+    settings.connect('changed::show-aborted-jobs', Lang.bind(_indicator, _indicator.update));
 }
 
 function disable() {
