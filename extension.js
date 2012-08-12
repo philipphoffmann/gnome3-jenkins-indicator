@@ -29,6 +29,9 @@ const ICON_SIZE_NOTIFICATION = 24;
 
 let _indicator, settings;
 
+// event handlers (used for settings change events)
+let settings_signals = []
+
 const _httpSession = new Soup.SessionAsync();
 Soup.Session.prototype.add_feature.call(_httpSession, new Soup.ProxyResolverDefault());
 
@@ -458,8 +461,9 @@ const JenkinsIndicator = new Lang.Class({
 		// destroy the mainloop used for updating the indicator
 		Mainloop.source_remove(this._mainloop);
 		
-		// destroy notification source
-		this.notification_source.destroy();
+		// destroy notification source if used
+		if( this.notification_source )
+			this.notification_source.destroy();
 
 		// call parent destroy function
 		this.parent();
@@ -467,7 +471,13 @@ const JenkinsIndicator = new Lang.Class({
 });
 
 function init(extensionMeta) {
-	// load localization dictionaries
+	// add include path for icons
+	let theme = imports.gi.Gtk.IconTheme.get_default();
+    theme.append_search_path(extensionMeta.path + "/icons");
+}
+
+function enable() {
+		// load localization dictionaries
 	Convenience.initTranslations();
 
 	// load extension settings
@@ -476,36 +486,36 @@ function init(extensionMeta) {
 	// start off with green icons if green balls plugin is enabled
 	if (settings.get_boolean('green-balls-plugin'))
 		jobStates.toggleGreenBallPlugin();
-
-	// add include path for icons
-	let theme = imports.gi.Gtk.IconTheme.get_default();
-    theme.append_search_path(extensionMeta.path + "/icons");
-}
-
-function enable() {
+		
 	// create indicator and add to status area
 	_indicator = new JenkinsIndicator;
     Main.panel.addToStatusArea("jenkins-indicator", _indicator);
     
     // try to kick off request as soon as auto-refresh/connection settings change
-    settings.connect('changed::jenkins-url', Lang.bind(_indicator, _indicator.request));
-    settings.connect('changed::auto-refresh', Lang.bind(_indicator, _indicator.request));
-    settings.connect('changed::autorefresh-interval', Lang.bind(_indicator, _indicator.request));
+    settings_signals.push( settings.connect('changed::jenkins-url', Lang.bind(_indicator, _indicator.request)) );
+    settings_signals.push( settings.connect('changed::auto-refresh', Lang.bind(_indicator, _indicator.request)) );
+    settings_signals.push( settings.connect('changed::autorefresh-interval', Lang.bind(_indicator, _indicator.request)) );
     
     // enable/disable green balls plugin if setting changed
-    settings.connect('changed::green-balls-plugin', jobStates.toggleGreenBallPlugin);
+    settings_signals.push( settings.connect('changed::green-balls-plugin', Lang.bind(_indicator, function(){
+    	jobStates.toggleGreenBallPlugin();
+    	this.update();
+    })) );
     
     // update indicator as soon as filter settings change or green balls plugin setting is changed
-    settings.connect('changed::green-balls-plugin', Lang.bind(_indicator, _indicator.update));
-    settings.connect('changed::show-running-jobs', Lang.bind(_indicator, _indicator.update));
-    settings.connect('changed::show-successful-jobs', Lang.bind(_indicator, _indicator.update));
-    settings.connect('changed::show-unstable-jobs', Lang.bind(_indicator, _indicator.update));
-    settings.connect('changed::show-failed-jobs', Lang.bind(_indicator, _indicator.update));
-    settings.connect('changed::show-neverbuilt-jobs', Lang.bind(_indicator, _indicator.update));
-    settings.connect('changed::show-disabled-jobs', Lang.bind(_indicator, _indicator.update));
-    settings.connect('changed::show-aborted-jobs', Lang.bind(_indicator, _indicator.update));
+    settings_signals.push( settings.connect('changed::show-running-jobs', Lang.bind(_indicator, _indicator.update)) );
+    settings_signals.push( settings.connect('changed::show-successful-jobs', Lang.bind(_indicator, _indicator.update)) );
+    settings_signals.push( settings.connect('changed::show-unstable-jobs', Lang.bind(_indicator, _indicator.update)) );
+    settings_signals.push( settings.connect('changed::show-failed-jobs', Lang.bind(_indicator, _indicator.update)) );
+    settings_signals.push( settings.connect('changed::show-neverbuilt-jobs', Lang.bind(_indicator, _indicator.update)) );
+    settings_signals.push( settings.connect('changed::show-disabled-jobs', Lang.bind(_indicator, _indicator.update)) );
+    settings_signals.push( settings.connect('changed::show-aborted-jobs', Lang.bind(_indicator, _indicator.update)) );
 }
 
 function disable() {
     _indicator.destroy();
+    
+    // disconnect all settings signals
+    for( var i=0 ; i<settings_signals.length ; ++i )
+    	settings.disconnect(settings_signals[i]);
 }
