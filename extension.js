@@ -29,11 +29,20 @@ const ICON_SIZE_NOTIFICATION = 24;
 
 let _indicator, settings;
 
-// event handlers (used for settings change events)
-let settings_signals = []
+// signals container (for clean disconnecting from signals if extension gets disabled)
+let event_signals = [];
 
 const _httpSession = new Soup.SessionAsync();
 Soup.Session.prototype.add_feature.call(_httpSession, new Soup.ProxyResolverDefault());
+
+// append a uri to a domain regardless whether domains ends with '/' or not
+function urlAppend(domain, uri)
+{
+	if( domain.length>=1 )
+		return domain + (domain.charAt(domain.length-1)!='/' ? '/' : '') + uri;
+	else
+		return uri;
+}
 
 // returns icons and state ranks for job states
 const jobStates = new function() {
@@ -130,15 +139,6 @@ const jobStates = new function() {
 		}
 	}
 };
-
-// append a uri to a domain regardless whether domains ends with '/' or not
-function urlAppend(domain, uri)
-{
-	if( domain.length>=1 )
-		return domain + (domain.charAt(domain.length-1)!='/' ? '/' : '') + uri;
-	else
-		return uri;
-}
 
 // source for handling job notifications 
 const JobNotificationSource = new Lang.Class({
@@ -336,16 +336,16 @@ const JenkinsIndicator = new Lang.Class({
 
 		// add link to settings dialog
 		this._menu_settings = new PopupMenu.PopupMenuItem(_("settings"));
-		this._menu_settings.connect("activate", function(){
+		event_signals.push( this._menu_settings.connect("activate", function(){
 			// call gnome settings tool for this extension
 			let app = Shell.AppSystem.get_default().lookup_app("gnome-shell-extension-prefs.desktop");
 			if( app!=null )
 				app.launch(global.display.get_current_time_roundtrip(), ['extension:///' + Me.uuid], -1, null);
-		});
+		}) );
 		this.menu.addMenuItem(this._menu_settings);
 
         // refresh when indicator is clicked
-        this.actor.connect("button-press-event", Lang.bind(this, this.request));
+        event_signals.push( this.actor.connect("button-press-event", Lang.bind(this, this.request)) );
 
         // we will use this later to add a notification source as soon as a notification needs to be displayed
         this.notification_source;
@@ -474,15 +474,15 @@ function init(extensionMeta) {
 	// add include path for icons
 	let theme = imports.gi.Gtk.IconTheme.get_default();
     theme.append_search_path(extensionMeta.path + "/icons");
+    
+    // load localization dictionaries
+	Convenience.initTranslations();
+    
+    // load extension settings
+	settings = Convenience.getSettings();
 }
 
 function enable() {
-		// load localization dictionaries
-	Convenience.initTranslations();
-
-	// load extension settings
-	settings = Convenience.getSettings();
-
 	// start off with green icons if green balls plugin is enabled
 	if (settings.get_boolean('green-balls-plugin'))
 		jobStates.toggleGreenBallPlugin();
@@ -492,30 +492,30 @@ function enable() {
     Main.panel.addToStatusArea("jenkins-indicator", _indicator);
     
     // try to kick off request as soon as auto-refresh/connection settings change
-    settings_signals.push( settings.connect('changed::jenkins-url', Lang.bind(_indicator, _indicator.request)) );
-    settings_signals.push( settings.connect('changed::auto-refresh', Lang.bind(_indicator, _indicator.request)) );
-    settings_signals.push( settings.connect('changed::autorefresh-interval', Lang.bind(_indicator, _indicator.request)) );
+    event_signals.push( settings.connect('changed::jenkins-url', 			Lang.bind(_indicator, _indicator.request)) );
+    event_signals.push( settings.connect('changed::auto-refresh', 			Lang.bind(_indicator, _indicator.request)) );
+    event_signals.push( settings.connect('changed::autorefresh-interval', 	Lang.bind(_indicator, _indicator.request)) );
     
     // enable/disable green balls plugin if setting changed
-    settings_signals.push( settings.connect('changed::green-balls-plugin', Lang.bind(_indicator, function(){
+    event_signals.push( settings.connect('changed::green-balls-plugin', function(){
     	jobStates.toggleGreenBallPlugin();
-    	this.update();
-    })) );
+    	_indicator.update();
+    }) );
     
     // update indicator as soon as filter settings change or green balls plugin setting is changed
-    settings_signals.push( settings.connect('changed::show-running-jobs', Lang.bind(_indicator, _indicator.update)) );
-    settings_signals.push( settings.connect('changed::show-successful-jobs', Lang.bind(_indicator, _indicator.update)) );
-    settings_signals.push( settings.connect('changed::show-unstable-jobs', Lang.bind(_indicator, _indicator.update)) );
-    settings_signals.push( settings.connect('changed::show-failed-jobs', Lang.bind(_indicator, _indicator.update)) );
-    settings_signals.push( settings.connect('changed::show-neverbuilt-jobs', Lang.bind(_indicator, _indicator.update)) );
-    settings_signals.push( settings.connect('changed::show-disabled-jobs', Lang.bind(_indicator, _indicator.update)) );
-    settings_signals.push( settings.connect('changed::show-aborted-jobs', Lang.bind(_indicator, _indicator.update)) );
+    event_signals.push( settings.connect('changed::show-running-jobs', 		Lang.bind(_indicator, _indicator.update)) );
+    event_signals.push( settings.connect('changed::show-successful-jobs', 	Lang.bind(_indicator, _indicator.update)) );
+    event_signals.push( settings.connect('changed::show-unstable-jobs', 	Lang.bind(_indicator, _indicator.update)) );
+    event_signals.push( settings.connect('changed::show-failed-jobs', 		Lang.bind(_indicator, _indicator.update)) );
+    event_signals.push( settings.connect('changed::show-neverbuilt-jobs', 	Lang.bind(_indicator, _indicator.update)) );
+    event_signals.push( settings.connect('changed::show-disabled-jobs', 	Lang.bind(_indicator, _indicator.update)) );
+    event_signals.push( settings.connect('changed::show-aborted-jobs', 		Lang.bind(_indicator, _indicator.update)) );
 }
 
 function disable() {
     _indicator.destroy();
     
-    // disconnect all settings signals
-    for( var i=0 ; i<settings_signals.length ; ++i )
-    	settings.disconnect(settings_signals[i]);
+    // disconnect all signal listeners
+    for( var i=0 ; i<event_signals.length ; ++i )
+    	settings.disconnect(event_signals[i]);
 }
