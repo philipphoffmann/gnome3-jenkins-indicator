@@ -1,4 +1,4 @@
-# gnome3-jenkins
+# gnome3-jenkins-indicator
 
 ## description:
 Gnome 3 Shell Extension to represent the current state of all jobs of a Jenkins CI Server.
@@ -12,8 +12,8 @@ Feel free to mail me any problems, suggestions or feedback to mail@philipphoffma
 - Jenkins CI Server (with json api publicly available, see configuration)
 
 ## installation (automatically):
-I will make the extension publicly available on [extensions.gnome.org](https://extensions.gnome.org).
-Until then you have to stick to installing the extension manually. 
+Jenkins Indicator is publicly available on [extensions.gnome.org](https://extensions.gnome.org/extension/399/jenkins-ci-server-indicator/).
+You can conveniently install it like any other Gnome 3 extension in the library.
 
 ## installation (manually):
 1. Copy all files to `~/.local/share/gnome-shell/extensions/jenkins-indicator@philipphoffmann.de`
@@ -30,6 +30,7 @@ You can configure the following settings:
 ### 1. The Jenkins CI Server JSON API URL:
 Set its value to your Jenkins web frontend URL.
 You can check if the JSON API is available in your web browser by appending `/api/json` to your web frontend URL (which is what the extension does to get its information).
+You can also enable the "Green Balls Plugin" in this section which enables using green ball icons instead of blue ones, just like the green balls plugin in Jenkins (Thanks to [negesti](https://github.com/negesti) for this contribution).
 
 ### 2. Auto-refreshing:
 By default the extension automatically requests the Jenkins CI Server for the state of all jobs at a given interval.
@@ -38,5 +39,10 @@ You can also change the auto-refresh interval that the extensions uses to track 
 It is set to 3 seconds (3000 milliseconds) by default, meaning that every 3 seconds the extension requests the Jenkins CI Server for the current state of all jobs.
 You can set this to whatever interval is fine for you.
 
-### 3. Filter jobs:
+### 3. Notifications:
+Notifications will appear as little popup messages at the bottom of the screen as soon as a job finished building.
+You can disable this if you dont like it.
+"stack notifications" means that notifications will be stored in the bottom right corner until you read them (click the notification to make it disappear).
+
+### 4. Filter jobs:
 There is a filter for each job state. Enabling the switch will show the matching jobs in the popup menu, disabling the switch will hide the jobs.
