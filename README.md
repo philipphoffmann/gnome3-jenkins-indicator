@@ -36,7 +36,7 @@ You can also enable the "Green Balls Plugin" in this section which enables using
 By default the extension automatically requests the Jenkins CI Server for the state of all jobs at a given interval.
 You can turn this feature off or on.
 You can also change the auto-refresh interval that the extensions uses to track changes.
-It is set to 3 seconds (3000 milliseconds) by default, meaning that every 3 seconds the extension requests the Jenkins CI Server for the current state of all jobs.
+It is set to 3 seconds by default, meaning that every 3 seconds the extension requests the Jenkins CI Server for the current state of all jobs.
 You can set this to whatever interval is fine for you.
 
 ### 3. Notifications:
