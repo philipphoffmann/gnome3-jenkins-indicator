@@ -43,6 +43,8 @@ You can set this to whatever interval is fine for you.
 Notifications will appear as little popup messages at the bottom of the screen as soon as a job finished building.
 You can disable this if you dont like it.
 "stack notifications" means that notifications will be stored in the bottom right corner until you read them (click the notification to make it disappear).
+Please be aware that the extension checks your Jenkins CI Server only at the provided auto-refresh interval.
+If the build time for a job is shorter than the auto-refresh interval the extension will most likely not notice finished builds.
 
 ### 4. Filter jobs:
 There is a filter for each job state. Enabling the switch will show the matching jobs in the popup menu, disabling the switch will hide the jobs.
