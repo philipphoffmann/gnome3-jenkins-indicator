@@ -320,6 +320,9 @@ const JenkinsIndicator = new Lang.Class({
     	
     	// start off if no jobs to display
     	this.jobs = []
+    	
+    	// lock used to prevent multiple parallel update requests
+    	this._isUpdating = false;
 
 		// start off with a blue overall indicator
         this._iconActor = new St.Icon({ icon_name: jobStates.getIcon(jobStates.getDefaultState()),
@@ -363,34 +366,45 @@ const JenkinsIndicator = new Lang.Class({
 
 	// request local jenkins server for current state
 	request: function() {
-		// ajax request to local jenkins server
-		let request = Soup.Message.new('GET', urlAppend(settings.get_string("jenkins-url"), 'api/json'));
-		if( request )
+		// only update if no update is currently running
+		if( !this._isUpdating )
 		{
-			_httpSession.queue_message(request, Lang.bind(this, function(_httpSession, message) {
-				// http error
-				if( message.status_code!==200 )
-				{
-					this.showError("invalid Jenkins CI Server web frontend URL");
-				}
-				// http ok
-				else
-				{
-					// parse json
-					let jenkinsState = JSON.parse(request.response_body.data);
-
-					// update jobs
-					this.jobs = jenkinsState.jobs;
+			this._isUpdating = true;
+			// ajax request to local jenkins server
+			let request = Soup.Message.new('GET', urlAppend(settings.get_string("jenkins-url"), 'api/json'));
+			if( request )
+			{
+				_httpSession.queue_message(request, Lang.bind(this, function(_httpSession, message) {
+					// http error
+					if( message.status_code!==200 )
+					{
+						this.showError("invalid Jenkins CI Server web frontend URL");
+					}
+					// http ok
+					else
+					{
+						// parse json
+						let jenkinsState = JSON.parse(request.response_body.data);
+	
+						// update jobs
+						this.jobs = jenkinsState.jobs;
+						
+						// update indicator (icon and popupmenu contents)
+						this.update();
+					}
 					
-					// update indicator (icon and popupmenu contents)
-					this.update();
-				}
-			}));
-		}
-		// no valid url was provided in settings dialog
-		else
-		{
-			this.showError("invalid Jenkins CI Server web frontend URL");
+					// we're done updating and ready for the next request
+					this._isUpdating = false;
+				}));
+			}
+			// no valid url was provided in settings dialog
+			else
+			{
+				this.showError("invalid Jenkins CI Server web frontend URL");
+				
+				// we're done updating and ready for the next request
+				this._isUpdating = false;
+			}
 		}
 	},
 
