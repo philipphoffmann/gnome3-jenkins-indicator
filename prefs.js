@@ -20,9 +20,9 @@ function buildIconSwitchSetting(icon, label, setting_name)
 	let hboxFilterJobs = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
 	let iconFilterJobs = new Gtk.Image({file: Me.dir.get_path() + "/icons/prefs/" + icon + ".png"});
 	let labelFilterJobs = new Gtk.Label({label: label, xalign: 0});
-	let inputFilterJobs = new Gtk.Switch({active: settings.get_boolean(setting_name)});
+	let inputFilterJobs = new Gtk.Switch({active: settingsJSON['servers'][0][setting_name]});
 
-	inputFilterJobs.connect("notify::active", Lang.bind(this, function(input){settings.set_boolean(setting_name, input.get_active()); }));
+	inputFilterJobs.connect("notify::active", Lang.bind(this, function(input){ updateSetting(0, setting_name, input.get_active()); }));
 
     hboxFilterJobs.pack_start(iconFilterJobs, false, false, 0);
     hboxFilterJobs.pack_start(labelFilterJobs, true, true, 0);
@@ -36,6 +36,7 @@ function updateSetting(server_num, setting, value)
     settingsJSON = JSON.parse(settings.get_string("settings-json"));
     settingsJSON["servers"][server_num][setting] = value;
     settings.set_string("settings-json", JSON.stringify(settingsJSON));
+    this.emit("asdfg");
 }
 
 function buildPrefsWidget() {
@@ -61,7 +62,7 @@ function buildPrefsWidget() {
 		vboxJenkinsConnection.add(hboxJenkinsUrl);
 		
 		// green balls plugin
-		vboxJenkinsConnection.add(buildIconSwitchSetting("green", _("'Green Balls' plugin"), 'green-balls-plugin'));
+		vboxJenkinsConnection.add(buildIconSwitchSetting("green", _("'Green Balls' plugin"), 'green_balls_plugin'));
 
 	vbox.add(vboxJenkinsConnection);
 
@@ -75,10 +76,10 @@ function buildPrefsWidget() {
 		// auto refresh
 		let hboxAutoRefresh = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
 		let labelAutoRefresh = new Gtk.Label({label: _("auto-refresh"), xalign: 0});
-		let inputAutoRefresh = new Gtk.Switch({active: settings.get_boolean("autorefresh")});
+		let inputAutoRefresh = new Gtk.Switch({active: settingsJSON['servers'][0]['autorefresh']});
 
 		inputAutoRefresh.connect("notify::active", Lang.bind(this, function(input){
-			settings.set_boolean("autorefresh", input.get_active());
+			updateSetting(0, 'autorefresh', input.get_active());
 			inputAutorefreshInterval.set_editable(input.get_active());
 		}));
 
@@ -93,13 +94,13 @@ function buildPrefsWidget() {
 		// had to replace the spinbutton since the change event is not triggered if the value is change by key presses
 		//let inputAutorefreshInterval = new Gtk.SpinButton({ numeric: true, adjustment: new Gtk.Adjustment({value: settings.get_int("autorefresh-interval"), lower: 1, upper: 86400, step_increment: 1}) });
 		let inputAutorefreshInterval = new Gtk.HScale.new_with_range( 1, 600, 1 );
-		inputAutorefreshInterval.set_value(settings.get_int("autorefresh-interval"));
+		inputAutorefreshInterval.set_value(settingsJSON['servers'][0]['autorefresh_interval']);
 		inputAutorefreshInterval.set_size_request(200, -1);
 		
 		// this doesnt work for a slider
 		//inputAutorefreshInterval.set_editable(inputAutoRefresh.get_active());
 
-		inputAutorefreshInterval.connect("value_changed", Lang.bind(inputAutorefreshInterval, function(){ settings.set_int("autorefresh-interval", this.get_value()); }));
+		inputAutorefreshInterval.connect("value_changed", Lang.bind(inputAutorefreshInterval, function(){ updateSetting(0, 'autorefresh_interval', this.get_value()); }));
 
 	    hboxAutorefreshInterval.pack_start(labelAutorefreshInterval, true, true, 0);
 		hboxAutorefreshInterval.add(inputAutorefreshInterval);
@@ -117,10 +118,10 @@ function buildPrefsWidget() {
 		// notification for finished jobs
 		let hboxNotificationFinishedJobs = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
 		let labelNotificationFinishedJobs = new Gtk.Label({label: _("notification for finished jobs"), xalign: 0});
-		let inputNotificationFinishedJobs = new Gtk.Switch({active: settings.get_boolean("notification-finished-jobs")});
+		let inputNotificationFinishedJobs = new Gtk.Switch({active: settingsJSON['servers'][0]['notification_finished_jobs']});
 
 		inputNotificationFinishedJobs.connect("notify::active", Lang.bind(this, function(input){
-			settings.set_boolean("notification-finished-jobs", input.get_active());
+			updateSetting(0, 'notification_finished_jobs', input.get_active());
 		}));
 
 	    hboxNotificationFinishedJobs.pack_start(labelNotificationFinishedJobs, true, true, 0);
@@ -130,10 +131,10 @@ function buildPrefsWidget() {
 		// stack notifications
 		let hboxStackNotifications = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
 		let labelStackNotifications = new Gtk.Label({label: _("stack notifications in message tray"), xalign: 0});
-		let inputStackNotifications = new Gtk.Switch({active: settings.get_boolean("stack-notifications")});
+		let inputStackNotifications = new Gtk.Switch({active: settingsJSON['servers'][0]['stack_notifications']});
 	
 		inputStackNotifications.connect("notify::active", Lang.bind(this, function(input){
-			settings.set_boolean("stack-notifications", input.get_active());
+			updateSetting(0, 'stack_notifications', input.get_active());
 		}));
 	
 	    hboxStackNotifications.pack_start(labelStackNotifications, true, true, 0);
@@ -150,25 +151,25 @@ function buildPrefsWidget() {
 	let vboxFilters = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, margin_left: 20, margin_bottom: 15 });
 
 		// show running jobs
-		vboxFilters.add(buildIconSwitchSetting("clock", _('show running jobs'), 'show-running-jobs'));
+		vboxFilters.add(buildIconSwitchSetting("clock", _('show running jobs'), 'show_running_jobs'));
 
 		// show successful jobs
-		vboxFilters.add(buildIconSwitchSetting("blue", _('show successful jobs'), 'show-successful-jobs'));
+		vboxFilters.add(buildIconSwitchSetting("blue", _('show successful jobs'), 'show_successful_jobs'));
 
 		// show unstable jobs
-		vboxFilters.add(buildIconSwitchSetting("yellow", _('show unstable jobs'), 'show-unstable-jobs'));
+		vboxFilters.add(buildIconSwitchSetting("yellow", _('show unstable jobs'), 'show_unstable_jobs'));
 
 		// show failed jobs
-		vboxFilters.add(buildIconSwitchSetting("red", _('show failed jobs'), 'show-failed-jobs'));
+		vboxFilters.add(buildIconSwitchSetting("red", _('show failed jobs'), 'show_failed_jobs'));
 
 		// show disabled jobs
-		vboxFilters.add(buildIconSwitchSetting("grey", _('show never built jobs'), 'show-neverbuilt-jobs'));
+		vboxFilters.add(buildIconSwitchSetting("grey", _('show never built jobs'), 'show_neverbuilt_jobs'));
 
 		// show disabled jobs
-		vboxFilters.add(buildIconSwitchSetting("grey", _('show disabled jobs'), 'show-disabled-jobs'));
+		vboxFilters.add(buildIconSwitchSetting("grey", _('show disabled jobs'), 'show_disabled_jobs'));
 
 		// show aborted jobs
-		vboxFilters.add(buildIconSwitchSetting("grey", _('show aborted jobs'), 'show-aborted-jobs'));
+		vboxFilters.add(buildIconSwitchSetting("grey", _('show aborted jobs'), 'show_aborted_jobs'));
 	vbox.add(vboxFilters);
 
 

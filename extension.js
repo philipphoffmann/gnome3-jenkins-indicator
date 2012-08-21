@@ -51,16 +51,16 @@ const jobStates = new function() {
 	// filter refers to the name of the filter setting (whether to show matching jobs or not)
 	// name is used for notifications about job changes
 	let states = [
-		{ color: 'red_anime', 		icon: 'clock', 	filter: 'show-running-jobs', 	name: 'running' },
-		{ color: 'yellow_anime', 	icon: 'clock', 	filter: 'show-running-jobs', 	name: 'running' },
-		{ color: 'blue_anime', 		icon: 'clock', 	filter: 'show-running-jobs', 	name: 'running' },
-		{ color: 'grey_anime', 		icon: 'clock', 	filter: 'show-running-jobs', 	name: 'running' },
-		{ color: 'red', 			icon: 'red', 	filter: 'show-failed-jobs',		name: 'failed' },
-		{ color: 'yellow', 			icon: 'yellow', filter: 'show-unstable-jobs',	name: 'unstable' },
-		{ color: 'blue', 			icon: 'blue', 	filter: 'show-successful-jobs', name: 'successful' },
-		{ color: 'grey', 			icon: 'grey', 	filter: 'show-neverbuilt-jobs', name: 'never built' },
-		{ color: 'aborted', 		icon: 'grey', 	filter: 'show-aborted-jobs',	name: 'aborted' },
-		{ color: 'disabled', 		icon: 'grey', 	filter: 'show-disabled-jobs',	name: 'disabled' }
+		{ color: 'red_anime', 		icon: 'clock', 	filter: 'show_running_jobs', 	name: 'running' },
+		{ color: 'yellow_anime', 	icon: 'clock', 	filter: 'show_running_jobs', 	name: 'running' },
+		{ color: 'blue_anime', 		icon: 'clock', 	filter: 'show_running_jobs', 	name: 'running' },
+		{ color: 'grey_anime', 		icon: 'clock', 	filter: 'show_running_jobs', 	name: 'running' },
+		{ color: 'red', 			icon: 'red', 	filter: 'show_failed_jobs',		name: 'failed' },
+		{ color: 'yellow', 			icon: 'yellow', filter: 'show_unstable_jobs',	name: 'unstable' },
+		{ color: 'blue', 			icon: 'blue', 	filter: 'show_successful_jobs', name: 'successful' },
+		{ color: 'grey', 			icon: 'grey', 	filter: 'show_neverbuilt_jobs', name: 'never built' },
+		{ color: 'aborted', 		icon: 'grey', 	filter: 'show_aborted_jobs',	name: 'aborted' },
+		{ color: 'disabled', 		icon: 'grey', 	filter: 'show_disabled_jobs',	name: 'disabled' }
 	];
 
 	// returns the rank of a job state, highest rank is 0, -1 means that the job state is unknown
@@ -124,12 +124,12 @@ const jobStates = new function() {
 	};
 
 	// enables/disables the green ball plugin
-	this.toggleGreenBallPlugin = function() {
+	this.toggleGreenBallPlugin = function(plugin_active) {
 		for( let i=0 ; i<states.length ; i++ )
 		{
 			if( states[i].color=='blue')
 			{
-				if (states[i].icon == 'blue')
+				if (plugin_active && states[i].icon == 'blue')
 					states[i].icon = 'green';
 				else
 					states[i].icon = 'blue';
@@ -191,7 +191,7 @@ const JobPopupMenuItem = new Lang.Class({
 
 	// clicking a job menu item opens the job in web frontend with default browser
 	activate: function() {
-		Gio.app_info_launch_default_for_uri(urlAppend(settings.get_string("jenkins-url"), 'job/' + this.getJobName()), global.create_app_launch_context());
+		Gio.app_info_launch_default_for_uri(urlAppend(settingsJSON['servers'][0]['jenkins_url'], 'job/' + this.getJobName()), global.create_app_launch_context());
 	},
 
 	// return job name
@@ -202,7 +202,7 @@ const JobPopupMenuItem = new Lang.Class({
 	// update menu item text and icon
 	updateJob: function(job) {
 		// notification for finished job if job icon used to be clock (if enabled in settings)
-		if( settings.get_boolean('notification-finished-jobs') && this.icon.icon_name=='clock' && jobStates.getIcon(job.color)!='clock' )
+		if( settingsJSON['servers'][0]['notification_finished_jobs'] && this.icon.icon_name=='clock' && jobStates.getIcon(job.color)!='clock' )
 		{
 			// create notification source first time we have to display notifications
 			if( _indicator.notification_source==undefined )
@@ -218,7 +218,7 @@ const JobPopupMenuItem = new Lang.Class({
 		    });
 		    
 		    // use transient messages if persistent messages are disabled in settings
-		    if( settings.get_boolean('stack-notifications')==false )
+		    if( settingsJSON['servers'][0]['stack_notifications']==false )
 		    	notification.setTransient(true);
 		    
 		    // notify the user
@@ -354,9 +354,9 @@ const JenkinsIndicator = new Lang.Class({
         this.notification_source;
 
         // enter main loop for refreshing
-        this._mainloop = Mainloop.timeout_add(settings.get_int("autorefresh-interval")*1000, Lang.bind(this, function(){
+        this._mainloop = Mainloop.timeout_add(settingsJSON['servers'][0]['autorefresh_interval']*1000, Lang.bind(this, function(){
         	// request new job states if auto-refresh is enabled
-        	if( settings.get_boolean("autorefresh") )
+        	if( settingsJSON['servers'][0]['autorefresh'] )
         		this.request();
 
         	// returning true is important for restarting the mainloop after timeout
@@ -447,7 +447,7 @@ const JenkinsIndicator = new Lang.Class({
 		for( var i=0 ; i<jobs.length ; ++i )
 		{
 			// filter job if user decided not to show jobs with this state (in settings dialog)
-			if( settings.get_boolean(jobStates.getFilter(jobs[i].color)) )
+			if( settingsJSON['servers'][0][jobStates.getFilter(jobs[i].color)] )
 				filteredJobs[filteredJobs.length] = jobs[i]
 		}
 
@@ -499,8 +499,8 @@ function init(extensionMeta) {
 
 function enable() {
 	// start off with green icons if green balls plugin is enabled
-	if (settings.get_boolean('green-balls-plugin'))
-		jobStates.toggleGreenBallPlugin();
+	if( settingsJSON['servers'][0]['green_balls_plugin'] )
+	jobStates.toggleGreenBallPlugin(true);
 		
 	// create indicator and add to status area
 	_indicator = new JenkinsIndicator;
@@ -509,28 +509,32 @@ function enable() {
     // update settings json object when settings change
     event_signals.push( settings.connect('changed::settings-json',          Lang.bind(_indicator, function(){
         settingsJSON = JSON.parse(settings.get_string("settings-json"));
+        
+        jobStates.toggleGreenBallPlugin(settingsJSON['servers'][0]['green_balls_plugin']);
+        
+        _indicator.update();
         _indicator.request();
     })) );
     
     // try to kick off request as soon as auto-refresh/connection settings change
-    event_signals.push( settings.connect('changed::jenkins-url', 			Lang.bind(_indicator, _indicator.request)) );
+    /*event_signals.push( settings.connect('changed::jenkins-url', 			Lang.bind(_indicator, _indicator.request)) );
     event_signals.push( settings.connect('changed::auto-refresh', 			Lang.bind(_indicator, _indicator.request)) );
-    event_signals.push( settings.connect('changed::autorefresh-interval', 	Lang.bind(_indicator, _indicator.request)) );
+    event_signals.push( settings.connect('changed::autorefresh-interval', 	Lang.bind(_indicator, _indicator.request)) );*/
     
     // enable/disable green balls plugin if setting changed
-    event_signals.push( settings.connect('changed::green-balls-plugin', function(){
+    /*event_signals.push( settings.connect('changed::green_balls_plugin', function(){
     	jobStates.toggleGreenBallPlugin();
     	_indicator.update();
-    }) );
+    }) );*/
     
     // update indicator as soon as filter settings change or green balls plugin setting is changed
-    event_signals.push( settings.connect('changed::show-running-jobs', 		Lang.bind(_indicator, _indicator.update)) );
-    event_signals.push( settings.connect('changed::show-successful-jobs', 	Lang.bind(_indicator, _indicator.update)) );
-    event_signals.push( settings.connect('changed::show-unstable-jobs', 	Lang.bind(_indicator, _indicator.update)) );
-    event_signals.push( settings.connect('changed::show-failed-jobs', 		Lang.bind(_indicator, _indicator.update)) );
-    event_signals.push( settings.connect('changed::show-neverbuilt-jobs', 	Lang.bind(_indicator, _indicator.update)) );
-    event_signals.push( settings.connect('changed::show-disabled-jobs', 	Lang.bind(_indicator, _indicator.update)) );
-    event_signals.push( settings.connect('changed::show-aborted-jobs', 		Lang.bind(_indicator, _indicator.update)) );
+    /*event_signals.push( settings.connect('changed::show_running_jobs', 		Lang.bind(_indicator, _indicator.update)) );
+    event_signals.push( settings.connect('changed::show_successful_jobs', 	Lang.bind(_indicator, _indicator.update)) );
+    event_signals.push( settings.connect('changed::show_unstable_jobs', 	Lang.bind(_indicator, _indicator.update)) );
+    event_signals.push( settings.connect('changed::show_failed_jobs', 		Lang.bind(_indicator, _indicator.update)) );
+    event_signals.push( settings.connect('changed::show_neverbuilt_jobs', 	Lang.bind(_indicator, _indicator.update)) );
+    event_signals.push( settings.connect('changed::show_disabled_jobs', 	Lang.bind(_indicator, _indicator.update)) );
+    event_signals.push( settings.connect('changed::show_aborted_jobs', 		Lang.bind(_indicator, _indicator.update)) );*/
 }
 
 function disable() {

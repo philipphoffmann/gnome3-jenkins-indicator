@@ -7,79 +7,28 @@
 				{
 					"servers": [
 						{
-							"jenkins_url": "http://localhost:8080/"
+							"jenkins_url": "http://localhost:8080/",
+							"green_balls_plugin": true,
+
+							"autorefresh": true,
+							"autorefresh_interval": 5,
+							
+							"notification_finished_jobs": true,
+							"stack_notifications": false,
+							
+							"show_running_jobs": true,
+							"show_successful_jobs": true,
+							"show_unstable_jobs": true,
+							"show_failed_jobs": true,
+							"show_neverbuilt_jobs": false,
+							"show_disabled_jobs": false,
+							"show_aborted_jobs": false
 						}
 					]
 				}
 			'</default>
 			<summary>JSON settings</summary>
 			<description>Settings for all Jenkins CI Servers in JSON format.</description>
-		</key>
-		<key type="b" name="green-balls-plugin">
-			<default>false</default>
-			<summary>toggle green balls plugin</summary>
-      		<description>If enabled, green icon is used instead of the blue one.</description>
-    	</key>
-		
-		<!-- auto refresh settings -->
-		<key type="b" name="autorefresh">
-			<default>true</default>
-			<summary>auto-refresh</summary>
-			<description>If enabled, the Jenkins CI Server will be checked at the given interval. If disabled, the Jenkins CI Server will only be checked when opening the popup menu.</description>
-		</key>
-		<key type="i" name="autorefresh-interval">
-			<default>3</default>
-			<summary>auto-refresh interval (seconds)</summary>
-			<description>This is the interval in seconds in which the extensions checks the Jenkins CI Server for the jobs state.</description>
-		</key>
-		
-		<!-- notification settings -->
-		<key type="b" name="notification-finished-jobs">
-			<default>true</default>
-			<summary>notification for finished jobs</summary>
-			<description>If enabled, you will be notified in the message tray once a job has finished.</description>
-		</key>
-		<key type="b" name="stack-notifications">
-			<default>false</default>
-			<summary>stack notifications in message tray</summary>
-			<description>If enabled, notifications will be stacked in the message tray until you read them. Disable to use transient notifications.</description>
-		</key>
-		
-		<!-- job filters -->
-		<key type="b" name="show-running-jobs">
-			<default>true</default>
-			<summary>show running jobs</summary>
-			<description>If enabled, currently running jobs will appear in the popup menu. Disable to hide running jobs.</description>
-		</key>
-		<key type="b" name="show-successful-jobs">
-			<default>true</default>
-			<summary>show successful jobs</summary>
-			<description>If enabled, jobs with the last build being successful will appear in the popup menu. Disable to hide successful jobs.</description>
-		</key>
-		<key type="b" name="show-unstable-jobs">
-			<default>true</default>
-			<summary>show unstable jobs</summary>
-			<description>If enabled, jobs with the last build being successful but instable will appear in the popup menu. Disable to hide unstable jobs.</description>
-		</key>
-		<key type="b" name="show-failed-jobs">
-			<default>true</default>
-			<summary>show failed jobs</summary>
-			<description>If enabled, jobs with the last build not being successful will appear in the popup menu. Disable to hide failed jobs.</description>
-		</key>
-		<key type="b" name="show-neverbuilt-jobs">
-			<default>false</default>
-			<summary>show never built jobs</summary>
-			<description>If enabled, never built jobs will appear in the popup menu. Disable to hide never built jobs.</description>
-		</key>
-		<key type="b" name="show-disabled-jobs">
-			<default>false</default>
-			<summary>show disabled jobs</summary>
-			<description>If enabled, disabled jobs will appear in the popup menu. Disable to hide disabled jobs.</description>
-		</key>
-		<key type="b" name="show-aborted-jobs">
-			<default>false</default>
-			<summary>show aborted jobs</summary>
-			<description>If enabled, aborted jobs will appear in the popup menu. Disable to hide aborted jobs.</description>
 		</key>
 	</schema>
 </schemalist>
