@@ -2,10 +2,18 @@
 <schemalist gettext-domain="gnome3-jenkins">
 	<schema path="/org/gnome/shell/extensions/jenkins-indicator/" id="org.gnome.shell.extensions.jenkins-indicator">
 		<!-- jenkins connection -->
-		<key type="s" name="jenkins-url">
-			<default>'http://localhost:8080/'</default>
-			<summary>Jenkins CI Server web frontend URL</summary>
-			<description>This is the URL of the web frontend provided by your Jenkins CI Server.</description>
+		<key type="s" name="settings-json">
+			<default>'
+				{
+					"servers": [
+						{
+							"jenkins_url": "http://localhost:8080/"
+						}
+					]
+				}
+			'</default>
+			<summary>JSON settings</summary>
+			<description>Settings for all Jenkins CI Servers in JSON format.</description>
 		</key>
 		<key type="b" name="green-balls-plugin">
 			<default>false</default>

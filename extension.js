@@ -27,7 +27,7 @@ const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;
 const ICON_SIZE_INDICATOR = 16;
 const ICON_SIZE_NOTIFICATION = 24;
 
-let _indicator, settings;
+let _indicator, settings, settingsJSON;
 
 // signals container (for clean disconnecting from signals if extension gets disabled)
 let event_signals = [];
@@ -371,7 +371,7 @@ const JenkinsIndicator = new Lang.Class({
 		{
 			this._isUpdating = true;
 			// ajax request to local jenkins server
-			let request = Soup.Message.new('GET', urlAppend(settings.get_string("jenkins-url"), 'api/json'));
+			let request = Soup.Message.new('GET', urlAppend(settingsJSON['servers'][0]['jenkins_url'], 'api/json'));
 			if( request )
 			{
 				_httpSession.queue_message(request, Lang.bind(this, function(_httpSession, message) {
@@ -494,6 +494,7 @@ function init(extensionMeta) {
     
     // load extension settings
 	settings = Convenience.getSettings();
+	settingsJSON = JSON.parse(settings.get_string("settings-json"));
 }
 
 function enable() {
@@ -504,6 +505,12 @@ function enable() {
 	// create indicator and add to status area
 	_indicator = new JenkinsIndicator;
     Main.panel.addToStatusArea("jenkins-indicator", _indicator);
+    
+    // update settings json object when settings change
+    event_signals.push( settings.connect('changed::settings-json',          Lang.bind(_indicator, function(){
+        settingsJSON = JSON.parse(settings.get_string("settings-json"));
+        _indicator.request();
+    })) );
     
     // try to kick off request as soon as auto-refresh/connection settings change
     event_signals.push( settings.connect('changed::jenkins-url', 			Lang.bind(_indicator, _indicator.request)) );

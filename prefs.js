@@ -6,11 +6,12 @@ const Convenience = Me.imports.convenience;
 
 const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;
 
-let settings;
+let settings, settingsJSON;
 
 function init() {
     Convenience.initTranslations();
     settings = Convenience.getSettings();
+    settingsJSON = JSON.parse(settings.get_string("settings-json"));
 }
 
 // builds a line (icon + label + switch) for a setting
@@ -30,6 +31,13 @@ function buildIconSwitchSetting(icon, label, setting_name)
 	return hboxFilterJobs;
 }
 
+function updateSetting(server_num, setting, value)
+{
+    settingsJSON = JSON.parse(settings.get_string("settings-json"));
+    settingsJSON["servers"][server_num][setting] = value;
+    settings.set_string("settings-json", JSON.stringify(settingsJSON));
+}
+
 function buildPrefsWidget() {
     let frame = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, border_width: 10 });
 
@@ -44,9 +52,9 @@ function buildPrefsWidget() {
 		// jenkins url
 	    let hboxJenkinsUrl = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
 		let labelJenkinsUrl = new Gtk.Label({label: _("Jenkins CI Server web frontend URL"), xalign: 0});
-		let inputJenkinsUrl = new Gtk.Entry({ hexpand: true, text: settings.get_string("jenkins-url") });
+		let inputJenkinsUrl = new Gtk.Entry({ hexpand: true, text: settingsJSON['servers'][0]['jenkins_url'] });
 
-		inputJenkinsUrl.connect("changed", Lang.bind(this, function(input){	settings.set_string("jenkins-url", input.text); }));
+		inputJenkinsUrl.connect("changed", Lang.bind(this, function(input){ updateSetting(0, "jenkins_url", input.text); }));
 
 	    hboxJenkinsUrl.pack_start(labelJenkinsUrl, true, true, 0);
 		hboxJenkinsUrl.add(inputJenkinsUrl);
