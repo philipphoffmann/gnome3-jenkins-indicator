@@ -36,7 +36,6 @@ function updateSetting(server_num, setting, value)
     settingsJSON = JSON.parse(settings.get_string("settings-json"));
     settingsJSON["servers"][server_num][setting] = value;
     settings.set_string("settings-json", JSON.stringify(settingsJSON));
-    this.emit("asdfg");
 }
 
 function buildPrefsWidget() {
