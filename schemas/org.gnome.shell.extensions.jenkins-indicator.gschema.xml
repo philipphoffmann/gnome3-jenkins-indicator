@@ -5,10 +5,10 @@
 		<key type="s" name="settings-json">
 			<default>'
 				{
+					"green_balls_plugin": false,
 					"servers": [
 						{
 							"jenkins_url": "http://localhost:8080/",
-							"green_balls_plugin": true,
 
 							"autorefresh": true,
 							"autorefresh_interval": 5,

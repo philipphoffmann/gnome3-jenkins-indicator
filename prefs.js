@@ -22,7 +22,7 @@ function buildIconSwitchSetting(icon, label, setting_name)
 	let labelFilterJobs = new Gtk.Label({label: label, xalign: 0});
 	let inputFilterJobs = new Gtk.Switch({active: settingsJSON['servers'][0][setting_name]});
 
-	inputFilterJobs.connect("notify::active", Lang.bind(this, function(input){ updateSetting(0, setting_name, input.get_active()); }));
+	inputFilterJobs.connect("notify::active", Lang.bind(this, function(input){ updateServerSetting(0, setting_name, input.get_active()); }));
 
     hboxFilterJobs.pack_start(iconFilterJobs, false, false, 0);
     hboxFilterJobs.pack_start(labelFilterJobs, true, true, 0);
@@ -31,7 +31,14 @@ function buildIconSwitchSetting(icon, label, setting_name)
 	return hboxFilterJobs;
 }
 
-function updateSetting(server_num, setting, value)
+function updateSetting(setting, value)
+{
+    settingsJSON = JSON.parse(settings.get_string("settings-json"));
+    settingsJSON[setting] = value;
+    settings.set_string("settings-json", JSON.stringify(settingsJSON));
+}
+
+function updateServerSetting(server_num, setting, value)
 {
     settingsJSON = JSON.parse(settings.get_string("settings-json"));
     settingsJSON["servers"][server_num][setting] = value;
@@ -54,14 +61,25 @@ function buildPrefsWidget() {
 		let labelJenkinsUrl = new Gtk.Label({label: _("Jenkins CI Server web frontend URL"), xalign: 0});
 		let inputJenkinsUrl = new Gtk.Entry({ hexpand: true, text: settingsJSON['servers'][0]['jenkins_url'] });
 
-		inputJenkinsUrl.connect("changed", Lang.bind(this, function(input){ updateSetting(0, "jenkins_url", input.text); }));
+		inputJenkinsUrl.connect("changed", Lang.bind(this, function(input){ updateServerSetting(0, "jenkins_url", input.text); }));
 
 	    hboxJenkinsUrl.pack_start(labelJenkinsUrl, true, true, 0);
 		hboxJenkinsUrl.add(inputJenkinsUrl);
 		vboxJenkinsConnection.add(hboxJenkinsUrl);
 		
 		// green balls plugin
-		vboxJenkinsConnection.add(buildIconSwitchSetting("green", _("'Green Balls' plugin"), 'green_balls_plugin'));
+		let hboxGreenBallsPlugin = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+        let iconGreenBallsPlugin = new Gtk.Image({file: Me.dir.get_path() + "/icons/prefs/green.png"});
+        let labelGreenBallsPlugin = new Gtk.Label({label: _("'Green Balls' plugin"), xalign: 0});
+        let inputGreenBallsPlugin = new Gtk.Switch({active: settingsJSON['green_balls_plugin']});
+    
+        inputGreenBallsPlugin.connect("notify::active", Lang.bind(this, function(input){ updateSetting('green_balls_plugin', input.get_active()); }));
+    
+        hboxGreenBallsPlugin.pack_start(iconGreenBallsPlugin, false, false, 0);
+        hboxGreenBallsPlugin.pack_start(labelGreenBallsPlugin, true, true, 0);
+        hboxGreenBallsPlugin.add(inputGreenBallsPlugin);
+		
+		vboxJenkinsConnection.add(hboxGreenBallsPlugin);
 
 	vbox.add(vboxJenkinsConnection);
 
@@ -78,7 +96,7 @@ function buildPrefsWidget() {
 		let inputAutoRefresh = new Gtk.Switch({active: settingsJSON['servers'][0]['autorefresh']});
 
 		inputAutoRefresh.connect("notify::active", Lang.bind(this, function(input){
-			updateSetting(0, 'autorefresh', input.get_active());
+			updateServerSetting(0, 'autorefresh', input.get_active());
 			inputAutorefreshInterval.set_editable(input.get_active());
 		}));
 
@@ -99,7 +117,7 @@ function buildPrefsWidget() {
 		// this doesnt work for a slider
 		//inputAutorefreshInterval.set_editable(inputAutoRefresh.get_active());
 
-		inputAutorefreshInterval.connect("value_changed", Lang.bind(inputAutorefreshInterval, function(){ updateSetting(0, 'autorefresh_interval', this.get_value()); }));
+		inputAutorefreshInterval.connect("value_changed", Lang.bind(inputAutorefreshInterval, function(){ updateServerSetting(0, 'autorefresh_interval', this.get_value()); }));
 
 	    hboxAutorefreshInterval.pack_start(labelAutorefreshInterval, true, true, 0);
 		hboxAutorefreshInterval.add(inputAutorefreshInterval);
@@ -120,7 +138,7 @@ function buildPrefsWidget() {
 		let inputNotificationFinishedJobs = new Gtk.Switch({active: settingsJSON['servers'][0]['notification_finished_jobs']});
 
 		inputNotificationFinishedJobs.connect("notify::active", Lang.bind(this, function(input){
-			updateSetting(0, 'notification_finished_jobs', input.get_active());
+			updateServerSetting(0, 'notification_finished_jobs', input.get_active());
 		}));
 
 	    hboxNotificationFinishedJobs.pack_start(labelNotificationFinishedJobs, true, true, 0);
@@ -133,7 +151,7 @@ function buildPrefsWidget() {
 		let inputStackNotifications = new Gtk.Switch({active: settingsJSON['servers'][0]['stack_notifications']});
 	
 		inputStackNotifications.connect("notify::active", Lang.bind(this, function(input){
-			updateSetting(0, 'stack_notifications', input.get_active());
+			updateServerSetting(0, 'stack_notifications', input.get_active());
 		}));
 	
 	    hboxStackNotifications.pack_start(labelStackNotifications, true, true, 0);

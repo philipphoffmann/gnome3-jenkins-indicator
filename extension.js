@@ -499,7 +499,7 @@ function init(extensionMeta) {
 
 function enable() {
 	// start off with green icons if green balls plugin is enabled
-	if( settingsJSON['servers'][0]['green_balls_plugin'] )
+	if( settingsJSON['green_balls_plugin'] )
 	   jobStates.toggleGreenBallsPlugin(true);
 		
 	// create indicator and add to status area
@@ -510,7 +510,7 @@ function enable() {
     event_signals.push( settings.connect('changed::settings-json', Lang.bind(_indicator, function(){
         settingsJSON = JSON.parse(settings.get_string("settings-json"));
         
-        jobStates.toggleGreenBallsPlugin(settingsJSON['servers'][0]['green_balls_plugin']);
+        jobStates.toggleGreenBallsPlugin(settingsJSON['green_balls_plugin']);
         
         _indicator.update();
         _indicator.request();
