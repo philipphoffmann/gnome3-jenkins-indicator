@@ -124,7 +124,7 @@ const jobStates = new function() {
 	};
 
 	// enables/disables the green ball plugin
-	this.toggleGreenBallPlugin = function(plugin_active) {
+	this.toggleGreenBallsPlugin = function(plugin_active) {
 		for( let i=0 ; i<states.length ; i++ )
 		{
 			if( states[i].color=='blue')
@@ -500,17 +500,17 @@ function init(extensionMeta) {
 function enable() {
 	// start off with green icons if green balls plugin is enabled
 	if( settingsJSON['servers'][0]['green_balls_plugin'] )
-	   jobStates.toggleGreenBallPlugin(true);
+	   jobStates.toggleGreenBallsPlugin(true);
 		
 	// create indicator and add to status area
 	_indicator = new JenkinsIndicator;
     Main.panel.addToStatusArea("jenkins-indicator", _indicator);
     
     // update settings json object when settings change
-    event_signals.push( settings.connect('changed::settings-json',          Lang.bind(_indicator, function(){
+    event_signals.push( settings.connect('changed::settings-json', Lang.bind(_indicator, function(){
         settingsJSON = JSON.parse(settings.get_string("settings-json"));
         
-        jobStates.toggleGreenBallPlugin(settingsJSON['servers'][0]['green_balls_plugin']);
+        jobStates.toggleGreenBallsPlugin(settingsJSON['servers'][0]['green_balls_plugin']);
         
         _indicator.update();
         _indicator.request();
