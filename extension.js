@@ -500,7 +500,7 @@ function init(extensionMeta) {
 function enable() {
 	// start off with green icons if green balls plugin is enabled
 	if( settingsJSON['servers'][0]['green_balls_plugin'] )
-	jobStates.toggleGreenBallPlugin(true);
+	   jobStates.toggleGreenBallPlugin(true);
 		
 	// create indicator and add to status area
 	_indicator = new JenkinsIndicator;
@@ -515,26 +515,6 @@ function enable() {
         _indicator.update();
         _indicator.request();
     })) );
-    
-    // try to kick off request as soon as auto-refresh/connection settings change
-    /*event_signals.push( settings.connect('changed::jenkins-url', 			Lang.bind(_indicator, _indicator.request)) );
-    event_signals.push( settings.connect('changed::auto-refresh', 			Lang.bind(_indicator, _indicator.request)) );
-    event_signals.push( settings.connect('changed::autorefresh-interval', 	Lang.bind(_indicator, _indicator.request)) );*/
-    
-    // enable/disable green balls plugin if setting changed
-    /*event_signals.push( settings.connect('changed::green_balls_plugin', function(){
-    	jobStates.toggleGreenBallPlugin();
-    	_indicator.update();
-    }) );*/
-    
-    // update indicator as soon as filter settings change or green balls plugin setting is changed
-    /*event_signals.push( settings.connect('changed::show_running_jobs', 		Lang.bind(_indicator, _indicator.update)) );
-    event_signals.push( settings.connect('changed::show_successful_jobs', 	Lang.bind(_indicator, _indicator.update)) );
-    event_signals.push( settings.connect('changed::show_unstable_jobs', 	Lang.bind(_indicator, _indicator.update)) );
-    event_signals.push( settings.connect('changed::show_failed_jobs', 		Lang.bind(_indicator, _indicator.update)) );
-    event_signals.push( settings.connect('changed::show_neverbuilt_jobs', 	Lang.bind(_indicator, _indicator.update)) );
-    event_signals.push( settings.connect('changed::show_disabled_jobs', 	Lang.bind(_indicator, _indicator.update)) );
-    event_signals.push( settings.connect('changed::show_aborted_jobs', 		Lang.bind(_indicator, _indicator.update)) );*/
 }
 
 function disable() {
