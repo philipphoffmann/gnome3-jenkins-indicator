@@ -8,6 +8,8 @@
 					"green_balls_plugin": false,
 					"servers": [
 						{
+							"name": "Default",
+							
 							"jenkins_url": "http://localhost:8080/",
 
 							"autorefresh": true,
