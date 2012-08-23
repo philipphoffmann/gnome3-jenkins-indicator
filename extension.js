@@ -427,13 +427,18 @@ const JenkinsIndicator = new Lang.Class({
         event_signals.push( this.actor.connect("button-press-event", Lang.bind(this, this.request)) );
 
         // enter main loop for refreshing
+        this._mainloopInit();
+    },
+    
+    _mainloopInit: function() {
+        // create new main loop
         this._mainloop = Mainloop.timeout_add(this.settings.autorefresh_interval*1000, Lang.bind(this, function(){
-        	// request new job states if auto-refresh is enabled
-        	if( this.settings.autorefresh )
-        		this.request();
+            // request new job states if auto-refresh is enabled
+            if( this.settings.autorefresh )
+                this.request();
 
-        	// returning true is important for restarting the mainloop after timeout
-        	return true;
+            // returning true is important for restarting the mainloop after timeout
+            return true;
         }));
     },
 
@@ -533,6 +538,10 @@ const JenkinsIndicator = new Lang.Class({
 	    // update server menu item
 	    this.menu.updateSettings(this.settings);
 	    this.serverMenuItem.updateSettings(this.settings);
+	    
+	    // refresh main loop
+	    Mainloop.source_remove(this._mainloop);
+	    this._mainloopInit();
 
 	    this.update();
 	},
