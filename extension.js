@@ -638,7 +638,7 @@ function enable() {
 }
 
 function disable() {
-    for( var i=0 ; i<_indicators.length-1 ; ++i )
+    for( var i=0 ; i<_indicators.length ; ++i )
         _indicators[i].destroy();
 
     _indicators = [];
