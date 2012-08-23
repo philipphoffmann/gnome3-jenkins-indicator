@@ -291,8 +291,8 @@ const JobPopupMenuItem = new Lang.Class({
 });
 
 // manages jobs popup menu items
-const JobPopupMenu = new Lang.Class({
-	Name: 'JobPopupMenu',
+const ServerPopupMenu = new Lang.Class({
+	Name: 'ServerPopupMenu',
 	Extends: PopupMenu.PopupMenu,
 
 	_init: function(sourceActor, arrowAlignment, arrowSide, server_num) {
@@ -378,11 +378,11 @@ const JenkinsIndicator = new Lang.Class({
     	// the number of the server this indicator refers to
     	this.server_num = server_num;
     	
-    	// start off if no jobs to display
+    	// start off with no jobs to display
     	this.jobs = [];
     	
     	// lock used to prevent multiple parallel update requests
-    	this._isUpdating = false;
+    	this._isRequesting = false;
 
 		// start off with a blue overall indicator
         this._iconActor = new St.Icon({ icon_name: jobStates.getIcon(this.server_num, jobStates.getDefaultState()),
@@ -392,7 +392,7 @@ const JenkinsIndicator = new Lang.Class({
         this.actor.add_actor(this._iconActor);
 
         // add jobs popup menu
-		this.setMenu(new JobPopupMenu(this.actor, 0.25, St.Side.TOP, this.server_num));
+		this.setMenu(new ServerPopupMenu(this.actor, 0.25, St.Side.TOP, this.server_num));
 
 		// add seperator to popup menu
 		this.menu.addMenuItem(new ServerPopupMenuItem(null, this.server_num));
@@ -429,9 +429,9 @@ const JenkinsIndicator = new Lang.Class({
 	// request local jenkins server for current state
 	request: function() {
 		// only update if no update is currently running
-		if( !this._isUpdating )
+		if( !this._isRequesting )
 		{
-			this._isUpdating = true;
+			this._isRequesting = true;
 			// ajax request to local jenkins server
 			let request = Soup.Message.new('GET', urlAppend(settingsJSON['servers'][this.server_num]['jenkins_url'], 'api/json'));
 			if( request )
@@ -456,7 +456,7 @@ const JenkinsIndicator = new Lang.Class({
 					}
 					
 					// we're done updating and ready for the next request
-					this._isUpdating = false;
+					this._isRequesting = false;
 				}));
 			}
 			// no valid url was provided in settings dialog
@@ -465,7 +465,7 @@ const JenkinsIndicator = new Lang.Class({
 				this.showError("invalid Jenkins CI Server web frontend URL");
 				
 				// we're done updating and ready for the next request
-				this._isUpdating = false;
+				this._isRequesting = false;
 			}
 		}
 	},
@@ -546,35 +546,11 @@ const JenkinsIndicator = new Lang.Class({
 	}
 });
 
-function bootstrapIndicator(server_num)
+function createIndicator(server_num)
 {
     // create indicator and add to status area
     _indicators[server_num] = new JenkinsIndicator(server_num);
     Main.panel.addToStatusArea("jenkins-indicator-"+settingsJSON['servers'][server_num]['id'], _indicators[server_num]);
-    
-    // update settings json object when settings change
-    event_signals.push( settings.connect('changed::settings-json', Lang.bind(_indicators[server_num], function(){
-        settingsJSON_old = settingsJSON;
-        settingsJSON = Settings.getSettingsJSON(settings);
-
-        // destroy deleted indicators
-        arrayOpCompare(settingsJSON_old['servers'], settingsJSON['servers'], function(a, b){
-            return a['id']==b['id'];
-        }, function(index, element){
-            _indicators[index].destroy();
-            _indicators.splice(index,1);
-        });
-        
-        // create new indicators
-        arrayOpCompare(settingsJSON['servers'], settingsJSON_old['servers'], function(a, b){
-            return a['id']==b['id'];
-        }, function(index, element){
-            bootstrapIndicator(index);
-        });
-
-        this.update();
-        this.request();
-    })) );
 }
 
 function init(extensionMeta) {
@@ -592,10 +568,38 @@ function init(extensionMeta) {
 
 function enable() {
     // we need to add indicators in reverse order so they appear from left to right
-	for( var i=settingsJSON['servers'].length-1 ; i>=0 ; --i )
+	for( let i=settingsJSON['servers'].length-1 ; i>=0 ; --i )
     {
-        bootstrapIndicator(i);
+        createIndicator(i);
     }
+    
+    // react to changing settings by adding/removing indicators if necessary
+    event_signals.push( settings.connect('changed::settings-json', function(){
+        settingsJSON_old = settingsJSON;
+        settingsJSON = Settings.getSettingsJSON(settings);
+
+        // destroy deleted indicators
+        arrayOpCompare(settingsJSON_old['servers'], settingsJSON['servers'], function(a, b){
+            return a['id']==b['id'];
+        }, function(index, element){
+            _indicators[index].destroy();
+            _indicators.splice(index,1);
+        });
+        
+        // create new indicators
+        arrayOpCompare(settingsJSON['servers'], settingsJSON_old['servers'], function(a, b){
+            return a['id']==b['id'];
+        }, function(index, element){
+            createIndicator(index);
+        });
+        
+        // update all indicators
+        for( let i=0 ; i<_indicators.length ; ++i )
+        {
+            _indicators[i].update();
+            _indicators[i].request();
+        }
+    }) );
 }
 
 function disable() {

@@ -3,6 +3,7 @@ const Gtk = imports.gi.Gtk;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
+const Settings = Me.imports.settings;
 
 const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;
 
@@ -11,7 +12,7 @@ let settings, settingsJSON;
 function init() {
     Convenience.initTranslations();
     settings = Convenience.getSettings();
-    settingsJSON = JSON.parse(settings.get_string("settings-json"));
+    settingsJSON = Settings.getSettingsJSON(settings);
 }
 
 // builds a line (icon + label + switch) for a setting
@@ -33,14 +34,14 @@ function buildIconSwitchSetting(icon, label, setting_name, server_num)
 
 function updateSetting(setting, value)
 {
-    settingsJSON = JSON.parse(settings.get_string("settings-json"));
+    settingsJSON = Settings.getSettingsJSON(settings);
     settingsJSON[setting] = value;
     settings.set_string("settings-json", JSON.stringify(settingsJSON));
 }
 
 function updateServerSetting(server_num, setting, value)
 {
-    settingsJSON = JSON.parse(settings.get_string("settings-json"));
+    settingsJSON = Settings.getSettingsJSON(settings);
     settingsJSON["servers"][server_num][setting] = value;
     settings.set_string("settings-json", JSON.stringify(settingsJSON));
 }
@@ -110,7 +111,7 @@ function addTabPanel(notebook, server_num)
 
         inputAutoRefresh.connect("notify::active", Lang.bind(this, function(input){
             updateServerSetting(server_num, 'autorefresh', input.get_active());
-            inputAutorefreshInterval.set_editable(input.get_active());
+            //inputAutorefreshInterval.set_editable(input.get_active());
         }));
 
         hboxAutoRefresh.pack_start(labelAutoRefresh, true, true, 0);
@@ -224,18 +225,6 @@ function addTabPanel(notebook, server_num)
     notebook.append_page(tabContent, tabWidget);
 }
 
-function bootstrapTab() {
-    // copy settings from last server (parsing json twice to prevent copying by referenc)
-    settingsJSON['servers'][settingsJSON['servers'].length] = JSON.parse(JSON.stringify(settingsJSON['servers'][settingsJSON['servers'].length-1]));
-    
-    // set new id
-    let currentDate = new Date;
-    settingsJSON['servers'][settingsJSON['servers'].length-1]['id'] = currentDate.getTime();
-    
-    // save new settings
-    settings.set_string("settings-json", JSON.stringify(settingsJSON));
-}
-
 function removeTab(server_num) {
     settingsJSON['servers'].splice(server_num, 1);
     
@@ -255,7 +244,17 @@ function buildPrefsWidget() {
 	// *** add server panel ***
 	let btnNewServer = new Gtk.Button({label: _('Add server')});
 	btnNewServer.connect('clicked', Lang.bind(notebook, function(){
-        bootstrapTab();
+        // get default settings for this new server
+        settingsJSON['servers'][settingsJSON['servers'].length] = Settings.DefaultSettings['servers'][0];
+        
+        // set new id
+        let currentDate = new Date;
+        settingsJSON['servers'][settingsJSON['servers'].length-1]['id'] = currentDate.getTime();
+        
+        // save new settings
+        settings.set_string("settings-json", JSON.stringify(settingsJSON));
+    
+        // add tab with copied settings
         addTabPanel(notebook, settingsJSON['servers'].length-1);
         notebook.show_all();
         
