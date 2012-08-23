@@ -24,11 +24,15 @@ If everything is set up correctly you should be able to click the extension icon
 
 ## configuration:
 You can configure the extension using the regular extension settings dialog either by clicking **settings** in the extension popup menu or by running `gnome-shell-extension-prefs` and selection the **Jenkins CI Server Indicator** in the drop down menu. 
+Each tab holds the settings for one Jenkins CI Server.
+You can add more servers by clicking **add server**.
+There is a little **X** button on the tabs to remove the server.
+Each server you configure will be represented with its own indicator in the status panel.
 
 You can configure the following settings:
 
 ### 1. The Jenkins CI Server JSON API URL:
-Set its value to your Jenkins web frontend URL.
+Set its value to your Jenkins web frontend URL. If you have views defined for your Jenkins dashboard you can also put in the URL of the view here.
 You can check if the JSON API is available in your web browser by appending `/api/json` to your web frontend URL (which is what the extension does to get its information).
 You can also enable the "Green Balls Plugin" in this section which enables using green ball icons instead of blue ones, just like the green balls plugin in Jenkins (Thanks to [negesti](https://github.com/negesti) for this contribution).
 
