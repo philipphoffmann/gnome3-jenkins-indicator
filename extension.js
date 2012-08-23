@@ -19,6 +19,7 @@ const SessionMessageTray = imports.ui.main.messageTray;
 // import convenience module (for localization)
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
+const Settings = Me.imports.settings;
 
 // set text domain for localized strings
 const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;
@@ -27,7 +28,8 @@ const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;
 const ICON_SIZE_INDICATOR = 16;
 const ICON_SIZE_NOTIFICATION = 24;
 
-let _indicator, settings, settingsJSON;
+let _indicators = [];
+let settings, settingsJSON;
 
 // signals container (for clean disconnecting from signals if extension gets disabled)
 let event_signals = [];
@@ -42,6 +44,23 @@ function urlAppend(domain, uri)
 		return domain + (domain.charAt(domain.length-1)!='/' ? '/' : '') + uri;
 	else
 		return uri;
+}
+
+// call operation on all elements of array2 which are not in array1 using a compare function
+function arrayOpCompare(array1, array2, compare_func, operation_func)
+{
+    for( var i=0 ; i<array1.length ; ++i )
+    {
+        found_in_array2 = false;
+        for( var j=0 ; j<array2.length ; ++j )
+        {
+            if( compare_func(array1[i], array2[j]) )
+                found_in_array2 = true;
+        }
+        
+        if( !found_in_array2 )
+            operation_func(i, array1[i]);
+    }
 }
 
 // returns icons and state ranks for job states
@@ -75,11 +94,15 @@ const jobStates = new function() {
 	};
 
 	// returns the corresponding icon name of a job state
-	this.getIcon = function(job_color)
+	this.getIcon = function(server_num, job_color)
 	{
 		for( let i=0 ; i<states.length ; ++i )
 		{
-			if( job_color==states[i].color ) return states[i].icon;
+		    // use green balls plugin if actived
+		    if( settingsJSON['servers'][server_num]['green_balls_plugin'] && job_color=='blue' ) return 'green';
+		    
+		    // if not just return a regular icon
+			else if( job_color==states[i].color ) return states[i].icon;
 		}
 		// if job color is unknown, use the grey icon
 		global.log('unkown color: ' + job_color);
@@ -122,22 +145,6 @@ const jobStates = new function() {
 	{
 		return "red";
 	};
-
-	// enables/disables the green ball plugin
-	this.toggleGreenBallsPlugin = function(plugin_active) {
-		for( let i=0 ; i<states.length ; i++ )
-		{
-			if( states[i].color=='blue')
-			{
-				if (plugin_active && states[i].icon == 'blue')
-					states[i].icon = 'green';
-				else
-					states[i].icon = 'blue';
-
-				break;
-			}
-		}
-	}
 };
 
 // source for handling job notifications 
@@ -170,15 +177,59 @@ const JobNotificationSource = new Lang.Class({
     }
 });
 
+const ServerPopupMenuItem = new Lang.Class({
+    Name: 'ServerPopupMenuItem',
+    Extends: PopupMenu.PopupBaseMenuItem,
+
+    _init: function(params, server_num) {
+        this.parent(params);
+        
+        this.server_num = server_num;
+        
+        this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
+        this.icon = new St.Icon({   icon_name: 'headshot',
+                                    icon_type: St.IconType.FULLCOLOR,
+                                    icon_size: ICON_SIZE_INDICATOR,
+                                    style_class: "system-status-icon" });
+        this.label = new St.Label({ text: settingsJSON['servers'][this.server_num]['name'] });
+
+        this.box.add(this.icon);
+        this.box.add(this.label);
+        this.addActor(this.box);
+    },
+
+    // clicking a job menu item opens the job in web frontend with default browser
+    activate: function() {
+        Gio.app_info_launch_default_for_uri(settingsJSON['servers'][this.server_num]['jenkins_url'], global.create_app_launch_context());
+    },
+
+    // update menu item text and icon
+    updateLabel: function(text) {
+        this.label.text = text;
+    },
+    
+    // destroys the job popup menu item
+    destroy: function() {
+        this.icon.destroy();
+        this.label.destroy();
+        this.box.destroy();
+        
+        this.parent();
+    }
+});
+
 // represent a job in the popup menu with icon and job name
 const JobPopupMenuItem = new Lang.Class({
 	Name: 'JobPopupMenuItem',
 	Extends: PopupMenu.PopupBaseMenuItem,
 
-    _init: function(job, params) {
+    _init: function(job, params, server_num) {
     	this.parent(params);
+    	
+    	this.server_num = server_num;
+    	
         this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
-        this.icon = new St.Icon({ 	icon_name: jobStates.getIcon(job.color),
+        this.icon = new St.Icon({ 	icon_name: jobStates.getIcon(this.server_num, job.color),
                                 	icon_type: St.IconType.FULLCOLOR,
                                 	icon_size: ICON_SIZE_INDICATOR,
                                 	style_class: "system-status-icon" });
@@ -191,7 +242,7 @@ const JobPopupMenuItem = new Lang.Class({
 
 	// clicking a job menu item opens the job in web frontend with default browser
 	activate: function() {
-		Gio.app_info_launch_default_for_uri(urlAppend(settingsJSON['servers'][0]['jenkins_url'], 'job/' + this.getJobName()), global.create_app_launch_context());
+		Gio.app_info_launch_default_for_uri(urlAppend(settingsJSON['servers'][this.server_num]['jenkins_url'], 'job/' + this.getJobName()), global.create_app_launch_context());
 	},
 
 	// return job name
@@ -202,16 +253,16 @@ const JobPopupMenuItem = new Lang.Class({
 	// update menu item text and icon
 	updateJob: function(job) {
 		// notification for finished job if job icon used to be clock (if enabled in settings)
-		if( settingsJSON['servers'][0]['notification_finished_jobs'] && this.icon.icon_name=='clock' && jobStates.getIcon(job.color)!='clock' )
+		if( settingsJSON['servers'][this.server_num]['notification_finished_jobs'] && this.icon.icon_name=='clock' && jobStates.getIcon(this.server_num, job.color)!='clock' )
 		{
 			// create notification source first time we have to display notifications
-			if( _indicator.notification_source==undefined )
-				_indicator.notification_source = new JobNotificationSource();
+			if( _indicators.notification_source==undefined )
+				_indicators.notification_source = new JobNotificationSource();
 			
 			// create notification for the finished job
-		    let notification = new MessageTray.Notification(_indicator.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, jobStates.getName(job.color)), {
+		    let notification = new MessageTray.Notification(_indicators.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, jobStates.getName(job.color)), {
 		    	bannerMarkup: true,
-		    	icon: new St.Icon({ icon_name: jobStates.getIcon(job.color),
+		    	icon: new St.Icon({ icon_name: jobStates.getIcon(this.server_num, job.color),
                                 	icon_type: St.IconType.FULLCOLOR,
                                 	icon_size: ICON_SIZE_NOTIFICATION,
                                 	style_class: "system-status-icon" })
@@ -222,11 +273,11 @@ const JobPopupMenuItem = new Lang.Class({
 		    	notification.setTransient(true);
 		    
 		    // notify the user
-		    _indicator.notification_source.notify(notification);
+		    _indicators.notification_source.notify(notification);
 		}
 		
 		this.label.text = job.name;
-		this.icon.icon_name = jobStates.getIcon(job.color);
+		this.icon.icon_name = jobStates.getIcon(this.server_num, job.color);
 	},
 	
 	// destroys the job popup menu item
@@ -244,8 +295,10 @@ const JobPopupMenu = new Lang.Class({
 	Name: 'JobPopupMenu',
 	Extends: PopupMenu.PopupMenu,
 
-	_init: function(sourceActor, arrowAlignment, arrowSide) {
+	_init: function(sourceActor, arrowAlignment, arrowSide, server_num) {
 		this.parent(sourceActor, arrowAlignment, arrowSide);
+
+		this.server_num = server_num;
 	},
 
 	// insert, delete and update all job items in popup menu
@@ -253,20 +306,20 @@ const JobPopupMenu = new Lang.Class({
 		// provide error message if no jobs were found
 		if( new_jobs.length==0 )
 		{
-			_indicator.showError("no jobs found");
+			_indicators.showError("no jobs found");
 			return;
 		}
 
 		// remove previous error message
-		if( this._getMenuItems().length==3 && this._getMenuItems()[0] instanceof PopupMenu.PopupMenuItem )
-			this._getMenuItems()[0].destroy();
+		if( this._getMenuItems().length==5 && this._getMenuItems()[2] instanceof PopupMenu.PopupMenuItem )
+			this._getMenuItems()[2].destroy();
 
 		// check all new job items
 		for( let i=0 ; i<new_jobs.length ; ++i )
 		{
 			// try to find matching job
 			let matching_job = null;
-			for( let j = 0 ; j<this._getMenuItems().length-2 ; ++j )
+			for( let j = 2 ; j<this._getMenuItems().length-2 ; ++j )
 			{
 				if( new_jobs[i].name==this._getMenuItems()[j].getJobName() )
 				{
@@ -284,12 +337,12 @@ const JobPopupMenu = new Lang.Class({
 			// otherwise insert as new job
 			else
 			{
-				this.addMenuItem(new JobPopupMenuItem(new_jobs[i]), i);
+				this.addMenuItem(new JobPopupMenuItem(new_jobs[i], null, this.server_num), i+2);
 			}
 		}
-
-		// check for jobs that need to be removed
-		for( let j = 0 ; j<this._getMenuItems().length-2 ; ++j )
+		
+    	// check for jobs that need to be removed
+		for( let j = 2 ; j<this._getMenuItems().length-2 ; ++j )
 		{
 			let job_found = false;
 			for( let i=0 ; i<new_jobs.length ; ++i )
@@ -307,6 +360,10 @@ const JobPopupMenu = new Lang.Class({
 				this._getMenuItems()[j].destroy();
 			}
 		}
+		
+		// update server name
+		if( this._getMenuItems()[0]!=undefined )
+		  this._getMenuItems()[0].updateLabel(settingsJSON['servers'][this.server_num]['name']);
 	}
 });
 
@@ -315,26 +372,31 @@ const JenkinsIndicator = new Lang.Class({
     Name: 'JenkinsIndicator',
     Extends: PanelMenu.Button,
 
-    _init: function() {
+    _init: function(server_num) {
     	this.parent(0.25, "Jenkins Indicator", false );
     	
+    	// the number of the server this indicator refers to
+    	this.server_num = server_num;
+    	
     	// start off if no jobs to display
-    	this.jobs = []
+    	this.jobs = [];
     	
     	// lock used to prevent multiple parallel update requests
     	this._isUpdating = false;
 
 		// start off with a blue overall indicator
-        this._iconActor = new St.Icon({ icon_name: jobStates.getIcon(jobStates.getDefaultState()),
+        this._iconActor = new St.Icon({ icon_name: jobStates.getIcon(this.server_num, jobStates.getDefaultState()),
                                         icon_type: St.IconType.FULLCOLOR,
                                         icon_size: ICON_SIZE_INDICATOR,
                                         style_class: "system-status-icon" });
         this.actor.add_actor(this._iconActor);
 
         // add jobs popup menu
-		this.setMenu(new JobPopupMenu(this.actor, 0.25, St.Side.TOP));
+		this.setMenu(new JobPopupMenu(this.actor, 0.25, St.Side.TOP, this.server_num));
 
 		// add seperator to popup menu
+		this.menu.addMenuItem(new ServerPopupMenuItem(null, this.server_num));
+		this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 		this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
 		// add link to settings dialog
@@ -354,9 +416,9 @@ const JenkinsIndicator = new Lang.Class({
         this.notification_source;
 
         // enter main loop for refreshing
-        this._mainloop = Mainloop.timeout_add(settingsJSON['servers'][0]['autorefresh_interval']*1000, Lang.bind(this, function(){
+        this._mainloop = Mainloop.timeout_add(settingsJSON['servers'][this.server_num]['autorefresh_interval']*1000, Lang.bind(this, function(){
         	// request new job states if auto-refresh is enabled
-        	if( settingsJSON['servers'][0]['autorefresh'] )
+        	if( settingsJSON['servers'][this.server_num]['autorefresh'] )
         		this.request();
 
         	// returning true is important for restarting the mainloop after timeout
@@ -371,7 +433,7 @@ const JenkinsIndicator = new Lang.Class({
 		{
 			this._isUpdating = true;
 			// ajax request to local jenkins server
-			let request = Soup.Message.new('GET', urlAppend(settingsJSON['servers'][0]['jenkins_url'], 'api/json'));
+			let request = Soup.Message.new('GET', urlAppend(settingsJSON['servers'][this.server_num]['jenkins_url'], 'api/json'));
 			if( request )
 			{
 				_httpSession.queue_message(request, Lang.bind(this, function(_httpSession, message) {
@@ -436,7 +498,7 @@ const JenkinsIndicator = new Lang.Class({
 		}
 
 		// set new overall indicator icon representing current jenkins state
-		this._iconActor.icon_name = jobStates.getIcon(overallState);
+		this._iconActor.icon_name = jobStates.getIcon(this.server_num, overallState);
 	},
 
 	// filters jobs according to filter settings
@@ -447,7 +509,7 @@ const JenkinsIndicator = new Lang.Class({
 		for( var i=0 ; i<jobs.length ; ++i )
 		{
 			// filter job if user decided not to show jobs with this state (in settings dialog)
-			if( settingsJSON['servers'][0][jobStates.getFilter(jobs[i].color)] )
+			if( settingsJSON['servers'][this.server_num][jobStates.getFilter(jobs[i].color)] )
 				filteredJobs[filteredJobs.length] = jobs[i]
 		}
 
@@ -460,14 +522,14 @@ const JenkinsIndicator = new Lang.Class({
 		text = text || "unknown error";
 
 		// remove all job menu entries and previous error messages
-		while( this.menu._getMenuItems().length>2 )
-			this.menu._getMenuItems()[0].destroy();
+		while( this.menu._getMenuItems().length>4 )
+			this.menu._getMenuItems()[2].destroy();
 
 		// show error message in popup menu
-		this.menu.addMenuItem(new PopupMenu.PopupMenuItem(_("Error") + ": " + _(text), {style_class: 'error'}), 0);
+		this.menu.addMenuItem(new PopupMenu.PopupMenuItem(_("Error") + ": " + _(text), {style_class: 'error'}), 2);
 
 		// set indicator state to error
-		this._iconActor.icon_name = jobStates.getIcon(jobStates.getErrorState());
+		this._iconActor.icon_name = jobStates.getIcon(this.server_num, jobStates.getErrorState());
 	},
 
 	// destroys the indicator
@@ -484,41 +546,63 @@ const JenkinsIndicator = new Lang.Class({
 	}
 });
 
-function init(extensionMeta) {
-	// add include path for icons
-	let theme = imports.gi.Gtk.IconTheme.get_default();
-    theme.append_search_path(extensionMeta.path + "/icons");
-    
-    // load localization dictionaries
-	Convenience.initTranslations();
-    
-    // load extension settings
-	settings = Convenience.getSettings();
-	settingsJSON = JSON.parse(settings.get_string("settings-json"));
-}
-
-function enable() {
-	// start off with green icons if green balls plugin is enabled
-	if( settingsJSON['green_balls_plugin'] )
-	   jobStates.toggleGreenBallsPlugin(true);
-		
-	// create indicator and add to status area
-	_indicator = new JenkinsIndicator;
-    Main.panel.addToStatusArea("jenkins-indicator", _indicator);
+function bootstrapIndicator(server_num)
+{
+    // create indicator and add to status area
+    _indicators[server_num] = new JenkinsIndicator(server_num);
+    Main.panel.addToStatusArea("jenkins-indicator-"+settingsJSON['servers'][server_num]['id'], _indicators[server_num]);
     
     // update settings json object when settings change
-    event_signals.push( settings.connect('changed::settings-json', Lang.bind(_indicator, function(){
-        settingsJSON = JSON.parse(settings.get_string("settings-json"));
+    event_signals.push( settings.connect('changed::settings-json', Lang.bind(_indicators[server_num], function(){
+        settingsJSON_old = settingsJSON;
+        settingsJSON = Settings.getSettingsJSON(settings);
+
+        // destroy deleted indicators
+        arrayOpCompare(settingsJSON_old['servers'], settingsJSON['servers'], function(a, b){
+            return a['id']==b['id'];
+        }, function(index, element){
+            _indicators[index].destroy();
+            _indicators.splice(index,1);
+        });
         
-        jobStates.toggleGreenBallsPlugin(settingsJSON['green_balls_plugin']);
-        
-        _indicator.update();
-        _indicator.request();
+        // create new indicators
+        arrayOpCompare(settingsJSON['servers'], settingsJSON_old['servers'], function(a, b){
+            return a['id']==b['id'];
+        }, function(index, element){
+            bootstrapIndicator(index);
+        });
+
+        this.update();
+        this.request();
     })) );
 }
 
+function init(extensionMeta) {
+    // add include path for icons
+    let theme = imports.gi.Gtk.IconTheme.get_default();
+    theme.append_search_path(extensionMeta.path + "/icons");
+    
+    // load localization dictionaries
+    Convenience.initTranslations();
+    
+    // load extension settings
+    settings = Convenience.getSettings();
+    settingsJSON = Settings.getSettingsJSON(settings);
+}
+
+function enable() {
+    // we need to add indicators in reverse order so they appear from left to right
+	for( var i=settingsJSON['servers'].length-1 ; i>=0 ; --i )
+    {
+        bootstrapIndicator(i);
+    }
+}
+
 function disable() {
-    _indicator.destroy();
+    for( var i=0 ; i<_indicators.length-1 ; ++i )
+        _indicators[i].destroy();
+        
+    _indicators = [];
     
     // disconnect all signal listeners
     for( var i=0 ; i<event_signals.length ; ++i )

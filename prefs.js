@@ -80,7 +80,8 @@ function addTabPanel(notebook, server_num)
         vboxJenkinsConnection.add(hboxJenkinsUrl);
         
         // green balls plugin
-        let hboxGreenBallsPlugin = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+        vboxJenkinsConnection.add(buildIconSwitchSetting("green", _("'Green Balls' plugin"), 'green_balls_plugin', server_num));
+        /*let hboxGreenBallsPlugin = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
         let iconGreenBallsPlugin = new Gtk.Image({file: Me.dir.get_path() + "/icons/prefs/green.png"});
         let labelGreenBallsPlugin = new Gtk.Label({label: _("'Green Balls' plugin"), xalign: 0});
         let inputGreenBallsPlugin = new Gtk.Switch({active: settingsJSON['green_balls_plugin']});
@@ -91,7 +92,7 @@ function addTabPanel(notebook, server_num)
         hboxGreenBallsPlugin.pack_start(labelGreenBallsPlugin, true, true, 0);
         hboxGreenBallsPlugin.add(inputGreenBallsPlugin);
         
-        vboxJenkinsConnection.add(hboxGreenBallsPlugin);
+        vboxJenkinsConnection.add(hboxGreenBallsPlugin);*/
 
     vbox.add(vboxJenkinsConnection);
 
@@ -224,9 +225,14 @@ function addTabPanel(notebook, server_num)
 }
 
 function bootstrapTab() {
-    // copy settings from last server
-    settingsJSON['servers'][settingsJSON['servers'].length] = settingsJSON['servers'][settingsJSON['servers'].length-1];
+    // copy settings from last server (parsing json twice to prevent copying by referenc)
+    settingsJSON['servers'][settingsJSON['servers'].length] = JSON.parse(JSON.stringify(settingsJSON['servers'][settingsJSON['servers'].length-1]));
     
+    // set new id
+    let currentDate = new Date;
+    settingsJSON['servers'][settingsJSON['servers'].length-1]['id'] = currentDate.getTime();
+    
+    // save new settings
     settings.set_string("settings-json", JSON.stringify(settingsJSON));
 }
 
