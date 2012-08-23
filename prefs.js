@@ -32,6 +32,7 @@ function buildIconSwitchSetting(icon, label, setting_name, server_num)
 	return hboxFilterJobs;
 }
 
+// update json settings for server in settings schema
 function updateServerSetting(server_num, setting, value)
 {
     settingsJSON = Settings.getSettingsJSON(settings);
@@ -39,8 +40,10 @@ function updateServerSetting(server_num, setting, value)
     settings.set_string("settings-json", JSON.stringify(settingsJSON));
 }
 
+// create a new server tab and add it to the notebook
 function addTabPanel(notebook, server_num)
 {
+    // use server name as tab label
     let tabLabel = new Gtk.Label({ label: settingsJSON['servers'][server_num]['name']});
     
     let vbox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
@@ -184,32 +187,33 @@ function addTabPanel(notebook, server_num)
         vboxFilters.add(buildIconSwitchSetting("grey", _('show aborted jobs'), 'show_aborted_jobs', server_num));
     vbox.add(vboxFilters);
     
+    // button to remove tab
     let btnRemoveServer = new Gtk.Button({label: ' x '});
         
     btnRemoveServer.connect('clicked', Lang.bind(notebook, function(){
         if( notebook.get_n_pages()>1 )
         {
-            removeTab(notebook.page_num(tabContent));
+            // remove server from settings
+            settingsJSON['servers'].splice(notebook.page_num(tabContent), 1);
+            settings.set_string("settings-json", JSON.stringify(settingsJSON));
+            
+            // remove tab from notebook
             notebook.remove_page(notebook.page_num(tabContent));
-            global.log(JSON.stringify(settingsJSON));
         }
     }));
 
+    // widget for tab containing label and close button
     let tabWidget = new Gtk.HBox({ spacing: 5 });
     tabWidget.add(tabLabel);
     tabWidget.add(btnRemoveServer);
     tabWidget.show_all();
     
+    // tab content
     let tabContent = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, border_width: 10 });
     tabContent.add(vbox);
     
+    // append tab to notebook
     notebook.append_page(tabContent, tabWidget);
-}
-
-function removeTab(server_num) {
-    settingsJSON['servers'].splice(server_num, 1);
-    
-    settings.set_string("settings-json", JSON.stringify(settingsJSON));
 }
 
 function buildPrefsWidget() {
@@ -218,11 +222,12 @@ function buildPrefsWidget() {
 	
 	for( let i=0 ; i<settingsJSON['servers'].length ; ++i )
 	{
+	    // add tab panels for each server
 	    addTabPanel(notebook, i);
     }
 	    
 	
-	// *** add server panel ***
+	// button to add new servers
 	let btnNewServer = new Gtk.Button({label: _('Add server')});
 	btnNewServer.connect('clicked', Lang.bind(notebook, function(){
         // get default settings for this new server
@@ -245,8 +250,14 @@ function buildPrefsWidget() {
 
     // *** overall frame ***
     let frame = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, border_width: 10 });
+    
+    // add new server button
     frame.add(btnNewServer);
+    
+    // add notebook
 	frame.add(notebook);
+	
+	// show the frame
     frame.show_all();
 
     return frame;

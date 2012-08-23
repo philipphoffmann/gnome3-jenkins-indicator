@@ -1,5 +1,6 @@
 const Params = imports.misc.params;
 
+// default settings for new servers
 let DefaultSettings = {
     "servers": [
         {

@@ -177,6 +177,7 @@ const JobNotificationSource = new Lang.Class({
     }
 });
 
+// server name and link in the popup menu
 const ServerPopupMenuItem = new Lang.Class({
     Name: 'ServerPopupMenuItem',
     Extends: PopupMenu.PopupBaseMenuItem,
@@ -198,18 +199,18 @@ const ServerPopupMenuItem = new Lang.Class({
         this.addActor(this.box);
     },
 
-    // clicking a job menu item opens the job in web frontend with default browser
+    // clicking the server menu item opens the servers web frontend with default browser
     activate: function() {
         Gio.app_info_launch_default_for_uri(this.settings.jenkins_url, global.create_app_launch_context());
     },
 
-    // update menu item text and icon
+    // update menu item label (server name)
     updateSettings: function(settings) {
         this.settings = settings;
         this.label.text = this.settings.name;
     },
     
-    // destroys the job popup menu item
+    // destroys the server popup menu item
     destroy: function() {
         this.icon.destroy();
         this.label.destroy();
@@ -282,6 +283,7 @@ const JobPopupMenuItem = new Lang.Class({
 		this.icon.icon_name = jobStates.getIcon(job.color, this.settings.green_balls_plugin);
 	},
 	
+	// update settings
 	updateSettings: function(settings) {
 	    this.settings = settings;
 	},
@@ -369,9 +371,11 @@ const ServerPopupMenu = new Lang.Class({
 		}
 	},
 	
+	// update settings
 	updateSettings: function(settings) {
 	    this.settings = settings;
 	    
+	    // push new settings to job menu items
 	    for( let j = 2 ; j<this._getMenuItems().length-2 ; ++j )
 	        this._getMenuItems()[j].updateSettings(this.settings);
 	}
@@ -407,9 +411,11 @@ const JenkinsIndicator = new Lang.Class({
         // add jobs popup menu
 		this.setMenu(new ServerPopupMenu(this.actor, 0.25, St.Side.TOP, this.notification_source, this.settings));
 
-		// add seperator to popup menu
+		// add server menu item
 		this.serverMenuItem = new ServerPopupMenuItem(this.settings);
 		this.menu.addMenuItem(this.serverMenuItem);
+		
+		// add seperators to popup menu
 		this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 		this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
@@ -532,6 +538,7 @@ const JenkinsIndicator = new Lang.Class({
 		return filteredJobs;
 	},
 	
+	// update settings
 	updateSettings: function(settings) {
 	    this.settings = settings;
 	    
