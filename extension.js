@@ -94,12 +94,12 @@ const jobStates = new function() {
 	};
 
 	// returns the corresponding icon name of a job state
-	this.getIcon = function(server_num, job_color)
+	this.getIcon = function(job_color, with_green_balls)
 	{
 		for( let i=0 ; i<states.length ; ++i )
 		{
 		    // use green balls plugin if actived
-		    if( settingsJSON['servers'][server_num]['green_balls_plugin'] && job_color=='blue' ) return 'green';
+		    if( with_green_balls && job_color=='blue' ) return 'green';
 		    
 		    // if not just return a regular icon
 			else if( job_color==states[i].color ) return states[i].icon;
@@ -152,9 +152,9 @@ const JobNotificationSource = new Lang.Class({
     Name: 'JobNotificationSource',
     Extends: MessageTray.Source,
 
-    _init: function() {
+    _init: function(title) {
     	// set notification source title
-        this.parent(_("Jenkins jobs"));
+        this.parent(title);
 
 		// set notification source icon
         this._setSummaryIcon(this.createNotificationIcon());
@@ -181,17 +181,17 @@ const ServerPopupMenuItem = new Lang.Class({
     Name: 'ServerPopupMenuItem',
     Extends: PopupMenu.PopupBaseMenuItem,
 
-    _init: function(params, server_num) {
+    _init: function(settings, params) {
         this.parent(params);
         
-        this.server_num = server_num;
+        this.settings = settings;
         
         this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
         this.icon = new St.Icon({   icon_name: 'headshot',
                                     icon_type: St.IconType.FULLCOLOR,
                                     icon_size: ICON_SIZE_INDICATOR,
                                     style_class: "system-status-icon" });
-        this.label = new St.Label({ text: settingsJSON['servers'][this.server_num]['name'] });
+        this.label = new St.Label({ text: this.settings.name });
 
         this.box.add(this.icon);
         this.box.add(this.label);
@@ -200,12 +200,13 @@ const ServerPopupMenuItem = new Lang.Class({
 
     // clicking a job menu item opens the job in web frontend with default browser
     activate: function() {
-        Gio.app_info_launch_default_for_uri(settingsJSON['servers'][this.server_num]['jenkins_url'], global.create_app_launch_context());
+        Gio.app_info_launch_default_for_uri(this.settings.jenkins_url, global.create_app_launch_context());
     },
 
     // update menu item text and icon
-    updateLabel: function(text) {
-        this.label.text = text;
+    updateSettings: function(settings) {
+        this.settings = settings;
+        this.label.text = this.settings.name;
     },
     
     // destroys the job popup menu item
@@ -223,13 +224,14 @@ const JobPopupMenuItem = new Lang.Class({
 	Name: 'JobPopupMenuItem',
 	Extends: PopupMenu.PopupBaseMenuItem,
 
-    _init: function(job, params, server_num) {
+    _init: function(job, notification_source, settings, params) {
     	this.parent(params);
     	
-    	this.server_num = server_num;
+    	this.notification_source = notification_source;
+    	this.settings = settings;
     	
         this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
-        this.icon = new St.Icon({ 	icon_name: jobStates.getIcon(this.server_num, job.color),
+        this.icon = new St.Icon({ 	icon_name: jobStates.getIcon(job.color, this.settings.green_balls_plugin),
                                 	icon_type: St.IconType.FULLCOLOR,
                                 	icon_size: ICON_SIZE_INDICATOR,
                                 	style_class: "system-status-icon" });
@@ -242,7 +244,7 @@ const JobPopupMenuItem = new Lang.Class({
 
 	// clicking a job menu item opens the job in web frontend with default browser
 	activate: function() {
-		Gio.app_info_launch_default_for_uri(urlAppend(settingsJSON['servers'][this.server_num]['jenkins_url'], 'job/' + this.getJobName()), global.create_app_launch_context());
+		Gio.app_info_launch_default_for_uri(urlAppend(this.settings.jenkins_url, 'job/' + this.getJobName()), global.create_app_launch_context());
 	},
 
 	// return job name
@@ -253,31 +255,33 @@ const JobPopupMenuItem = new Lang.Class({
 	// update menu item text and icon
 	updateJob: function(job) {
 		// notification for finished job if job icon used to be clock (if enabled in settings)
-		if( settingsJSON['servers'][this.server_num]['notification_finished_jobs'] && this.icon.icon_name=='clock' && jobStates.getIcon(this.server_num, job.color)!='clock' )
+		if( this.settings.notification_finished_jobs && this.icon.icon_name=='clock' && jobStates.getIcon(job.color, this.settings.green_balls_plugin)!='clock' )
 		{
-			// create notification source first time we have to display notifications
-			if( _indicators[this.server_num].notification_source==undefined )
-				_indicators[this.server_num].notification_source = new JobNotificationSource();
+			// create notification source first time we have to display notifications or if server name changed
+			if( this.notification_source==undefined || this.notification_source.title!=this.settings.name )
+			{
+				this.notification_source = new JobNotificationSource(this.settings.name);
+			}
 			
 			// create notification for the finished job
-		    let notification = new MessageTray.Notification(_indicators[this.server_num].notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, jobStates.getName(job.color)), {
+		    let notification = new MessageTray.Notification(this.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, jobStates.getName(job.color)), {
 		    	bannerMarkup: true,
-		    	icon: new St.Icon({ icon_name: jobStates.getIcon(this.server_num, job.color),
+		    	icon: new St.Icon({ icon_name: jobStates.getIcon(job.color, this.settings.green_balls_plugin),
                                 	icon_type: St.IconType.FULLCOLOR,
                                 	icon_size: ICON_SIZE_NOTIFICATION,
                                 	style_class: "system-status-icon" })
 		    });
 		    
 		    // use transient messages if persistent messages are disabled in settings
-		    if( settingsJSON['servers'][0]['stack_notifications']==false )
+		    if( this.settings.stack_notifications==false )
 		    	notification.setTransient(true);
 		    
 		    // notify the user
-		    _indicators[this.server_num].notification_source.notify(notification);
+		    this.notification_source.notify(notification);
 		}
 		
 		this.label.text = job.name;
-		this.icon.icon_name = jobStates.getIcon(this.server_num, job.color);
+		this.icon.icon_name = jobStates.getIcon(job.color, this.settings.green_balls_plugin);
 	},
 	
 	// destroys the job popup menu item
@@ -295,10 +299,11 @@ const ServerPopupMenu = new Lang.Class({
 	Name: 'ServerPopupMenu',
 	Extends: PopupMenu.PopupMenu,
 
-	_init: function(sourceActor, arrowAlignment, arrowSide, server_num) {
+	_init: function(sourceActor, arrowAlignment, arrowSide, notification_source, settings) {
 		this.parent(sourceActor, arrowAlignment, arrowSide);
-
-		this.server_num = server_num;
+		
+		this.notification_source = notification_source;
+		this.settings = settings;
 	},
 
 	// insert, delete and update all job items in popup menu
@@ -337,7 +342,7 @@ const ServerPopupMenu = new Lang.Class({
 			// otherwise insert as new job
 			else
 			{
-				this.addMenuItem(new JobPopupMenuItem(new_jobs[i], null, this.server_num), i+2);
+				this.addMenuItem(new JobPopupMenuItem(new_jobs[i], this.notification_source, this.settings), i+2);
 			}
 		}
 		
@@ -360,10 +365,6 @@ const ServerPopupMenu = new Lang.Class({
 				this._getMenuItems()[j].destroy();
 			}
 		}
-		
-		// update server name
-		if( this._getMenuItems()[0]!=undefined )
-		  this._getMenuItems()[0].updateLabel(settingsJSON['servers'][this.server_num]['name']);
 	}
 });
 
@@ -372,30 +373,34 @@ const JenkinsIndicator = new Lang.Class({
     Name: 'JenkinsIndicator',
     Extends: PanelMenu.Button,
 
-    _init: function(server_num) {
+    _init: function(settings) {
     	this.parent(0.25, "Jenkins Indicator", false );
     	
     	// the number of the server this indicator refers to
-    	this.server_num = server_num;
+    	this.settings = settings;
     	
     	// start off with no jobs to display
     	this.jobs = [];
     	
+    	// we will use this later to add a notification source as soon as a notification needs to be displayed
+        this.notification_source;
+    	
     	// lock used to prevent multiple parallel update requests
     	this._isRequesting = false;
-
+    	
 		// start off with a blue overall indicator
-        this._iconActor = new St.Icon({ icon_name: jobStates.getIcon(this.server_num, jobStates.getDefaultState()),
+        this._iconActor = new St.Icon({ icon_name: jobStates.getIcon(jobStates.getDefaultState(), this.settings.green_balls_plugin),
                                         icon_type: St.IconType.FULLCOLOR,
                                         icon_size: ICON_SIZE_INDICATOR,
                                         style_class: "system-status-icon" });
         this.actor.add_actor(this._iconActor);
 
         // add jobs popup menu
-		this.setMenu(new ServerPopupMenu(this.actor, 0.25, St.Side.TOP, this.server_num));
+		this.setMenu(new ServerPopupMenu(this.actor, 0.25, St.Side.TOP, this.notification_source, this.settings));
 
 		// add seperator to popup menu
-		this.menu.addMenuItem(new ServerPopupMenuItem(null, this.server_num));
+		this.serverMenuItem = new ServerPopupMenuItem(this.settings);
+		this.menu.addMenuItem(this.serverMenuItem);
 		this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 		this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
@@ -412,13 +417,10 @@ const JenkinsIndicator = new Lang.Class({
         // refresh when indicator is clicked
         event_signals.push( this.actor.connect("button-press-event", Lang.bind(this, this.request)) );
 
-        // we will use this later to add a notification source as soon as a notification needs to be displayed
-        this.notification_source;
-
         // enter main loop for refreshing
-        this._mainloop = Mainloop.timeout_add(settingsJSON['servers'][this.server_num]['autorefresh_interval']*1000, Lang.bind(this, function(){
+        this._mainloop = Mainloop.timeout_add(this.settings.autorefresh_interval*1000, Lang.bind(this, function(){
         	// request new job states if auto-refresh is enabled
-        	if( settingsJSON['servers'][this.server_num]['autorefresh'] )
+        	if( this.settings.autorefresh )
         		this.request();
 
         	// returning true is important for restarting the mainloop after timeout
@@ -433,7 +435,7 @@ const JenkinsIndicator = new Lang.Class({
 		{
 			this._isRequesting = true;
 			// ajax request to local jenkins server
-			let request = Soup.Message.new('GET', urlAppend(settingsJSON['servers'][this.server_num]['jenkins_url'], 'api/json'));
+			let request = Soup.Message.new('GET', urlAppend(this.settings.jenkins_url, 'api/json'));
 			if( request )
 			{
 				_httpSession.queue_message(request, Lang.bind(this, function(_httpSession, message) {
@@ -498,7 +500,7 @@ const JenkinsIndicator = new Lang.Class({
 		}
 
 		// set new overall indicator icon representing current jenkins state
-		this._iconActor.icon_name = jobStates.getIcon(this.server_num, overallState);
+		this._iconActor.icon_name = jobStates.getIcon(overallState, this.settings.green_balls_plugin);
 	},
 
 	// filters jobs according to filter settings
@@ -509,11 +511,20 @@ const JenkinsIndicator = new Lang.Class({
 		for( var i=0 ; i<jobs.length ; ++i )
 		{
 			// filter job if user decided not to show jobs with this state (in settings dialog)
-			if( settingsJSON['servers'][this.server_num][jobStates.getFilter(jobs[i].color)] )
+			if( this.settings[jobStates.getFilter(jobs[i].color)] )
 				filteredJobs[filteredJobs.length] = jobs[i]
 		}
 
 		return filteredJobs;
+	},
+	
+	updateSettings: function(settings) {
+	    this.settings = settings;
+	    
+	    // update server menu item
+	    this.serverMenuItem.updateSettings(this.settings);
+
+	    this.update();
 	},
 
 	// displays an error message in the popup menu
@@ -529,7 +540,7 @@ const JenkinsIndicator = new Lang.Class({
 		this.menu.addMenuItem(new PopupMenu.PopupMenuItem(_("Error") + ": " + _(text), {style_class: 'error'}), 2);
 
 		// set indicator state to error
-		this._iconActor.icon_name = jobStates.getIcon(this.server_num, jobStates.getErrorState());
+		this._iconActor.icon_name = jobStates.getIcon(jobStates.getErrorState(), this.settings.green_balls_plugin);
 	},
 
 	// destroys the indicator
@@ -549,7 +560,7 @@ const JenkinsIndicator = new Lang.Class({
 function createIndicator(server_num)
 {
     // create indicator and add to status area
-    _indicators[server_num] = new JenkinsIndicator(server_num);
+    _indicators[server_num] = new JenkinsIndicator(settingsJSON['servers'][server_num]);
     Main.panel.addToStatusArea("jenkins-indicator-"+settingsJSON['servers'][server_num]['id'], _indicators[server_num]);
 }
 
@@ -596,7 +607,7 @@ function enable() {
         // update all indicators
         for( let i=0 ; i<_indicators.length ; ++i )
         {
-            _indicators[i].update();
+            _indicators[i].updateSettings(settingsJSON['servers'][i]);
             _indicators[i].request();
         }
     }) );
