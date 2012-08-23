@@ -256,11 +256,11 @@ const JobPopupMenuItem = new Lang.Class({
 		if( settingsJSON['servers'][this.server_num]['notification_finished_jobs'] && this.icon.icon_name=='clock' && jobStates.getIcon(this.server_num, job.color)!='clock' )
 		{
 			// create notification source first time we have to display notifications
-			if( _indicators.notification_source==undefined )
-				_indicators.notification_source = new JobNotificationSource();
+			if( _indicators[this.server_num].notification_source==undefined )
+				_indicators[this.server_num].notification_source = new JobNotificationSource();
 			
 			// create notification for the finished job
-		    let notification = new MessageTray.Notification(_indicators.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, jobStates.getName(job.color)), {
+		    let notification = new MessageTray.Notification(_indicators[this.server_num].notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, jobStates.getName(job.color)), {
 		    	bannerMarkup: true,
 		    	icon: new St.Icon({ icon_name: jobStates.getIcon(this.server_num, job.color),
                                 	icon_type: St.IconType.FULLCOLOR,
@@ -273,7 +273,7 @@ const JobPopupMenuItem = new Lang.Class({
 		    	notification.setTransient(true);
 		    
 		    // notify the user
-		    _indicators.notification_source.notify(notification);
+		    _indicators[this.server_num].notification_source.notify(notification);
 		}
 		
 		this.label.text = job.name;
