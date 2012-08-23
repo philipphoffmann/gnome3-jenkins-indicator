@@ -590,9 +590,7 @@ function init(extensionMeta) {
 function enable() {
     // we need to add indicators in reverse order so they appear from left to right
 	for( let i=settingsJSON['servers'].length-1 ; i>=0 ; --i )
-    {
         createIndicator(i);
-    }
     
     // react to changing settings by adding/removing indicators if necessary
     event_signals.push( settings.connect('changed::settings-json', function(){
@@ -626,7 +624,7 @@ function enable() {
 function disable() {
     for( var i=0 ; i<_indicators.length-1 ; ++i )
         _indicators[i].destroy();
-        
+
     _indicators = [];
     
     // disconnect all signal listeners

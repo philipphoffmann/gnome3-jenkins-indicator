@@ -32,13 +32,6 @@ function buildIconSwitchSetting(icon, label, setting_name, server_num)
 	return hboxFilterJobs;
 }
 
-function updateSetting(setting, value)
-{
-    settingsJSON = Settings.getSettingsJSON(settings);
-    settingsJSON[setting] = value;
-    settings.set_string("settings-json", JSON.stringify(settingsJSON));
-}
-
 function updateServerSetting(server_num, setting, value)
 {
     settingsJSON = Settings.getSettingsJSON(settings);
@@ -82,18 +75,6 @@ function addTabPanel(notebook, server_num)
         
         // green balls plugin
         vboxJenkinsConnection.add(buildIconSwitchSetting("green", _("'Green Balls' plugin"), 'green_balls_plugin', server_num));
-        /*let hboxGreenBallsPlugin = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-        let iconGreenBallsPlugin = new Gtk.Image({file: Me.dir.get_path() + "/icons/prefs/green.png"});
-        let labelGreenBallsPlugin = new Gtk.Label({label: _("'Green Balls' plugin"), xalign: 0});
-        let inputGreenBallsPlugin = new Gtk.Switch({active: settingsJSON['green_balls_plugin']});
-    
-        inputGreenBallsPlugin.connect("notify::active", Lang.bind(this, function(input){ updateSetting('green_balls_plugin', input.get_active()); }));
-    
-        hboxGreenBallsPlugin.pack_start(iconGreenBallsPlugin, false, false, 0);
-        hboxGreenBallsPlugin.pack_start(labelGreenBallsPlugin, true, true, 0);
-        hboxGreenBallsPlugin.add(inputGreenBallsPlugin);
-        
-        vboxJenkinsConnection.add(hboxGreenBallsPlugin);*/
 
     vbox.add(vboxJenkinsConnection);
 
