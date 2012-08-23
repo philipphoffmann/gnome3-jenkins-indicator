@@ -259,9 +259,7 @@ const JobPopupMenuItem = new Lang.Class({
 		{
 			// create notification source first time we have to display notifications or if server name changed
 			if( this.notification_source==undefined || this.notification_source.title!=this.settings.name )
-			{
 				this.notification_source = new JobNotificationSource(this.settings.name);
-			}
 			
 			// create notification for the finished job
 		    let notification = new MessageTray.Notification(this.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, jobStates.getName(job.color)), {
@@ -282,6 +280,10 @@ const JobPopupMenuItem = new Lang.Class({
 		
 		this.label.text = job.name;
 		this.icon.icon_name = jobStates.getIcon(job.color, this.settings.green_balls_plugin);
+	},
+	
+	updateSettings: function(settings) {
+	    this.settings = settings;
 	},
 	
 	// destroys the job popup menu item
@@ -365,6 +367,13 @@ const ServerPopupMenu = new Lang.Class({
 				this._getMenuItems()[j].destroy();
 			}
 		}
+	},
+	
+	updateSettings: function(settings) {
+	    this.settings = settings;
+	    
+	    for( let j = 2 ; j<this._getMenuItems().length-2 ; ++j )
+	        this._getMenuItems()[j].updateSettings(this.settings);
 	}
 });
 
@@ -522,6 +531,7 @@ const JenkinsIndicator = new Lang.Class({
 	    this.settings = settings;
 	    
 	    // update server menu item
+	    this.menu.updateSettings(this.settings);
 	    this.serverMenuItem.updateSettings(this.settings);
 
 	    this.update();
