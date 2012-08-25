@@ -198,11 +198,11 @@ const ServerPopupMenuItem = new Lang.Class({
         this.box.add(this.icon);
         this.box.add(this.label);
         this.addActor(this.box);
-    },
-
-    // clicking the server menu item opens the servers web frontend with default browser
-    activate: function() {
-        Gio.app_info_launch_default_for_uri(this.settings.jenkins_url, global.create_app_launch_context());
+        
+        // clicking the server menu item opens the servers web frontend with default browser
+        event_signals.push( this.connect("activate", Lang.bind(this, function(){
+            Gio.app_info_launch_default_for_uri(this.settings.jenkins_url, global.create_app_launch_context());
+        })) );
     },
 
     // update menu item label (server name)
@@ -242,11 +242,11 @@ const JobPopupMenuItem = new Lang.Class({
         this.box.add(this.icon);
         this.box.add(this.label);
         this.addActor(this.box);
-	},
-
-	// clicking a job menu item opens the job in web frontend with default browser
-	activate: function() {
-		Gio.app_info_launch_default_for_uri(urlAppend(this.settings.jenkins_url, 'job/' + this.getJobName()), global.create_app_launch_context());
+        
+        // clicking a job menu item opens the job in web frontend with default browser
+        event_signals.push( this.connect("activate", Lang.bind(this, function(){
+            Gio.app_info_launch_default_for_uri(urlAppend(this.settings.jenkins_url, 'job/' + this.getJobName()), global.create_app_launch_context());
+        })) );
 	},
 
 	// return job name
