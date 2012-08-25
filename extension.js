@@ -74,6 +74,7 @@ const jobStates = new function() {
 		{ color: 'yellow_anime', 	icon: 'clock', 	filter: 'show_running_jobs', 	name: 'running' },
 		{ color: 'blue_anime', 		icon: 'clock', 	filter: 'show_running_jobs', 	name: 'running' },
 		{ color: 'grey_anime', 		icon: 'clock', 	filter: 'show_running_jobs', 	name: 'running' },
+		{ color: 'aborted_anime',   icon: 'clock',  filter: 'show_running_jobs',    name: 'running' },
 		{ color: 'red', 			icon: 'red', 	filter: 'show_failed_jobs',		name: 'failed' },
 		{ color: 'yellow', 			icon: 'yellow', filter: 'show_unstable_jobs',	name: 'unstable' },
 		{ color: 'blue', 			icon: 'blue', 	filter: 'show_successful_jobs', name: 'successful' },
