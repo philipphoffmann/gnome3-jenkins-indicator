@@ -188,7 +188,10 @@ function addTabPanel(notebook, server_num)
     vbox.add(vboxFilters);
     
     // button to remove tab
-    let btnRemoveServer = new Gtk.Button({label: ' x '});
+    let iconRemoveServer = new Gtk.Image({file: Me.dir.get_path() + "/icons/prefs/stop.png"});
+    let btnRemoveServer = new Gtk.Button({image: iconRemoveServer});
+    
+    for( var member in btnRemoveServer ) global.log(member);
         
     btnRemoveServer.connect('clicked', Lang.bind(notebook, function(){
         if( notebook.get_n_pages()>1 )
