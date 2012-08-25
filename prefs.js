@@ -190,8 +190,6 @@ function addTabPanel(notebook, server_num)
     // button to remove tab
     let iconRemoveServer = new Gtk.Image({file: Me.dir.get_path() + "/icons/prefs/stop.png"});
     let btnRemoveServer = new Gtk.Button({image: iconRemoveServer});
-    
-    for( var member in btnRemoveServer ) global.log(member);
         
     btnRemoveServer.connect('clicked', Lang.bind(notebook, function(){
         if( notebook.get_n_pages()>1 )
