@@ -260,7 +260,7 @@ const JobPopupMenuItem = new Lang.Class({
 		if( this.settings.notification_finished_jobs && this.icon.icon_name=='clock' && jobStates.getIcon(job.color, this.settings.green_balls_plugin)!='clock' )
 		{
 			// create notification source first time we have to display notifications or if server name changed
-			if( this.notification_source==undefined || this.notification_source.title!=this.settings.name )
+			if( this.notification_source===undefined || this.notification_source.title!==this.settings.name )
 				this.notification_source = new JobNotificationSource(this.settings.name);
 			
 			// create notification for the finished job
