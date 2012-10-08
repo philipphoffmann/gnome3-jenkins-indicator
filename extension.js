@@ -9,6 +9,7 @@ const Mainloop = imports.mainloop;
 const Gio = imports.gi.Gio;
 const Shell = imports.gi.Shell;
 const Soup = imports.gi.Soup;
+const Glib = imports.gi.GLib;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const MessageTray = imports.ui.messageTray;
@@ -457,6 +458,11 @@ const JenkinsIndicator = new Lang.Class({
 			this._isRequesting = true;
 			// ajax request to local jenkins server
 			let request = Soup.Message.new('GET', urlAppend(this.settings.jenkins_url, 'api/json'));
+			
+			// append authentication header (if necessary)
+			if( this.settings.use_authentication )
+				request.request_headers.append('Authorization', 'Basic ' + Glib.base64_encode(this.settings.auth_user + ':' + this.settings.api_token));
+
 			if( request )
 			{
 				_httpSession.queue_message(request, Lang.bind(this, function(_httpSession, message) {

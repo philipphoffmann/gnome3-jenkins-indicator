@@ -7,6 +7,9 @@ let DefaultSettings = {
             "id": 1,
             "name": "Default",
             "jenkins_url": "http://localhost:8080/",
+			"use_authentication": false,
+			"auth_user": "",
+			"api_token": "",
             "green_balls_plugin": false,
 
             "autorefresh": true,
@@ -29,5 +32,20 @@ let DefaultSettings = {
 // helper to prevent weird errors if possible settings change in future updates by using default settings
 function getSettingsJSON(settings)
 {
-    return Params.parse(JSON.parse(settings.get_string("settings-json")), DefaultSettings, true);
+	let settingsJSON = JSON.parse(settings.get_string("settings-json"));
+	
+	// assert that at least default settings are available
+	settingsJSON = settingsJSON || DefaultSettings;
+	settingsJSON.servers = settingsJSON.servers || DefaultSettings.servers;
+	
+	for( let i=0 ; i<settingsJSON.servers.length ; ++i )
+	{
+		for( setting in DefaultSettings.servers[0] )
+		{
+			if( !(setting in settingsJSON.servers[i]) )
+				settingsJSON.servers[i][setting] = DefaultSettings.servers[0][setting];
+		}
+	}
+	
+	return settingsJSON;
 }

@@ -76,6 +76,44 @@ function addTabPanel(notebook, server_num)
         hboxJenkinsUrl.add(inputJenkinsUrl);
         vboxJenkinsConnection.add(hboxJenkinsUrl);
         
+        // use authentication
+        let hboxUseAuthentication = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+        let labelUseAuthentication = new Gtk.Label({label: _("Use authentication"), xalign: 0});
+        global.log(JSON.stringify(settingsJSON['servers'][server_num]));
+        let inputUseAuthentication = new Gtk.Switch({active: settingsJSON['servers'][server_num]['use_authentication']});
+
+        inputUseAuthentication.connect("notify::active", Lang.bind(this, function(input){
+            updateServerSetting(server_num, 'use_authentication', input.get_active());
+            inputApiToken.set_editable(input.get_active());
+            inputAuthUser.set_editable(input.get_active());
+        }));
+        
+        hboxUseAuthentication.pack_start(labelUseAuthentication, true, true, 0);
+        hboxUseAuthentication.add(inputUseAuthentication);
+        vboxJenkinsConnection.add(hboxUseAuthentication);
+        
+        // user to authenticate
+        let hboxAuthUser = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+        let labelAuthUser = new Gtk.Label({label: _("Authentication user"), xalign: 0});
+        let inputAuthUser = new Gtk.Entry({ editable: inputUseAuthentication.get_active(), hexpand: true, text: settingsJSON['servers'][server_num]['auth_user'] });
+
+        inputAuthUser.connect("changed", Lang.bind(this, function(input){ updateServerSetting(server_num, "auth_user", input.text); }));
+
+        hboxAuthUser.pack_start(labelAuthUser, true, true, 0);
+        hboxAuthUser.add(inputAuthUser);
+        vboxJenkinsConnection.add(hboxAuthUser);
+        
+        // api token
+        let hboxApiToken = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+        let labelApiToken = new Gtk.Label({label: _("Authentication API token"), xalign: 0});
+        let inputApiToken = new Gtk.Entry({ editable: inputUseAuthentication.get_active(), hexpand: true, text: settingsJSON['servers'][server_num]['api_token'] });
+
+        inputApiToken.connect("changed", Lang.bind(this, function(input){ updateServerSetting(server_num, "api_token", input.text); }));
+
+        hboxApiToken.pack_start(labelApiToken, true, true, 0);
+        hboxApiToken.add(inputApiToken);
+        vboxJenkinsConnection.add(hboxApiToken);
+        
         // green balls plugin
         vboxJenkinsConnection.add(buildIconSwitchSetting("green", _("'Green Balls' plugin"), 'green_balls_plugin', server_num));
 
@@ -83,14 +121,14 @@ function addTabPanel(notebook, server_num)
 
 
     // *** auto-refresh ***
-    let labelPreferences = new Gtk.Label({ label: "<b>" + _("auto-refresh") + "</b>", use_markup: true, xalign: 0 });
+    let labelPreferences = new Gtk.Label({ label: "<b>" + _("Auto-refresh") + "</b>", use_markup: true, xalign: 0 });
     vbox.add(labelPreferences);
 
     let vboxAutoRefresh = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, margin_left: 20, margin_bottom: 15 });
 
         // auto refresh
         let hboxAutoRefresh = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-        let labelAutoRefresh = new Gtk.Label({label: _("auto-refresh"), xalign: 0});
+        let labelAutoRefresh = new Gtk.Label({label: _("Auto-refresh"), xalign: 0});
         let inputAutoRefresh = new Gtk.Switch({active: settingsJSON['servers'][server_num]['autorefresh']});
 
         inputAutoRefresh.connect("notify::active", Lang.bind(this, function(input){
@@ -104,7 +142,7 @@ function addTabPanel(notebook, server_num)
 
         // auto refresh interval
         let hboxAutorefreshInterval = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-        let labelAutorefreshInterval = new Gtk.Label({label: _("auto-refresh interval (seconds)"), xalign: 0});
+        let labelAutorefreshInterval = new Gtk.Label({label: _("Auto-refresh interval (seconds)"), xalign: 0});
         
         // had to replace the spinbutton since the change event is not triggered if the value is change by key presses
         //let inputAutorefreshInterval = new Gtk.SpinButton({ numeric: true, adjustment: new Gtk.Adjustment({value: settings.get_int("autorefresh-interval"), lower: 1, upper: 86400, step_increment: 1}) });
@@ -125,14 +163,14 @@ function addTabPanel(notebook, server_num)
 
 
     // *** notifications ***
-    let labelNotifications = new Gtk.Label({ label: "<b>" + _("notifications") + "</b>", use_markup: true, xalign: 0 });
+    let labelNotifications = new Gtk.Label({ label: "<b>" + _("Notifications") + "</b>", use_markup: true, xalign: 0 });
     vbox.add(labelNotifications);
 
     let vboxNotifications = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, margin_left: 20, margin_bottom: 15 });
 
         // notification for finished jobs
         let hboxNotificationFinishedJobs = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-        let labelNotificationFinishedJobs = new Gtk.Label({label: _("notification for finished jobs"), xalign: 0});
+        let labelNotificationFinishedJobs = new Gtk.Label({label: _("Notification for finished jobs"), xalign: 0});
         let inputNotificationFinishedJobs = new Gtk.Switch({active: settingsJSON['servers'][server_num]['notification_finished_jobs']});
 
         inputNotificationFinishedJobs.connect("notify::active", Lang.bind(this, function(input){
@@ -145,7 +183,7 @@ function addTabPanel(notebook, server_num)
         
         // stack notifications
         let hboxStackNotifications = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-        let labelStackNotifications = new Gtk.Label({label: _("stack notifications in message tray"), xalign: 0});
+        let labelStackNotifications = new Gtk.Label({label: _("Stack notifications in message tray"), xalign: 0});
         let inputStackNotifications = new Gtk.Switch({active: settingsJSON['servers'][server_num]['stack_notifications']});
     
         inputStackNotifications.connect("notify::active", Lang.bind(this, function(input){
@@ -160,31 +198,31 @@ function addTabPanel(notebook, server_num)
 
 
     // *** job filters ***
-    let labelFilters = new Gtk.Label({ label: "<b>" + _("job filters") + "</b>", use_markup: true, xalign: 0 });
+    let labelFilters = new Gtk.Label({ label: "<b>" + _("Job filters") + "</b>", use_markup: true, xalign: 0 });
     vbox.add(labelFilters);
 
     let vboxFilters = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, margin_left: 20, margin_bottom: 15 });
 
         // show running jobs
-        vboxFilters.add(buildIconSwitchSetting("clock", _('show running jobs'), 'show_running_jobs', server_num));
+        vboxFilters.add(buildIconSwitchSetting("clock", _('Show running jobs'), 'show_running_jobs', server_num));
 
         // show successful jobs
-        vboxFilters.add(buildIconSwitchSetting("blue", _('show successful jobs'), 'show_successful_jobs', server_num));
+        vboxFilters.add(buildIconSwitchSetting("blue", _('Show successful jobs'), 'show_successful_jobs', server_num));
 
         // show unstable jobs
-        vboxFilters.add(buildIconSwitchSetting("yellow", _('show unstable jobs'), 'show_unstable_jobs', server_num));
+        vboxFilters.add(buildIconSwitchSetting("yellow", _('Show unstable jobs'), 'show_unstable_jobs', server_num));
 
         // show failed jobs
-        vboxFilters.add(buildIconSwitchSetting("red", _('show failed jobs'), 'show_failed_jobs', server_num));
+        vboxFilters.add(buildIconSwitchSetting("red", _('Show failed jobs'), 'show_failed_jobs', server_num));
 
         // show disabled jobs
-        vboxFilters.add(buildIconSwitchSetting("grey", _('show never built jobs'), 'show_neverbuilt_jobs', server_num));
+        vboxFilters.add(buildIconSwitchSetting("grey", _('Show never built jobs'), 'show_neverbuilt_jobs', server_num));
 
         // show disabled jobs
-        vboxFilters.add(buildIconSwitchSetting("grey", _('show disabled jobs'), 'show_disabled_jobs', server_num));
+        vboxFilters.add(buildIconSwitchSetting("grey", _('Show disabled jobs'), 'show_disabled_jobs', server_num));
 
         // show aborted jobs
-        vboxFilters.add(buildIconSwitchSetting("grey", _('show aborted jobs'), 'show_aborted_jobs', server_num));
+        vboxFilters.add(buildIconSwitchSetting("grey", _('Show aborted jobs'), 'show_aborted_jobs', server_num));
     vbox.add(vboxFilters);
     
     // button to remove tab
