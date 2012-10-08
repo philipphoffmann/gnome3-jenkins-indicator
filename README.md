@@ -31,10 +31,25 @@ Each server you configure will be represented with its own indicator in the stat
 
 You can configure the following settings:
 
-### 1. The Jenkins CI Server JSON API URL:
+### 1. The Jenkins CI Server connection:
+#### Jenkins CI Server name
+Set this value to whatever you want. This value is only used in the popup menu and notifications. You should provide a name thats useful to you.
+
+#### Jenkins CI Server Web Frontend URL
 Set its value to your Jenkins web frontend URL. If you have views defined for your Jenkins dashboard you can also put in the URL of the view here.
 You can check if the JSON API is available in your web browser by appending `/api/json` to your web frontend URL (which is what the extension does to get its information).
-You can also enable the "Green Balls Plugin" in this section which enables using green ball icons instead of blue ones, just like the green balls plugin in Jenkins (Thanks to [negesti](https://github.com/negesti) for this contribution).
+
+#### Use authentication
+Enable authentication if your Jenkins CI Server instance uses authentication.
+
+#### Authentication user
+Provide a username you want the extension to use to login to your Jenkins CI Server instance if authentication is enabled.
+
+#### Authentication API token
+Every Jenkins CI Server user has an API token. This is used for querying the Jenkins CI Server API instead of the users password. You can get the API token from the Jenkins CI Server Web Frontend. Go to the users preferences and click "Show API token".
+
+#### Green Balls Plugin
+You can enable the "Green Balls Plugin" in this section which enables using green ball icons instead of blue ones, just like the green balls plugin in Jenkins (Thanks to [negesti](https://github.com/negesti) for this contribution).
 
 ### 2. Auto-refreshing:
 By default the extension automatically requests the Jenkins CI Server for the state of all jobs at a given interval.

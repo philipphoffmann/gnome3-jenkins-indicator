@@ -1,23 +1,23 @@
 # translations strings for jenkins-indicator gnome shell extension
 
 # plugin translations
-msgid "auto-refresh"
+msgid "Auto-refresh"
 msgstr "Automatisch aktualisieren"
 
-msgid "settings"
+msgid "Settings"
 msgstr "Einstellungen"
 
 msgid "Error"
 msgstr "Fehler"
 
-msgid "unknown error"
-msgstr "unbekannter Fehler"
+msgid "Unknown error"
+msgstr "Unbekannter Fehler"
 
-msgid "no jobs found"
+msgid "No jobs found"
 msgstr "Keine Jobs gefunden"
 
-msgid "invalid Jenkins CI Server web frontend URL"
-msgstr "ungültige Jenkins CI Server Web Frontend URL"
+msgid "Invalid Jenkins CI Server web frontend URL"
+msgstr "Ungültige Jenkins CI Server Web Frontend URL"
 
 msgid "Jenkins jobs"
 msgstr "Jenkins Jobs"
@@ -50,50 +50,65 @@ msgid "disabled"
 msgstr "inaktiv"
 
 # settings dialog translations
+msgid "Add server"
+msgstr "Server hinzufügen"
+
 msgid "Jenkins connection"
 msgstr "Jenkins Verbindung"
+
+msgid "Jenkins CI Server name"
+msgstr "Jenkins CI Server Name"
 
 msgid "Jenkins CI Server web frontend URL"
 msgstr "Jenkins CI Server Web Frontend URL"
 
+msgid "Use authentication"
+msgstr "Authentifizierung verwenden"
+
+msgid "Authentication user"
+msgstr "Benutzername f. Authentifizierung"
+
+msgid "Authentication API token"
+msgstr "API-Token f. Authentifizierung"
+
 msgid "'Green Balls' plugin"
 msgstr "'Green Balls' Plugin"
 
-msgid "preferences"
+msgid "Preferences"
 msgstr "Einstellungen"
 
-msgid "auto-refresh interval (seconds)"
+msgid "Auto-refresh interval (seconds)"
 msgstr "Interval für autom. Aktualisierung (Sekunden)"
 
-msgid "notifications"
+msgid "Notifications"
 msgstr "Benachrichtigungen"
 
-msgid "notification for finished jobs"
+msgid "Notification for finished jobs"
 msgstr "Benachrichtigung für abgeschlossene Jobs"
 
-msgid "stack notifications in message tray"
+msgid "Stack notifications in message tray"
 msgstr "Benachrichtigungen im MessageTray sammeln"
 
-msgid "job filters"
+msgid "Job filters"
 msgstr "Job Filter"
 
-msgid "show running jobs"
+msgid "Show running jobs"
 msgstr "Laufende Jobs anzeigen"
 
-msgid "show successful jobs"
+msgid "Show successful jobs"
 msgstr "Erfolgreiche Jobs anzeigen"
 
-msgid "show unstable jobs"
+msgid "Show unstable jobs"
 msgstr "Instabile Jobs anzeigen"
 
-msgid "show failed jobs"
+msgid "Show failed jobs"
 msgstr "Fehlgeschlagene Jobs anzeigen"
 
-msgid "show never built jobs"
+msgid "Show never built jobs"
 msgstr "Noch nie gestartete Jobs anzeigen"
 
-msgid "show disabled jobs"
+msgid "Show disabled jobs"
 msgstr "Inaktive Jobs anzeigen"
 
-msgid "show aborted jobs"
+msgid "Show aborted jobs"
 msgstr "Abgebrochene Jobs anzeigen"
