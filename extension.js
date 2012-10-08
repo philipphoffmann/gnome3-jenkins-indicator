@@ -422,7 +422,7 @@ const JenkinsIndicator = new Lang.Class({
 		this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
 		// add link to settings dialog
-		this._menu_settings = new PopupMenu.PopupMenuItem(_("settings"));
+		this._menu_settings = new PopupMenu.PopupMenuItem(_("Settings"));
 		event_signals.push( this._menu_settings.connect("activate", function(){
 			// call gnome settings tool for this extension
 			let app = Shell.AppSystem.get_default().lookup_app("gnome-shell-extension-prefs.desktop");
