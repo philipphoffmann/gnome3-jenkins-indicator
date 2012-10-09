@@ -496,6 +496,7 @@ const JenkinsIndicator = new Lang.Class({
 			let request = Soup.Message.new('GET', urlAppend(this.settings.jenkins_url, 'api/json'));
 			
 			// append authentication header (if necessary)
+			// jenkins only supports preemptive authentication so we have to provide authentication info on first request
 			if( this.settings.use_authentication )
 				request.request_headers.append('Authorization', 'Basic ' + Glib.base64_encode(this.settings.auth_user + ':' + this.settings.api_token));
 
