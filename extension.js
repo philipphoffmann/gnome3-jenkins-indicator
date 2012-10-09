@@ -317,7 +317,7 @@ const ServerPopupMenu = new Lang.Class({
 		// provide error message if no jobs were found
 		if( new_jobs.length==0 )
 		{
-			_indicators.showError("no jobs found");
+			_indicators.showError(_("No jobs found"));
 			return;
 		}
 
@@ -469,7 +469,8 @@ const JenkinsIndicator = new Lang.Class({
 					// http error
 					if( message.status_code!==200 )
 					{
-						this.showError("invalid Jenkins CI Server web frontend URL");
+						global.log(message.status_code);
+						this.showError(_("Invalid Jenkins CI Server web frontend URL (HTTP Error %s)").format(message.status_code));
 					}
 					// http ok
 					else
@@ -491,7 +492,7 @@ const JenkinsIndicator = new Lang.Class({
 			// no valid url was provided in settings dialog
 			else
 			{
-				this.showError("invalid Jenkins CI Server web frontend URL");
+				this.showError(_("Invalid Jenkins CI Server web frontend URL"));
 				
 				// we're done updating and ready for the next request
 				this._isRequesting = false;
@@ -570,7 +571,7 @@ const JenkinsIndicator = new Lang.Class({
 			this.menu._getMenuItems()[2].destroy();
 
 		// show error message in popup menu
-		this.menu.addMenuItem(new PopupMenu.PopupMenuItem(_("Error") + ": " + _(text), {style_class: 'error'}), 2);
+		this.menu.addMenuItem(new PopupMenu.PopupMenuItem(_("Error") + ": " + text, {style_class: 'error'}), 2);
 
 		// set indicator state to error
 		this._iconActor.icon_name = jobStates.getIcon(jobStates.getErrorState(), this.settings.green_balls_plugin);

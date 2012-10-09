@@ -19,6 +19,9 @@ msgstr "Keine Jobs gefunden"
 msgid "Invalid Jenkins CI Server web frontend URL"
 msgstr "Ungültige Jenkins CI Server Web Frontend URL"
 
+msgid "Invalid Jenkins CI Server web frontend URL (HTTP Error %s)"
+msgstr "Ungültige Jenkins CI Server Web Frontend URL (HTTP Error %s)"
+
 msgid "Jenkins jobs"
 msgstr "Jenkins Jobs"
 
