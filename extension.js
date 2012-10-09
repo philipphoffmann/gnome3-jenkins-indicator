@@ -101,14 +101,14 @@ const jobStates = new function() {
 		for( let i=0 ; i<states.length ; ++i )
 		{
 		    // use green balls plugin if actived
-		    if( with_green_balls && job_color=='blue' ) return 'green';
+		    if( with_green_balls && job_color=='blue' ) return 'jenkins_green';
 		    
 		    // if not just return a regular icon
-			else if( job_color==states[i].color ) return states[i].icon;
+			else if( job_color==states[i].color ) return 'jenkins_' + states[i].icon;
 		}
 		// if job color is unknown, use the grey icon
 		global.log('unkown color: ' + job_color);
-		return 'grey';
+		return 'jenkins_grey';
 	};
 
 	// returns the corresponding icon name of a job state
@@ -145,7 +145,7 @@ const jobStates = new function() {
 	// return the color of the error state for the overall indicator
 	this.getErrorState = function()
 	{
-		return "red";
+		return "jenkins_red";
 	};
 };
 
@@ -167,7 +167,7 @@ const JobNotificationSource = new Lang.Class({
 
 	// set jenkins logo for notification source icon
     createNotificationIcon: function() {
-        return new St.Icon({ icon_name: 'headshot',
+        return new St.Icon({ icon_name: 'jenkins_headshot',
                              icon_type: St.IconType.FULLCOLOR,
                              icon_size: ICON_SIZE_INDICATOR });
     },
@@ -190,7 +190,7 @@ const ServerPopupMenuItem = new Lang.Class({
         this.settings = settings;
         
         this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
-        this.icon = new St.Icon({   icon_name: 'headshot',
+        this.icon = new St.Icon({   icon_name: 'jenkins_headshot',
                                     icon_type: St.IconType.FULLCOLOR,
                                     icon_size: ICON_SIZE_INDICATOR,
                                     style_class: "system-status-icon" });
@@ -227,22 +227,57 @@ const JobPopupMenuItem = new Lang.Class({
 	Name: 'JobPopupMenuItem',
 	Extends: PopupMenu.PopupBaseMenuItem,
 
-    _init: function(job, notification_source, settings, params) {
+    _init: function(menu, job, notification_source, settings, params) {
     	this.parent(params);
     	
+		this.menu = menu;
     	this.notification_source = notification_source;
     	this.settings = settings;
     	
         this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
+
+		// icon representing job state
         this.icon = new St.Icon({ 	icon_name: jobStates.getIcon(job.color, this.settings.green_balls_plugin),
                                 	icon_type: St.IconType.FULLCOLOR,
                                 	icon_size: ICON_SIZE_INDICATOR,
                                 	style_class: "system-status-icon" });
+	
+		// button used to trigger the job
+        this.icon_build = new St.Icon({ icon_name: 'jenkins_clock',
+                                		icon_type: St.IconType.FULLCOLOR,
+                                		icon_size: ICON_SIZE_INDICATOR,
+                                		style_class: "system-status-icon" });
+
+		this.button_build = new St.Button({ child: this.icon_build });
+		
+		event_signals.push( this.button_build.connect("clicked", Lang.bind(this, function(){
+			// request to trigger the build
+			let request = Soup.Message.new('GET', urlAppend(this.settings.jenkins_url, 'job/' + this.getJobName() + '/build'));
+			
+			// append authentication header (if necessary)
+			//if( this.settings.use_authentication )
+			//	request.request_headers.append('Authorization', 'Basic ' + Glib.base64_encode(this.settings.auth_user + ':' + this.settings.api_token));
+
+			if( request )
+			{
+				// kick off request
+				_httpSession.queue_message(request, Lang.bind(this, function(_httpSession, message) {
+					// we could try to refresh all jobs here but jenkins delays builds by 5 seconds so we wont see any difference
+				}));
+			}
+
+			// close this menu
+			this.menu.close();
+		})) );
+
+		// menu item label (job name)
 		this.label = new St.Label({ text: job.name });
 
         this.box.add(this.icon);
         this.box.add(this.label);
         this.addActor(this.box);
+
+		this.addActor(this.button_build);
         
         // clicking a job menu item opens the job in web frontend with default browser
         event_signals.push( this.connect("activate", Lang.bind(this, function(){
@@ -258,7 +293,7 @@ const JobPopupMenuItem = new Lang.Class({
 	// update menu item text and icon
 	updateJob: function(job) {
 		// notification for finished job if job icon used to be clock (if enabled in settings)
-		if( this.settings.notification_finished_jobs && this.icon.icon_name=='clock' && jobStates.getIcon(job.color, this.settings.green_balls_plugin)!='clock' )
+		if( this.settings.notification_finished_jobs && this.icon.icon_name=='jenkins_clock' && jobStates.getIcon(job.color, this.settings.green_balls_plugin)!='jenkins_clock' )
 		{
 			// create notification source first time we have to display notifications or if server name changed
 			if( this.notification_source===undefined || this.notification_source.title!==this.settings.name )
@@ -305,9 +340,10 @@ const ServerPopupMenu = new Lang.Class({
 	Name: 'ServerPopupMenu',
 	Extends: PopupMenu.PopupMenu,
 
-	_init: function(sourceActor, arrowAlignment, arrowSide, notification_source, settings) {
+	_init: function(indicator, sourceActor, arrowAlignment, arrowSide, notification_source, settings) {
 		this.parent(sourceActor, arrowAlignment, arrowSide);
 		
+		this.indicator = indicator;
 		this.notification_source = notification_source;
 		this.settings = settings;
 	},
@@ -348,7 +384,7 @@ const ServerPopupMenu = new Lang.Class({
 			// otherwise insert as new job
 			else
 			{
-				this.addMenuItem(new JobPopupMenuItem(new_jobs[i], this.notification_source, this.settings), i+2);
+				this.addMenuItem(new JobPopupMenuItem(this, new_jobs[i], this.notification_source, this.settings), i+2);
 			}
 		}
 		
@@ -411,7 +447,7 @@ const JenkinsIndicator = new Lang.Class({
         this.actor.add_actor(this._iconActor);
 
         // add jobs popup menu
-		this.setMenu(new ServerPopupMenu(this.actor, 0.25, St.Side.TOP, this.notification_source, this.settings));
+		this.setMenu(new ServerPopupMenu(this, this.actor, 0.25, St.Side.TOP, this.notification_source, this.settings));
 
 		// add server menu item
 		this.serverMenuItem = new ServerPopupMenuItem(this.settings);
@@ -469,7 +505,6 @@ const JenkinsIndicator = new Lang.Class({
 					// http error
 					if( message.status_code!==200 )
 					{
-						global.log(message.status_code);
 						this.showError(_("Invalid Jenkins CI Server web frontend URL (HTTP Error %s)").format(message.status_code));
 					}
 					// http ok
