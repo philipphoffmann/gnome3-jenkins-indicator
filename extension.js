@@ -255,8 +255,8 @@ const JobPopupMenuItem = new Lang.Class({
 			let request = Soup.Message.new('GET', urlAppend(this.settings.jenkins_url, 'job/' + this.getJobName() + '/build'));
 			
 			// append authentication header (if necessary)
-			//if( this.settings.use_authentication )
-			//	request.request_headers.append('Authorization', 'Basic ' + Glib.base64_encode(this.settings.auth_user + ':' + this.settings.api_token));
+			if( this.settings.use_authentication )
+				request.request_headers.append('Authorization', 'Basic ' + Glib.base64_encode(this.settings.auth_user + ':' + this.settings.api_token));
 
 			if( request )
 			{
