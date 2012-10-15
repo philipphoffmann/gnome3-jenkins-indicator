@@ -1,182 +1,117 @@
-msgid ""
-msgstr ""
-"Project-Id-Version: jenkins-indicator\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-13 09:13+0100\n"
-"PO-Revision-Date: \n"
-"Last-Translator: Manuel HERVO <manuel.hervo@gmail.com>\n"
-"Language-Team: \n"
-"Language: fr\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-KeywordsList: _(;gettext\n"
-"X-Poedit-Basepath: ../../..\n"
-"Plural-Forms: nplurals=2; plural=n == 1 ? 0 : 1;\n"
-"X-Poedit-SearchPath-0: .\n"
-
-# settings dialog translations
-#: prefs.js:52
-msgid "Jenkins connection"
-msgstr "Jenkins connexion"
-
-#: prefs.js:59
-msgid "Jenkins CI Server name"
-msgstr "Nom du serveur Web Jenkins CI"
-
-#: prefs.js:70
-msgid "Jenkins CI Server web frontend URL"
-msgstr "URL du serveur Web Jenkins CI"
-
-#: prefs.js:81
-msgid "Use authentication"
-msgstr "Utiliser l'authentification"
-
-#: prefs.js:97
-msgid "Authentication user"
-msgstr "Utilisateur"
-
-#: prefs.js:108
-msgid "Authentication API token"
-msgstr "Jeton API de l'utilisateur"
-
-#: prefs.js:118
-msgid "'Green Balls' plugin"
-msgstr "'Green Balls' Plugin"
-
 # translations strings for jenkins-indicator gnome shell extension
+
 # plugin translations
-#: prefs.js:124 prefs.js:131
 msgid "Auto-refresh"
 msgstr "Rafraîchissement automatique"
 
-#: prefs.js:145
-msgid "Auto-refresh interval (seconds)"
-msgstr "Intervalle du rafraîchissement automatique (en secondes)"
-
-#: prefs.js:166
-msgid "Notifications"
-msgstr "Notifications"
-
-#: prefs.js:173
-msgid "Notification for finished jobs"
-msgstr "Notification pour les jobs terminés"
-
-#: prefs.js:186
-msgid "Stack notifications in message tray"
-msgstr "Pile de notifications dans la zone des messages"
-
-#: prefs.js:201
-msgid "Job filters"
-msgstr "Filtres de jobs"
-
-#: prefs.js:207
-msgid "Show running jobs"
-msgstr "Afficher les jobs en cours"
-
-#: prefs.js:210
-msgid "Show successful jobs"
-msgstr "Afficher les jobs réussis"
-
-#: prefs.js:213
-msgid "Show unstable jobs"
-msgstr "Afficher les jobs instables"
-
-#: prefs.js:216
-msgid "Show failed jobs"
-msgstr "Afficher les jobs en erreurs"
-
-#: prefs.js:219
-msgid "Show never built jobs"
-msgstr "Afficher les jobs jamais construits"
-
-#: prefs.js:222
-msgid "Show disabled jobs"
-msgstr "Afficher les jobs désactivés"
-
-#: prefs.js:225
-msgid "Show aborted jobs"
-msgstr "Afficher les jobs annulés"
-
-#: prefs.js:270
-msgid "Add server"
-msgstr "Ajouter un serveur"
-
-#: extension.js:303
-msgid "Job finished building"
-msgstr "Construction du job terminée"
-
-#: extension.js:303
-#, python-format
-msgid "Your Jenkins job %s just finished building (<b>%s</b>)."
-msgstr "Votre job Jenkins %s vient de terminer (<b>%s</b>)."
-
-#: extension.js:356
-msgid "No jobs found"
-msgstr "Aucun job trouvé"
-
-#: extension.js:461
 msgid "Settings"
 msgstr "Paramètres"
 
-#: extension.js:511
-#, python-format
-msgid "Invalid Jenkins CI Server web frontend URL (HTTP Error %s)"
-msgstr "URL de Jenkins CI Server Web  invalide (HTTP Error %s)"
-
-#: extension.js:533
-msgid "Invalid Jenkins CI Server web frontend URL"
-msgstr "URL de Jenkins CI Server Web  invalide"
-
-#: extension.js:612
 msgid "Error"
 msgstr "Erreur"
 
-#~ msgid "invalid authentification on Jenkins CI Server"
-#~ msgstr "Authentification invalide sur le server Jenkins CI"
+msgid "Unknown error"
+msgstr "Erreur inconnue"
 
-#~ msgid "error authentification on Jenkins CI Server"
-#~ msgstr "Authentification invalide sur le server Jenkins CI"
+msgid "No jobs found"
+msgstr "Aucun job trouvé"
 
-#~ msgid "invalid Jenkins CI Server web frontend URL 2"
-#~ msgstr "URL de Jenkins CI Server Web  invalide"
+msgid "Invalid Jenkins CI Server web frontend URL"
+msgstr "URL de Jenkins CI Server Web  invalide"
 
-#~ msgid "Username"
-#~ msgstr "Utilisateur"
+msgid "Invalid Jenkins CI Server web frontend URL (HTTP Error %s)"
+msgstr "URL de Jenkins CI Server Web  invalide (HTTP Error %s)"
 
-#~ msgid "Password"
-#~ msgstr "Mot de passe"
+msgid "Jenkins jobs"
+msgstr "Jenkins Jobs"
 
-#~ msgid "View"
-#~ msgstr "Vue"
+msgid "Job finished building"
+msgstr "Construction du job terminée"
 
-#~ msgid "unknown error"
-#~ msgstr "Erreur inconnue"
+msgid "Your Jenkins job %s just finished building (<b>%s</b>)."
+msgstr "Votre job Jenkins %s vient de terminer (<b>%s</b>)."
 
-#~ msgid "Jenkins jobs"
-#~ msgstr "Jenkins Jobs"
+msgid "running"
+msgstr "en cours"
 
-#~ msgid "running"
-#~ msgstr "en cours"
+msgid "failed"
+msgstr "échoué"
 
-#~ msgid "failed"
-#~ msgstr "échoué"
+msgid "unstable"
+msgstr "instable"
 
-#~ msgid "unstable"
-#~ msgstr "instable"
+msgid "successful"
+msgstr "succès"
 
-#~ msgid "successful"
-#~ msgstr "succès"
+msgid "never built"
+msgstr "jamais construit"
 
-#~ msgid "never built"
-#~ msgstr "jamais construit"
+msgid "aborted"
+msgstr "annulé"
 
-#~ msgid "aborted"
-#~ msgstr "annulé"
+msgid "disabled"
+msgstr "désactivé"
 
-#~ msgid "disabled"
-#~ msgstr "désactivé"
+# settings dialog translations
+msgid "Add server"
+msgstr "Ajouter un serveur"
 
-#~ msgid "preferences"
-#~ msgstr "préférences"
+msgid "Jenkins connection"
+msgstr "Jenkins connexion"
+
+msgid "Jenkins CI Server name"
+msgstr "Nom du serveur Web Jenkins CI"
+
+msgid "Jenkins CI Server web frontend URL"
+msgstr "URL du serveur Web Jenkins CI"
+
+msgid "Use authentication"
+msgstr "Utiliser l'authentification"
+
+msgid "Authentication user"
+msgstr "Utilisateur"
+
+msgid "Authentication API token"
+msgstr "Jeton API de l'utilisateur"
+
+msgid "'Green Balls' plugin"
+msgstr "'Green Balls' Plugin"
+
+msgid "Preferences"
+msgstr "préférences"
+
+msgid "Auto-refresh interval (seconds)"
+msgstr "Intervalle du rafraîchissement automatique (en secondes)"
+
+msgid "Notifications"
+msgstr "Notifications"
+
+msgid "Notification for finished jobs"
+msgstr "Notification pour les jobs terminés"
+
+msgid "Stack notifications in message tray"
+msgstr "Pile de notifications dans la zone des messages"
+
+msgid "Job filters"
+msgstr "Filtres de jobs"
+
+msgid "Show running jobs"
+msgstr "Afficher les jobs en cours"
+
+msgid "Show successful jobs"
+msgstr "Afficher les jobs réussis"
+
+msgid "Show unstable jobs"
+msgstr "Afficher les jobs instables"
+
+msgid "Show failed jobs"
+msgstr "Afficher les jobs en erreurs"
+
+msgid "Show never built jobs"
+msgstr "Afficher les jobs jamais construits"
+
+msgid "Show disabled jobs"
+msgstr "Afficher les jobs désactivés"
+
+msgid "Show aborted jobs"
+msgstr "Afficher les jobs annulés"
