@@ -255,6 +255,9 @@ const JobPopupMenuItem = new Lang.Class({
 			let request = Soup.Message.new('GET', urlAppend(this.settings.jenkins_url, 'job/' + this.getJobName() + '/build'));
 			
 			// append authentication header (if necessary)
+			// jenkins only supports preemptive authentication (authentication on first request)
+			// any request not sending an authentication header is rejected right away
+			// unfortunately Soup doesnt support that, so we have to provide the authentication header manually
 			if( this.settings.use_authentication )
 				request.request_headers.append('Authorization', 'Basic ' + Glib.base64_encode(this.settings.auth_user + ':' + this.settings.api_token));
 
