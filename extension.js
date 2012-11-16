@@ -28,8 +28,6 @@ const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;
 // few static settings
 const ICON_SIZE_INDICATOR = 16;
 const ICON_SIZE_NOTIFICATION = 24;
-//Gnome 3.6 compat workaround
-let hasIconType = false;
 
 let _indicators = [];
 let settings, settingsJSON;
@@ -40,6 +38,8 @@ let event_signals = [];
 const _httpSession = new Soup.SessionAsync();
 Soup.Session.prototype.add_feature.call(_httpSession, new Soup.ProxyResolverDefault());
 
+//Gnome 3.6 compat workaround
+let hasIconType = false;
 
 // append a uri to a domain regardless whether domains ends with '/' or not
 function urlAppend(domain, uri)
@@ -170,7 +170,7 @@ const JobNotificationSource = new Lang.Class({
 
 	// set jenkins logo for notification source icon
     createNotificationIcon: function() {
-		return createNotificationIcon('jenkins_headshot');
+        return createNotificationIcon('jenkins_headshot');
     },
 
 	// gets called when a notification is clicked
@@ -297,7 +297,7 @@ const JobPopupMenuItem = new Lang.Class({
 			// create notification for the finished job
 		    let notification = new MessageTray.Notification(this.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, jobStates.getName(job.color)), {
 		    	bannerMarkup: true,
-		    	icon: createStatusIcon(jobStates.getIcon(job.color, this.settings.green_balls_plugin));
+		    	icon: createStatusIcon(jobStates.getIcon(job.color, this.settings.green_balls_plugin))
 		    });
 		    
 		    // use transient messages if persistent messages are disabled in settings
@@ -560,12 +560,20 @@ const JenkinsIndicator = new Lang.Class({
 	_filterJobs: function(jobs) {
 		jobs = jobs || [];
 		let filteredJobs = [];
+		let jobToShow = this.settings['jobs_to_show'].trim().split(",");
+		let showAllJobs =  (jobToShow.length == 1) && jobToShow[0] == "all";
 
 		for( var i=0 ; i<jobs.length ; ++i )
 		{
 			// filter job if user decided not to show jobs with this state (in settings dialog)
-			if( this.settings[jobStates.getFilter(jobs[i].color)] )
+			let filterJobState = this.settings[jobStates.getFilter(jobs[i].color)];
+			// filter job if user decided not to show jobs with this name (in settings dialog)
+			let filterJobByName = showAllJobs || jobToShow.indexOf(jobs[i].name) >= 0;
+			if(filterJobState && filterJobByName){
+				global.log("Keeping job "+jobs[i].name);
 				filteredJobs[filteredJobs.length] = jobs[i]
+			}
+
 		}
 
 		return filteredJobs;
@@ -643,15 +651,15 @@ function init(extensionMeta) {
     // add include path for icons
     let theme = imports.gi.Gtk.IconTheme.get_default();
     theme.append_search_path(extensionMeta.path + "/icons");
-    
+
     // load localization dictionaries
     Convenience.initTranslations();
-    
+
     // load extension settings
     settings = Convenience.getSettings();
     settingsJSON = Settings.getSettingsJSON(settings);
 
-    try {
+   try {
 	    let iconType = St.IconType.FULLCOLOR;	
 		hasIconType = true;
 	} catch (e){ 
