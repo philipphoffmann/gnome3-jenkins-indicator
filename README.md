@@ -67,3 +67,10 @@ If the build time for a job is shorter than the auto-refresh interval the extens
 
 ### 4. Filter jobs:
 There is a filter for each job state. Enabling the switch will show the matching jobs in the popup menu, disabling the switch will hide the jobs.
+You can also filter jobs by their name. Providing "all" will show you all jobs.
+To filter your jobs by name you have to provide a comma-separated list of the jobs you want to appear in the popup menu.
+
+## Credits
+Thanks to the following contributors for their valuable feedback:
+- [negesti](https://github.com/negesti) (Green Balls Plugin)
+- [fchaillou](https://github.com/fchaillou) (Gnome 3.6 compatibility and job name filter)

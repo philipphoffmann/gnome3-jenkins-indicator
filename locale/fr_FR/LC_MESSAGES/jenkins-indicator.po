@@ -116,5 +116,5 @@ msgstr "Afficher les jobs désactivés"
 msgid "Show aborted jobs"
 msgstr "Afficher les jobs annulés"
 
-msgid "Jobs to Show"
+msgid "Jobs to show"
 msgstr "Jobs affichés"
