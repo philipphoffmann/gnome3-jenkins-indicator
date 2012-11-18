@@ -12,15 +12,14 @@ const Soup = imports.gi.Soup;
 const Glib = imports.gi.GLib;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
-const MessageTray = imports.ui.messageTray;
 
 // import convenience module (for localization)
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 const Settings = Me.imports.settings;
 const Utils = Me.imports.lib.utils;
-const JobNotificationSource = Me.imports.lib.jobNotificationSource;
 const ServerPopupMenuItem = Me.imports.lib.serverPopupMenuItem;
+const JobPopupMenuItem = Me.imports.lib.jobPopupMenuItem;
 
 // set text domain for localized strings
 const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;
@@ -33,113 +32,6 @@ let event_signals = [];
 
 const _httpSession = new Soup.SessionAsync();
 Soup.Session.prototype.add_feature.call(_httpSession, new Soup.ProxyResolverDefault());
-
-// represent a job in the popup menu with icon and job name
-const JobPopupMenuItem = new Lang.Class({
-	Name: 'JobPopupMenuItem',
-	Extends: PopupMenu.PopupBaseMenuItem,
-
-    _init: function(menu, job, notification_source, settings, params) {
-    	this.parent(params);
-    	
-		this.menu = menu;
-    	this.notification_source = notification_source;
-    	this.settings = settings;
-    	
-        this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
-
-		// icon representing job state
-        this.icon = Utils.createStatusIcon(Utils.jobStates.getIcon(job.color, this.settings.green_balls_plugin));
-	
-		// button used to trigger the job
-        this.icon_build = Utils.createStatusIcon('jenkins_clock');
-
-		this.button_build = new St.Button({ child: this.icon_build });
-		
-		event_signals.push( this.button_build.connect("clicked", Lang.bind(this, function(){
-			// request to trigger the build
-			let request = Soup.Message.new('GET', Utils.urlAppend(this.settings.jenkins_url, 'job/' + this.getJobName() + '/build'));
-			
-			// append authentication header (if necessary)
-			// jenkins only supports preemptive authentication (authentication on first request)
-			// any request not sending an authentication header is rejected right away
-			// unfortunately Soup doesnt support that, so we have to provide the authentication header manually
-			if( this.settings.use_authentication )
-				request.request_headers.append('Authorization', 'Basic ' + Glib.base64_encode(this.settings.auth_user + ':' + this.settings.api_token));
-
-			if( request )
-			{
-				// kick off request
-				_httpSession.queue_message(request, Lang.bind(this, function(_httpSession, message) {
-					// we could try to refresh all jobs here but jenkins delays builds by 5 seconds so we wont see any difference
-				}));
-			}
-
-			// close this menu
-			this.menu.close();
-		})) );
-
-		// menu item label (job name)
-		this.label = new St.Label({ text: job.name });
-
-        this.box.add(this.icon);
-        this.box.add(this.label);
-        this.addActor(this.box);
-
-		this.addActor(this.button_build);
-        
-        // clicking a job menu item opens the job in web frontend with default browser
-        event_signals.push( this.connect("activate", Lang.bind(this, function(){
-            Gio.app_info_launch_default_for_uri(Utils.urlAppend(this.settings.jenkins_url, 'job/' + this.getJobName()), global.create_app_launch_context());
-        })) );
-	},
-
-	// return job name
-	getJobName: function() {
-		return this.label.text;
-	},
-
-	// update menu item text and icon
-	updateJob: function(job) {
-		// notification for finished job if job icon used to be clock (if enabled in settings)
-		if( this.settings.notification_finished_jobs && this.icon.icon_name=='jenkins_clock' && Utils.jobStates.getIcon(job.color, this.settings.green_balls_plugin)!='jenkins_clock' )
-		{
-			// create notification source first time we have to display notifications or if server name changed
-			if( this.notification_source===undefined || this.notification_source.title!==this.settings.name )
-				this.notification_source = new JobNotificationSource.JobNotificationSource(this.settings.name);
-			
-			// create notification for the finished job
-		    let notification = new MessageTray.Notification(this.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, Utils.jobStates.getName(job.color)), {
-		    	bannerMarkup: true,
-		    	icon: Utils.createStatusIcon(Utils.jobStates.getIcon(job.color, this.settings.green_balls_plugin))
-		    });
-		    
-		    // use transient messages if persistent messages are disabled in settings
-		    if( this.settings.stack_notifications==false )
-		    	notification.setTransient(true);
-		    
-		    // notify the user
-		    this.notification_source.notify(notification);
-		}
-		
-		this.label.text = job.name;
-		this.icon.icon_name = Utils.jobStates.getIcon(job.color, this.settings.green_balls_plugin);
-	},
-	
-	// update settings
-	updateSettings: function(settings) {
-	    this.settings = settings;
-	},
-	
-	// destroys the job popup menu item
-	destroy: function() {
-		this.icon.destroy();
-		this.label.destroy();
-		this.box.destroy();
-		
-		this.parent();
-	}
-});
 
 // manages jobs popup menu items
 const ServerPopupMenu = new Lang.Class({
@@ -190,7 +82,7 @@ const ServerPopupMenu = new Lang.Class({
 			// otherwise insert as new job
 			else
 			{
-				this.addMenuItem(new JobPopupMenuItem(this, new_jobs[i], this.notification_source, this.settings), i+2);
+				this.addMenuItem(new JobPopupMenuItem.JobPopupMenuItem(this, new_jobs[i], this.notification_source, this.settings, _httpSession), i+2);
 			}
 		}
 		
