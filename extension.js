@@ -14,21 +14,16 @@ const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const MessageTray = imports.ui.messageTray;
 
-// this is the messagetray of the current session
-const SessionMessageTray = imports.ui.main.messageTray;
-
 // import convenience module (for localization)
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 const Settings = Me.imports.settings;
 const Utils = Me.imports.lib.utils;
+const JobNotificationSource = Me.imports.lib.jobNotificationSource;
 const ServerPopupMenuItem = Me.imports.lib.serverPopupMenuItem;
 
 // set text domain for localized strings
 const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;
-
-// few static settings
-const ICON_SIZE_NOTIFICATION = 24;
 
 let _indicators = [];
 let settings, settingsJSON;
@@ -124,37 +119,6 @@ const jobStates = new function() {
 	};
 };
 
-// source for handling job notifications 
-const JobNotificationSource = new Lang.Class({
-    Name: 'JobNotificationSource',
-    Extends: MessageTray.Source,
-
-    _init: function(title) {
-    	// set notification source title
-		if( hasIconType )
-			this.parent(title);
-		else
-			this.parent(title, 'jenkins_headshot');
-
-		// set notification source icon
-        this._setSummaryIcon(this.createNotificationIcon());
-        
-        // add myself to the message try
-        SessionMessageTray.add(this);
-    },
-
-	// set jenkins logo for notification source icon
-    createNotificationIcon: function() {
-        return createNotificationIcon('jenkins_headshot');
-    },
-
-	// gets called when a notification is clicked
-    open: function(notification) {
-    	// close the clicked notification
-        notification.destroy();
-    }
-});
-
 // represent a job in the popup menu with icon and job name
 const JobPopupMenuItem = new Lang.Class({
 	Name: 'JobPopupMenuItem',
@@ -227,7 +191,7 @@ const JobPopupMenuItem = new Lang.Class({
 		{
 			// create notification source first time we have to display notifications or if server name changed
 			if( this.notification_source===undefined || this.notification_source.title!==this.settings.name )
-				this.notification_source = new JobNotificationSource(this.settings.name);
+				this.notification_source = new JobNotificationSource.JobNotificationSource(this.settings.name);
 			
 			// create notification for the finished job
 		    let notification = new MessageTray.Notification(this.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, jobStates.getName(job.color)), {
@@ -505,8 +469,7 @@ const JenkinsIndicator = new Lang.Class({
 			// filter job if user decided not to show jobs with this name (in settings dialog)
 			let filterJobByName = showAllJobs || jobToShow.indexOf(jobs[i].name) >= 0;
 			if(filterJobState && filterJobByName){
-				global.log("Keeping job "+jobs[i].name);
-				filteredJobs[filteredJobs.length] = jobs[i]
+				filteredJobs[filteredJobs.length] = jobs[i];
 			}
 
 		}
@@ -566,14 +529,6 @@ function createIndicator(server_num)
     Main.panel.addToStatusArea("jenkins-indicator-"+settingsJSON['servers'][server_num]['id'], _indicators[server_num]);
 }
 
-function createNotificationIcon(icon_name){
-	let params = { icon_name : icon_name, icon_size : ICON_SIZE_NOTIFICATION};
-	if(hasIconType){
-		params.icon_type = St.IconType.FULLCOLOR;
-	}
-	return new St.Icon(params);
-}
-
 function init(extensionMeta) {
     // add include path for icons
     let theme = imports.gi.Gtk.IconTheme.get_default();
@@ -585,14 +540,6 @@ function init(extensionMeta) {
     // load extension settings
     settings = Convenience.getSettings();
     settingsJSON = Settings.getSettingsJSON(settings);
-
-   try {
-	    let iconType = St.IconType.FULLCOLOR;	
-		hasIconType = true;
-	} catch (e){ 
-		//St.IconType was removed in 3.6	
-		hasIconType = false;
-	}
 }
 
 function enable() {

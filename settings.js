@@ -1,3 +1,7 @@
+/*
+ * @author Philipp Hoffmann
+ */
+
 const Params = imports.misc.params;
 
 // default settings for new servers

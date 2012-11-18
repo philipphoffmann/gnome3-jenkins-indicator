@@ -1,3 +1,7 @@
+/*
+ * @author Philipp Hoffmann
+ */
+
 const Lang = imports.lang;
 const Gtk = imports.gi.Gtk;
 
