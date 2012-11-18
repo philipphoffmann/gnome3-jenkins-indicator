@@ -28,7 +28,6 @@ const ServerPopupMenuItem = Me.imports.lib.serverPopupMenuItem;
 const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;
 
 // few static settings
-const ICON_SIZE_INDICATOR = 16;
 const ICON_SIZE_NOTIFICATION = 24;
 
 let _indicators = [];
@@ -39,35 +38,6 @@ let event_signals = [];
 
 const _httpSession = new Soup.SessionAsync();
 Soup.Session.prototype.add_feature.call(_httpSession, new Soup.ProxyResolverDefault());
-
-//Gnome 3.6 compat workaround
-let hasIconType = false;
-
-// append a uri to a domain regardless whether domains ends with '/' or not
-function urlAppend(domain, uri)
-{
-	if( domain.length>=1 )
-		return domain + (domain.charAt(domain.length-1)!='/' ? '/' : '') + uri;
-	else
-		return uri;
-}
-
-// call operation on all elements of array2 which are not in array1 using a compare function
-function arrayOpCompare(array1, array2, compare_func, operation_func)
-{
-    for( var i=0 ; i<array1.length ; ++i )
-    {
-        found_in_array2 = false;
-        for( var j=0 ; j<array2.length ; ++j )
-        {
-            if( compare_func(array1[i], array2[j]) )
-                found_in_array2 = true;
-        }
-        
-        if( !found_in_array2 )
-            operation_func(i, array1[i]);
-    }
-}
 
 // returns icons and state ranks for job states
 const jobStates = new function() {
@@ -209,7 +179,7 @@ const JobPopupMenuItem = new Lang.Class({
 		
 		event_signals.push( this.button_build.connect("clicked", Lang.bind(this, function(){
 			// request to trigger the build
-			let request = Soup.Message.new('GET', urlAppend(this.settings.jenkins_url, 'job/' + this.getJobName() + '/build'));
+			let request = Soup.Message.new('GET', Utils.urlAppend(this.settings.jenkins_url, 'job/' + this.getJobName() + '/build'));
 			
 			// append authentication header (if necessary)
 			// jenkins only supports preemptive authentication (authentication on first request)
@@ -241,7 +211,7 @@ const JobPopupMenuItem = new Lang.Class({
         
         // clicking a job menu item opens the job in web frontend with default browser
         event_signals.push( this.connect("activate", Lang.bind(this, function(){
-            Gio.app_info_launch_default_for_uri(urlAppend(this.settings.jenkins_url, 'job/' + this.getJobName()), global.create_app_launch_context());
+            Gio.app_info_launch_default_for_uri(Utils.urlAppend(this.settings.jenkins_url, 'job/' + this.getJobName()), global.create_app_launch_context());
         })) );
 	},
 
@@ -447,7 +417,7 @@ const JenkinsIndicator = new Lang.Class({
 		{
 			this._isRequesting = true;
 			// ajax request to local jenkins server
-			let request = Soup.Message.new('GET', urlAppend(this.settings.jenkins_url, 'api/json'));
+			let request = Soup.Message.new('GET', Utils.urlAppend(this.settings.jenkins_url, 'api/json'));
 			
 			// append authentication header (if necessary)
 			// jenkins only supports preemptive authentication so we have to provide authentication info on first request
@@ -636,7 +606,7 @@ function enable() {
         settingsJSON = Settings.getSettingsJSON(settings);
 
         // destroy deleted indicators
-        arrayOpCompare(settingsJSON_old['servers'], settingsJSON['servers'], function(a, b){
+        Utils.arrayOpCompare(settingsJSON_old['servers'], settingsJSON['servers'], function(a, b){
             return a['id']==b['id'];
         }, function(index, element){
             _indicators[index].destroy();
@@ -644,7 +614,7 @@ function enable() {
         });
         
         // create new indicators
-        arrayOpCompare(settingsJSON['servers'], settingsJSON_old['servers'], function(a, b){
+        Utils.arrayOpCompare(settingsJSON['servers'], settingsJSON_old['servers'], function(a, b){
             return a['id']==b['id'];
         }, function(index, element){
             createIndicator(index);
