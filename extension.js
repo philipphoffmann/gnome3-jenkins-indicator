@@ -52,7 +52,7 @@ function enable() {
     
     // react to changing settings by adding/removing indicators if necessary
     event_signals.push( settings.connect('changed::settings-json', function(){
-        settingsJSON_old = settingsJSON;
+        let settingsJSON_old = settingsJSON;
         settingsJSON = Settings.getSettingsJSON(settings);
 
         // destroy deleted indicators
