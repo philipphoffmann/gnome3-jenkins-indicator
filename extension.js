@@ -38,6 +38,9 @@ let event_signals = [];
 const _httpSession = new Soup.SessionAsync();
 Soup.Session.prototype.add_feature.call(_httpSession, new Soup.ProxyResolverDefault());
 
+//Gnome 3.6 compat workaround
+let hasIconType = false;
+
 // append a uri to a domain regardless whether domains ends with '/' or not
 function urlAppend(domain, uri)
 {
@@ -167,9 +170,7 @@ const JobNotificationSource = new Lang.Class({
 
 	// set jenkins logo for notification source icon
     createNotificationIcon: function() {
-        return new St.Icon({ icon_name: 'jenkins_headshot',
-                             icon_type: St.IconType.FULLCOLOR,
-                             icon_size: ICON_SIZE_INDICATOR });
+        return createNotificationIcon('jenkins_headshot');
     },
 
 	// gets called when a notification is clicked
@@ -190,10 +191,7 @@ const ServerPopupMenuItem = new Lang.Class({
         this.settings = settings;
         
         this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
-        this.icon = new St.Icon({   icon_name: 'jenkins_headshot',
-                                    icon_type: St.IconType.FULLCOLOR,
-                                    icon_size: ICON_SIZE_INDICATOR,
-                                    style_class: "system-status-icon" });
+        this.icon = createStatusIcon('jenkins_headshot');
         this.label = new St.Label({ text: this.settings.name });
 
         this.box.add(this.icon);
@@ -237,16 +235,10 @@ const JobPopupMenuItem = new Lang.Class({
         this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
 
 		// icon representing job state
-        this.icon = new St.Icon({ 	icon_name: jobStates.getIcon(job.color, this.settings.green_balls_plugin),
-                                	icon_type: St.IconType.FULLCOLOR,
-                                	icon_size: ICON_SIZE_INDICATOR,
-                                	style_class: "system-status-icon" });
+        this.icon = createStatusIcon(jobStates.getIcon(job.color, this.settings.green_balls_plugin));
 	
 		// button used to trigger the job
-        this.icon_build = new St.Icon({ icon_name: 'jenkins_clock',
-                                		icon_type: St.IconType.FULLCOLOR,
-                                		icon_size: ICON_SIZE_INDICATOR,
-                                		style_class: "system-status-icon" });
+        this.icon_build = createStatusIcon('jenkins_clock');
 
 		this.button_build = new St.Button({ child: this.icon_build });
 		
@@ -305,10 +297,7 @@ const JobPopupMenuItem = new Lang.Class({
 			// create notification for the finished job
 		    let notification = new MessageTray.Notification(this.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, jobStates.getName(job.color)), {
 		    	bannerMarkup: true,
-		    	icon: new St.Icon({ icon_name: jobStates.getIcon(job.color, this.settings.green_balls_plugin),
-                                	icon_type: St.IconType.FULLCOLOR,
-                                	icon_size: ICON_SIZE_NOTIFICATION,
-                                	style_class: "system-status-icon" })
+		    	icon: createStatusIcon(jobStates.getIcon(job.color, this.settings.green_balls_plugin))
 		    });
 		    
 		    // use transient messages if persistent messages are disabled in settings
@@ -356,7 +345,7 @@ const ServerPopupMenu = new Lang.Class({
 		// provide error message if no jobs were found
 		if( new_jobs.length==0 )
 		{
-			_indicators.showError(_("No jobs found"));
+			this.indicator.showError(_("No jobs found"));
 			return;
 		}
 
@@ -443,10 +432,7 @@ const JenkinsIndicator = new Lang.Class({
     	this._isRequesting = false;
     	
 		// start off with a blue overall indicator
-        this._iconActor = new St.Icon({ icon_name: jobStates.getIcon(jobStates.getDefaultState(), this.settings.green_balls_plugin),
-                                        icon_type: St.IconType.FULLCOLOR,
-                                        icon_size: ICON_SIZE_INDICATOR,
-                                        style_class: "system-status-icon" });
+        this._iconActor = createStatusIcon(jobStates.getIcon(jobStates.getDefaultState(), this.settings.green_balls_plugin));
         this.actor.add_actor(this._iconActor);
 
         // add jobs popup menu
@@ -574,12 +560,20 @@ const JenkinsIndicator = new Lang.Class({
 	_filterJobs: function(jobs) {
 		jobs = jobs || [];
 		let filteredJobs = [];
+		let jobToShow = this.settings['jobs_to_show'].trim().split(",");
+		let showAllJobs =  (jobToShow.length == 1) && jobToShow[0] == "all";
 
 		for( var i=0 ; i<jobs.length ; ++i )
 		{
 			// filter job if user decided not to show jobs with this state (in settings dialog)
-			if( this.settings[jobStates.getFilter(jobs[i].color)] )
+			let filterJobState = this.settings[jobStates.getFilter(jobs[i].color)];
+			// filter job if user decided not to show jobs with this name (in settings dialog)
+			let filterJobByName = showAllJobs || jobToShow.indexOf(jobs[i].name) >= 0;
+			if(filterJobState && filterJobByName){
+				global.log("Keeping job "+jobs[i].name);
 				filteredJobs[filteredJobs.length] = jobs[i]
+			}
+
 		}
 
 		return filteredJobs;
@@ -637,17 +631,41 @@ function createIndicator(server_num)
     Main.panel.addToStatusArea("jenkins-indicator-"+settingsJSON['servers'][server_num]['id'], _indicators[server_num]);
 }
 
+function createNotificationIcon(icon_name){
+	let params = { icon_name : icon_name, icon_size : ICON_SIZE_NOTIFICATION};
+	if(hasIconType){
+		params.icon_type = St.IconType.FULLCOLOR;
+	}
+	return new St.Icon(params);
+}
+
+function createStatusIcon(icon_name){
+	let params = { icon_name : icon_name, icon_size : ICON_SIZE_INDICATOR, style_class : "system-status-icon"};
+	if(hasIconType){
+		params.icon_type = St.IconType.FULLCOLOR;
+	}
+	return new St.Icon(params);
+}
+
 function init(extensionMeta) {
     // add include path for icons
     let theme = imports.gi.Gtk.IconTheme.get_default();
     theme.append_search_path(extensionMeta.path + "/icons");
-    
+
     // load localization dictionaries
     Convenience.initTranslations();
-    
+
     // load extension settings
     settings = Convenience.getSettings();
     settingsJSON = Settings.getSettingsJSON(settings);
+
+   try {
+	    let iconType = St.IconType.FULLCOLOR;	
+		hasIconType = true;
+	} catch (e){ 
+		//St.IconType was removed in 3.6	
+		hasIconType = false;
+	}
 }
 
 function enable() {

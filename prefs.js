@@ -223,6 +223,18 @@ function addTabPanel(notebook, server_num)
 
         // show aborted jobs
         vboxFilters.add(buildIconSwitchSetting("grey", _('Show aborted jobs'), 'show_aborted_jobs', server_num));
+	
+	 // Jobs to Show
+        let hboxJobsToShow = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+        let labelJobsToShow = new Gtk.Label({label: _("Jobs to Show"), xalign: 0});
+        let inputJobsToShow = new Gtk.Entry({ editable: true, hexpand: true, text: settingsJSON['servers'][server_num]['jobs_to_show'] });
+
+	inputJobsToShow.connect("changed", Lang.bind(this, function(input){ updateServerSetting(server_num, "jobs_to_show", input.text); }));
+
+        hboxJobsToShow.pack_start(labelJobsToShow, true, true, 0);
+        hboxJobsToShow.add(inputJobsToShow);
+	vboxFilters.add(hboxJobsToShow);
+
     vbox.add(vboxFilters);
     
     // button to remove tab

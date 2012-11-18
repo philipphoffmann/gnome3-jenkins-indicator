@@ -24,7 +24,8 @@
 							"show_failed_jobs": true,
 							"show_neverbuilt_jobs": false,
 							"show_disabled_jobs": false,
-							"show_aborted_jobs": false
+							"show_aborted_jobs": false,
+							"jobs_to_show": "all"
 						}
 					]
 				}
