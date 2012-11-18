@@ -34,91 +34,6 @@ let event_signals = [];
 const _httpSession = new Soup.SessionAsync();
 Soup.Session.prototype.add_feature.call(_httpSession, new Soup.ProxyResolverDefault());
 
-// returns icons and state ranks for job states
-const jobStates = new function() {
-	// define job states (colors) and their corresponding icon, feel free to add more here
-	// this array is also used to determine the rank of a job state, low array index refers to a high rank
-	// filter refers to the name of the filter setting (whether to show matching jobs or not)
-	// name is used for notifications about job changes
-	let states = [
-		{ color: 'red_anime', 		icon: 'clock', 	filter: 'show_running_jobs', 	name: 'running' },
-		{ color: 'yellow_anime', 	icon: 'clock', 	filter: 'show_running_jobs', 	name: 'running' },
-		{ color: 'blue_anime', 		icon: 'clock', 	filter: 'show_running_jobs', 	name: 'running' },
-		{ color: 'grey_anime', 		icon: 'clock', 	filter: 'show_running_jobs', 	name: 'running' },
-		{ color: 'aborted_anime',   icon: 'clock',  filter: 'show_running_jobs',    name: 'running' },
-		{ color: 'red', 			icon: 'red', 	filter: 'show_failed_jobs',		name: 'failed' },
-		{ color: 'yellow', 			icon: 'yellow', filter: 'show_unstable_jobs',	name: 'unstable' },
-		{ color: 'blue', 			icon: 'blue', 	filter: 'show_successful_jobs', name: 'successful' },
-		{ color: 'grey', 			icon: 'grey', 	filter: 'show_neverbuilt_jobs', name: 'never built' },
-		{ color: 'aborted', 		icon: 'grey', 	filter: 'show_aborted_jobs',	name: 'aborted' },
-		{ color: 'disabled', 		icon: 'grey', 	filter: 'show_disabled_jobs',	name: 'disabled' }
-	];
-
-	// returns the rank of a job state, highest rank is 0, -1 means that the job state is unknown
-	// this is used to determine the state of the overall indicator which shows the state of the highest ranked job
-	this.getRank = function(job_color)
-	{
-		for( let i=0 ; i<states.length ; ++i )
-		{
-			if( job_color==states[i].color ) return i;
-		}
-		return -1;
-	};
-
-	// returns the corresponding icon name of a job state
-	this.getIcon = function(job_color, with_green_balls)
-	{
-		for( let i=0 ; i<states.length ; ++i )
-		{
-		    // use green balls plugin if actived
-		    if( with_green_balls && job_color=='blue' ) return 'jenkins_green';
-		    
-		    // if not just return a regular icon
-			else if( job_color==states[i].color ) return 'jenkins_' + states[i].icon;
-		}
-		// if job color is unknown, use the grey icon
-		global.log('unkown color: ' + job_color);
-		return 'jenkins_grey';
-	};
-
-	// returns the corresponding icon name of a job state
-	this.getFilter = function(job_color)
-	{
-		for( let i=0 ; i<states.length ; ++i )
-		{
-			if( job_color==states[i].color ) return states[i].filter;
-		}
-		// if job color is unknown, use the filter setting for disabled jobs
-		global.log('unkown color: ' + job_color);
-		return 'show-disabled-jobs';
-	};
-	
-	// returns the corresponding icon name of a job state
-	this.getName = function(job_color)
-	{
-		for( let i=0 ; i<states.length ; ++i )
-		{
-			if( job_color==states[i].color ) return _(states[i].name);
-		}
-		// if job color is unknown, use the filter setting for disabled jobs
-		global.log('unkown color: ' + job_color);
-		return 'unknown';
-	};
-
-	// returns the default job state to use for overall indicator
-	this.getDefaultState = function()
-	{
-		// return lowest ranked job state
-		return states[states.length-1].color;
-	};
-
-	// return the color of the error state for the overall indicator
-	this.getErrorState = function()
-	{
-		return "jenkins_red";
-	};
-};
-
 // represent a job in the popup menu with icon and job name
 const JobPopupMenuItem = new Lang.Class({
 	Name: 'JobPopupMenuItem',
@@ -134,7 +49,7 @@ const JobPopupMenuItem = new Lang.Class({
         this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
 
 		// icon representing job state
-        this.icon = Utils.createStatusIcon(jobStates.getIcon(job.color, this.settings.green_balls_plugin));
+        this.icon = Utils.createStatusIcon(Utils.jobStates.getIcon(job.color, this.settings.green_balls_plugin));
 	
 		// button used to trigger the job
         this.icon_build = Utils.createStatusIcon('jenkins_clock');
@@ -187,16 +102,16 @@ const JobPopupMenuItem = new Lang.Class({
 	// update menu item text and icon
 	updateJob: function(job) {
 		// notification for finished job if job icon used to be clock (if enabled in settings)
-		if( this.settings.notification_finished_jobs && this.icon.icon_name=='jenkins_clock' && jobStates.getIcon(job.color, this.settings.green_balls_plugin)!='jenkins_clock' )
+		if( this.settings.notification_finished_jobs && this.icon.icon_name=='jenkins_clock' && Utils.jobStates.getIcon(job.color, this.settings.green_balls_plugin)!='jenkins_clock' )
 		{
 			// create notification source first time we have to display notifications or if server name changed
 			if( this.notification_source===undefined || this.notification_source.title!==this.settings.name )
 				this.notification_source = new JobNotificationSource.JobNotificationSource(this.settings.name);
 			
 			// create notification for the finished job
-		    let notification = new MessageTray.Notification(this.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, jobStates.getName(job.color)), {
+		    let notification = new MessageTray.Notification(this.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, Utils.jobStates.getName(job.color)), {
 		    	bannerMarkup: true,
-		    	icon: Utils.createStatusIcon(jobStates.getIcon(job.color, this.settings.green_balls_plugin))
+		    	icon: Utils.createStatusIcon(Utils.jobStates.getIcon(job.color, this.settings.green_balls_plugin))
 		    });
 		    
 		    // use transient messages if persistent messages are disabled in settings
@@ -208,7 +123,7 @@ const JobPopupMenuItem = new Lang.Class({
 		}
 		
 		this.label.text = job.name;
-		this.icon.icon_name = jobStates.getIcon(job.color, this.settings.green_balls_plugin);
+		this.icon.icon_name = Utils.jobStates.getIcon(job.color, this.settings.green_balls_plugin);
 	},
 	
 	// update settings
@@ -331,7 +246,7 @@ const JenkinsIndicator = new Lang.Class({
     	this._isRequesting = false;
     	
 		// start off with a blue overall indicator
-        this._iconActor = Utils.createStatusIcon(jobStates.getIcon(jobStates.getDefaultState(), this.settings.green_balls_plugin));
+        this._iconActor = Utils.createStatusIcon(Utils.jobStates.getIcon(Utils.jobStates.getDefaultState(), this.settings.green_balls_plugin));
         this.actor.add_actor(this._iconActor);
 
         // add jobs popup menu
@@ -435,24 +350,24 @@ const JenkinsIndicator = new Lang.Class({
 		// update overall indicator icon
 
 		// default state of overall indicator
-		let overallState = jobStates.getDefaultState();
+		let overallState = Utils.jobStates.getDefaultState();
 
 		// set state to red if there are no jobs
 		if( displayJobs.length<=0 )
-			overallState = jobStates.getErrorState();
+			overallState = Utils.jobStates.getErrorState();
 		else
 		{
 			// determine jobs overall state for the indicator
 			for( let i=0 ; i<displayJobs.length ; ++i )
 			{
 				// set overall job state to highest ranked (most important) state
-				if( jobStates.getRank(displayJobs[i].color)>-1 && jobStates.getRank(displayJobs[i].color)<jobStates.getRank(overallState) )
+				if( Utils.jobStates.getRank(displayJobs[i].color)>-1 && Utils.jobStates.getRank(displayJobs[i].color)<Utils.jobStates.getRank(overallState) )
 					overallState = displayJobs[i].color;
 			}
 		}
 
 		// set new overall indicator icon representing current jenkins state
-		this._iconActor.icon_name = jobStates.getIcon(overallState, this.settings.green_balls_plugin);
+		this._iconActor.icon_name = Utils.jobStates.getIcon(overallState, this.settings.green_balls_plugin);
 	},
 
 	// filters jobs according to filter settings
@@ -465,7 +380,7 @@ const JenkinsIndicator = new Lang.Class({
 		for( var i=0 ; i<jobs.length ; ++i )
 		{
 			// filter job if user decided not to show jobs with this state (in settings dialog)
-			let filterJobState = this.settings[jobStates.getFilter(jobs[i].color)];
+			let filterJobState = this.settings[Utils.jobStates.getFilter(jobs[i].color)];
 			// filter job if user decided not to show jobs with this name (in settings dialog)
 			let filterJobByName = showAllJobs || jobToShow.indexOf(jobs[i].name) >= 0;
 			if(filterJobState && filterJobByName){
@@ -505,7 +420,7 @@ const JenkinsIndicator = new Lang.Class({
 		this.menu.addMenuItem(new PopupMenu.PopupMenuItem(_("Error") + ": " + text, {style_class: 'error'}), 2);
 
 		// set indicator state to error
-		this._iconActor.icon_name = jobStates.getIcon(jobStates.getErrorState(), this.settings.green_balls_plugin);
+		this._iconActor.icon_name = Utils.jobStates.getIcon(Utils.jobStates.getErrorState(), this.settings.green_balls_plugin);
 	},
 
 	// destroys the indicator
