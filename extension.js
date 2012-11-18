@@ -21,6 +21,8 @@ const SessionMessageTray = imports.ui.main.messageTray;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 const Settings = Me.imports.settings;
+const Utils = Me.imports.lib.utils;
+const ServerPopupMenuItem = Me.imports.lib.serverPopupMenuItem;
 
 // set text domain for localized strings
 const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;
@@ -183,46 +185,6 @@ const JobNotificationSource = new Lang.Class({
     }
 });
 
-// server name and link in the popup menu
-const ServerPopupMenuItem = new Lang.Class({
-    Name: 'ServerPopupMenuItem',
-    Extends: PopupMenu.PopupBaseMenuItem,
-
-    _init: function(settings, params) {
-        this.parent(params);
-        
-        this.settings = settings;
-        
-        this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
-        this.icon = createStatusIcon('jenkins_headshot');
-        this.label = new St.Label({ text: this.settings.name });
-
-        this.box.add(this.icon);
-        this.box.add(this.label);
-        this.addActor(this.box);
-        
-        // clicking the server menu item opens the servers web frontend with default browser
-        event_signals.push( this.connect("activate", Lang.bind(this, function(){
-            Gio.app_info_launch_default_for_uri(this.settings.jenkins_url, global.create_app_launch_context());
-        })) );
-    },
-
-    // update menu item label (server name)
-    updateSettings: function(settings) {
-        this.settings = settings;
-        this.label.text = this.settings.name;
-    },
-    
-    // destroys the server popup menu item
-    destroy: function() {
-        this.icon.destroy();
-        this.label.destroy();
-        this.box.destroy();
-        
-        this.parent();
-    }
-});
-
 // represent a job in the popup menu with icon and job name
 const JobPopupMenuItem = new Lang.Class({
 	Name: 'JobPopupMenuItem',
@@ -238,10 +200,10 @@ const JobPopupMenuItem = new Lang.Class({
         this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
 
 		// icon representing job state
-        this.icon = createStatusIcon(jobStates.getIcon(job.color, this.settings.green_balls_plugin));
+        this.icon = Utils.createStatusIcon(jobStates.getIcon(job.color, this.settings.green_balls_plugin));
 	
 		// button used to trigger the job
-        this.icon_build = createStatusIcon('jenkins_clock');
+        this.icon_build = Utils.createStatusIcon('jenkins_clock');
 
 		this.button_build = new St.Button({ child: this.icon_build });
 		
@@ -300,7 +262,7 @@ const JobPopupMenuItem = new Lang.Class({
 			// create notification for the finished job
 		    let notification = new MessageTray.Notification(this.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, jobStates.getName(job.color)), {
 		    	bannerMarkup: true,
-		    	icon: createStatusIcon(jobStates.getIcon(job.color, this.settings.green_balls_plugin))
+		    	icon: Utils.createStatusIcon(jobStates.getIcon(job.color, this.settings.green_balls_plugin))
 		    });
 		    
 		    // use transient messages if persistent messages are disabled in settings
@@ -435,14 +397,14 @@ const JenkinsIndicator = new Lang.Class({
     	this._isRequesting = false;
     	
 		// start off with a blue overall indicator
-        this._iconActor = createStatusIcon(jobStates.getIcon(jobStates.getDefaultState(), this.settings.green_balls_plugin));
+        this._iconActor = Utils.createStatusIcon(jobStates.getIcon(jobStates.getDefaultState(), this.settings.green_balls_plugin));
         this.actor.add_actor(this._iconActor);
 
         // add jobs popup menu
 		this.setMenu(new ServerPopupMenu(this, this.actor, 0.25, St.Side.TOP, this.notification_source, this.settings));
 
 		// add server menu item
-		this.serverMenuItem = new ServerPopupMenuItem(this.settings);
+		this.serverMenuItem = new ServerPopupMenuItem.ServerPopupMenuItem(this.settings, event_signals);
 		this.menu.addMenuItem(this.serverMenuItem);
 		
 		// add seperators to popup menu
@@ -636,14 +598,6 @@ function createIndicator(server_num)
 
 function createNotificationIcon(icon_name){
 	let params = { icon_name : icon_name, icon_size : ICON_SIZE_NOTIFICATION};
-	if(hasIconType){
-		params.icon_type = St.IconType.FULLCOLOR;
-	}
-	return new St.Icon(params);
-}
-
-function createStatusIcon(icon_name){
-	let params = { icon_name : icon_name, icon_size : ICON_SIZE_INDICATOR, style_class : "system-status-icon"};
 	if(hasIconType){
 		params.icon_type = St.IconType.FULLCOLOR;
 	}
