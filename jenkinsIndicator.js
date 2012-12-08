@@ -11,8 +11,8 @@ const PopupMenu = imports.ui.popupMenu;
 const PanelMenu = imports.ui.panelMenu;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Utils = Me.imports.lib.utils;
-const ServerPopupMenu = Me.imports.lib.serverPopupMenu;
+const Utils = Me.imports.utils;
+const ServerPopupMenu = Me.imports.serverPopupMenu;
 
 // set text domain for localized strings
 const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;

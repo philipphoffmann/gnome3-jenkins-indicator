@@ -8,8 +8,8 @@ const Gtk = imports.gi.Gtk;
 const PopupMenu = imports.ui.popupMenu;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const ServerPopupMenuItem = Me.imports.lib.serverPopupMenuItem;
-const Utils = Me.imports.lib.utils;
+const ServerPopupMenuItem = Me.imports.serverPopupMenuItem;
+const Utils = Me.imports.utils;
 
 /*
  * Server name and link in the popup menu.

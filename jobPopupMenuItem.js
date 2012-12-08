@@ -11,8 +11,8 @@ const Soup = imports.gi.Soup;
 const MessageTray = imports.ui.messageTray;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Utils = Me.imports.lib.utils;
-const JobNotificationSource = Me.imports.lib.jobNotificationSource;
+const Utils = Me.imports.utils;
+const JobNotificationSource = Me.imports.jobNotificationSource;
 
 // set text domain for localized strings
 const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;

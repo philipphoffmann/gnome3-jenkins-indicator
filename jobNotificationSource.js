@@ -8,7 +8,7 @@ const MessageTray = imports.ui.messageTray;
 const SessionMessageTray = imports.ui.main.messageTray;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Utils = Me.imports.lib.utils;
+const Utils = Me.imports.utils;
 
 /*
  * Source for handling job notifications.

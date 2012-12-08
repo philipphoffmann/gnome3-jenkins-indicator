@@ -9,9 +9,9 @@ const Gtk = imports.gi.Gtk;
 const PopupMenu = imports.ui.popupMenu;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const ServerPopupMenuItem = Me.imports.lib.serverPopupMenuItem;
-const JobPopupMenuItem = Me.imports.lib.jobPopupMenuItem;
-const PopupMenuScrollSection = Me.imports.lib.popupMenuScrollSection;
+const ServerPopupMenuItem = Me.imports.serverPopupMenuItem;
+const JobPopupMenuItem = Me.imports.jobPopupMenuItem;
+const PopupMenuScrollSection = Me.imports.popupMenuScrollSection;
 
 // set text domain for localized strings
 const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;

@@ -8,7 +8,7 @@ const Gio = imports.gi.Gio;
 const PopupMenu = imports.ui.popupMenu;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Utils = Me.imports.lib.utils;
+const Utils = Me.imports.utils;
 
 /*
  * Server name and link in the popup menu.

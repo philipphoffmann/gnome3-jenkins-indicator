@@ -13,8 +13,8 @@ const PopupMenu = imports.ui.popupMenu;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 const Settings = Me.imports.settings;
-const Utils = Me.imports.lib.utils;
-const JenkinsIndicator = Me.imports.lib.jenkinsIndicator;
+const Utils = Me.imports.utils;
+const JenkinsIndicator = Me.imports.jenkinsIndicator;
 
 let _indicators = [];
 let settings, settingsJSON;
