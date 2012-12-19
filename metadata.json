@@ -3,7 +3,7 @@
 	"uuid": "jenkins-indicator@philipphoffmann.de",
 	"name": "Jenkins CI Server Indicator",
 	"description": "Provides an overview of all jobs on your Jenkins CI Server.",
-	"url": "http://www.philipphoffmann.de/2012/08/gnome-3-shell-extension-jenkins-ci-server-indicator/",
+	"url": "http://www.philipphoffmann.de/gnome-3-shell-extension-jenkins-ci-server-indicator",
 	"gettext-domain": "jenkins-indicator",
 	"settings-schema": "org.gnome.shell.extensions.jenkins-indicator",
 	"version" : "1.2"
