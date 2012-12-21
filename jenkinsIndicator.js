@@ -92,13 +92,19 @@ const JenkinsIndicator = new Lang.Class({
 					else
 					{
 						// parse json
-						let jenkinsState = JSON.parse(request.response_body.data);
+						try {
+							let jenkinsState = JSON.parse(request.response_body.data);
 	
-						// update jobs
-						this.jobs = jenkinsState.jobs;
-						
-						// update indicator (icon and popupmenu contents)
-						this.update();
+							// update jobs
+							this.jobs = jenkinsState.jobs;
+							
+							// update indicator (icon and popupmenu contents)
+							this.update();
+						}
+						catch( e )
+						{
+							this.showError(_("Invalid Jenkins CI Server web frontend URL"));
+						}
 					}
 					
 					// we're done updating and ready for the next request
