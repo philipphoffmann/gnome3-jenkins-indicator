@@ -50,7 +50,7 @@ function addTabPanel(notebook, server_num)
     // use server name as tab label
     let tabLabel = new Gtk.Label({ label: settingsJSON['servers'][server_num]['name']});
     
-    let vbox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
+    let vbox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, border_width: 10 });
 
     // *** jenkins connection ***
     let labelJenkinsConnection = new Gtk.Label({ label: "<b>" + _("Jenkins connection") + "</b>", use_markup: true, xalign: 0 });
@@ -264,8 +264,8 @@ function addTabPanel(notebook, server_num)
     tabWidget.show_all();
     
     // tab content
-    let tabContent = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, border_width: 10 });
-    tabContent.add(vbox);
+    let tabContent = new Gtk.ScrolledWindow({ vexpand: true });
+    tabContent.add_with_viewport(vbox);
     
     // append tab to notebook
     notebook.append_page(tabContent, tabWidget);
