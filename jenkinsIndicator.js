@@ -158,14 +158,29 @@ const JenkinsIndicator = new Lang.Class({
 		jobs = jobs || [];
 		let filteredJobs = [];
 		let jobToShow = this.settings['jobs_to_show'].trim().split(",");
-		let showAllJobs =  (jobToShow.length == 1) && jobToShow[0] == "all";
+		let showAllJobs =  false;
+	        let excludePattern = false;
+
+		if ((jobToShow.length == 1) && jobToShow[0] == "all") {
+			showAllJobs = true;
+		} else {
+			for (let i=0; i<jobToShow.length; i++) {
+				if (jobToShow[i].indexOf("!") == 0) {
+				  excludePattern = true;
+				  break;
+				}
+			}
+		}
 
 		for( var i=0 ; i<jobs.length ; ++i )
 		{
 			// filter job if user decided not to show jobs with this state (in settings dialog)
 			let filterJobState = this.settings[Utils.jobStates.getFilter(jobs[i].color)];
 			// filter job if user decided not to show jobs with this name (in settings dialog)
-			let filterJobByName = showAllJobs || jobToShow.indexOf(jobs[i].name) >= 0;
+			let filterJobByName = showAllJobs || (!excludePattern && jobToShow.indexOf(jobs[i].name) >= 0)
+			  || (excludePattern && jobToShow.indexOf("!" + jobs[i].name) == -1);
+  
+			// let filterJobByName = showAllJobs || jobToShow.indexOf(jobs[i].name) >= 0;
 			if(filterJobState && filterJobByName){
 				filteredJobs[filteredJobs.length] = jobs[i];
 			}
