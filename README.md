@@ -69,6 +69,7 @@ If the build time for a job is shorter than the auto-refresh interval the extens
 There is a filter for each job state. Enabling the switch will show the matching jobs in the popup menu, disabling the switch will hide the jobs.
 You can also filter jobs by their name. Providing "all" will show you all jobs.
 To filter your jobs by name you have to provide a comma-separated list of the jobs you want to appear in the popup menu.
+If you have a lot of jobs and only want to hide some of them, provide them as comma-separated list of names and prefix each name with **!**.
 
 ## Credits
 Thanks to the following contributors for their valuable feedback:
