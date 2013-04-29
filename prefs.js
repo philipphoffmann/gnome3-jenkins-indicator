@@ -150,7 +150,7 @@ function addTabPanel(notebook, server_num)
         
         // had to replace the spinbutton since the change event is not triggered if the value is change by key presses
         //let inputAutorefreshInterval = new Gtk.SpinButton({ numeric: true, adjustment: new Gtk.Adjustment({value: settings.get_int("autorefresh-interval"), lower: 1, upper: 86400, step_increment: 1}) });
-        let inputAutorefreshInterval = new Gtk.HScale.new_with_range( 1, 600, 1 );
+        let inputAutorefreshInterval = new Gtk.Scale({orientation: Gtk.Orientation.HORIZONTAL, adjustment: new Gtk.Adjustment({lower: 1, upper: 600, step_increment: 1})});
         inputAutorefreshInterval.set_value(settingsJSON['servers'][server_num]['autorefresh_interval']);
         inputAutorefreshInterval.set_size_request(200, -1);
         
