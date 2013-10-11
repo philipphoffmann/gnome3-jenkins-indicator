@@ -45,7 +45,7 @@ function getSettingsJSON(settings)
 	
 	for( let i=0 ; i<settingsJSON.servers.length ; ++i )
 	{
-		for( setting in DefaultSettings.servers[0] )
+		for( var setting in DefaultSettings.servers[0] )
 		{
 			if( !(setting in settingsJSON.servers[i]) )
 				settingsJSON.servers[i][setting] = DefaultSettings.servers[0][setting];

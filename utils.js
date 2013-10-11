@@ -81,6 +81,7 @@ const jobStates = new function() {
 		{ color: 'red', 			icon: 'red', 	filter: 'show_failed_jobs',		name: 'failed' },
 		{ color: 'yellow', 			icon: 'yellow', filter: 'show_unstable_jobs',	name: 'unstable' },
 		{ color: 'blue', 			icon: 'blue', 	filter: 'show_successful_jobs', name: 'successful' },
+		{ color: 'green', 			icon: 'blue', 	filter: 'show_successful_jobs', name: 'successful' },
 		{ color: 'grey', 			icon: 'grey', 	filter: 'show_neverbuilt_jobs', name: 'never built' },
 		{ color: 'aborted', 		icon: 'grey', 	filter: 'show_aborted_jobs',	name: 'aborted' },
 		{ color: 'disabled', 		icon: 'grey', 	filter: 'show_disabled_jobs',	name: 'disabled' }
