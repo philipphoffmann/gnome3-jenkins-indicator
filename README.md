@@ -73,7 +73,9 @@ You can negate a pattern prepending the char **!** to it.
 
 Let's see an example:
 
- my_job,.*thisisimportant,!.*thisisnot.*
+```
+my_job,.*thisisimportant,!.*thisisnot.*
+```
 
 This will match the job named "my_job", all the jobs that end with "thisisimportant", and all those jobs that do not have "thisisnot" in their names.
 
