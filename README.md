@@ -79,6 +79,13 @@ my_job,.*thisisimportant,!.*thisisnot.*
 
 This will match the job named "my_job", all the jobs that end with "thisisimportant", and all those jobs that do not have "thisisnot" in their names.
 
+## contributing:
+Feel free to contribute your ideas to the project. Please run the test suite before submitting any pull request by running
+```
+gjs lib/gjsunit.js
+```
+from the project directory.
+
 ## Credits
 Thanks to the following contributors for their valuable feedback:
 - [negesti](https://github.com/negesti) (Green Balls Plugin)
