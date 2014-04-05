@@ -66,12 +66,19 @@ Please be aware that the extension checks your Jenkins CI Server only at the pro
 If the build time for a job is shorter than the auto-refresh interval the extension will most likely not notice finished builds.
 
 ### 4. Filter jobs:
-There is a filter for each job state. Enabling the switch will show the matching jobs in the popup menu, disabling the switch will hide the jobs.
-You can also filter jobs by their name. Providing "all" will show you all jobs.
-To filter your jobs by name you have to provide a comma-separated list of the jobs you want to appear in the popup menu.
-If you have a lot of jobs and only want to hide some of them, provide them as comma-separated list of names and prefix each name with **!**.
+There is a filter for each job state. Enabling the switch will show the matching jobs in the popup menu, disabling the switch will hide those jobs.
+You can also filter jobs by their name. Providing "all" or ".*" will show you all jobs. You can use a regular expression to match the name also.
+To filter your jobs by name you have to provide a comma-separated list of the expressions that match the jobs you want to appear in the popup menu.
+You can negate a pattern prepending the char **!** to it.
+
+Let's see an example:
+
+ my_job,.*thisisimportant,!.*thisisnot.*
+
+This will match the job named "my_job", all the jobs that end with "thisisimportant", and all those jobs that do not have "thisisnot" in their names.
 
 ## Credits
 Thanks to the following contributors for their valuable feedback:
 - [negesti](https://github.com/negesti) (Green Balls Plugin)
 - [fchaillou](https://github.com/fchaillou) (Gnome 3.6 compatibility and job name filter)
+- [david-caro](https://github.com/david-caro) (Job name filter regexps)
