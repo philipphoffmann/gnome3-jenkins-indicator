@@ -19,14 +19,8 @@ const JobNotificationSource = new Lang.Class({
 
     _init: function(title) {
     	// set notification source title
-		if( St.IconType ) {
-			// Gnome 3.4
-			this.parent(title);
-		}
-		else {
-			// Gnome 3.6
-			this.parent(title, 'jenkins_headshot');
-		}
+        
+		this.parent(title, 'jenkins_headshot');
 
 		// set notification source icon
         this._setSummaryIcon(this.createNotificationIcon());
