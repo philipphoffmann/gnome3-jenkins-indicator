@@ -8,7 +8,8 @@ const Gio = imports.gi.Gio;
 const PopupMenu = imports.ui.popupMenu;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Utils = Me.imports.src.utils;
+const Utils = Me.imports.src.helpers.utils;
+const Icon = Me.imports.src.helpers.icon;
 
 /*
  * Server name and link in the popup menu.
@@ -23,7 +24,7 @@ const ServerPopupMenuItem = new Lang.Class({
 		this.settings = settings;
 		
 		this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
-		this.icon = Utils.createStatusIcon('jenkins_headshot');
+		this.icon = Icon.createStatusIcon('jenkins_headshot');
 		this.label = new St.Label({ text: this.settings.name });
 
 		this.box.add(this.icon);

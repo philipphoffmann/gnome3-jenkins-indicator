@@ -11,7 +11,8 @@ const Soup = imports.gi.Soup;
 const MessageTray = imports.ui.messageTray;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Utils = Me.imports.src.utils;
+const Utils = Me.imports.src.helpers.utils;
+const Icon = Me.imports.src.helpers.icon;
 const JobNotificationSource = Me.imports.src.jobNotificationSource;
 
 // set text domain for localized strings
@@ -35,10 +36,10 @@ const JobPopupMenuItem = new Lang.Class({
 		this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
 
 		// icon representing job state
-		this.icon = Utils.createStatusIcon(Utils.jobStates.getIcon(job.color, this.settings.green_balls_plugin));
+		this.icon = Icon.createStatusIcon(Utils.jobStates.getIcon(job.color, this.settings.green_balls_plugin));
 	
 		// button used to trigger the job
-		this.icon_build = Utils.createStatusIcon('jenkins_clock');
+		this.icon_build = Icon.createStatusIcon('jenkins_clock');
 
 		this.button_build = new St.Button({ child: this.icon_build });
 		
@@ -110,7 +111,7 @@ const JobPopupMenuItem = new Lang.Class({
 			// create notification for the finished job
 			let notification = new MessageTray.Notification(this.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, Utils.jobStates.getName(job.color)), {
 				bannerMarkup: true,
-				icon: Utils.createStatusIcon(Utils.jobStates.getIcon(job.color, this.settings.green_balls_plugin))
+				icon: Icon.createStatusIcon(Utils.jobStates.getIcon(job.color, this.settings.green_balls_plugin))
 			});
 			
 			// use transient messages if persistent messages are disabled in settings

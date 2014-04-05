@@ -8,7 +8,8 @@ const MessageTray = imports.ui.messageTray;
 const SessionMessageTray = imports.ui.main.messageTray;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Utils = Me.imports.src.utils;
+const Utils = Me.imports.src.helpers.utils;
+const Icon = Me.imports.src.helpers.icon;
 
 /*
  * Source for handling job notifications.
@@ -31,7 +32,7 @@ const JobNotificationSource = new Lang.Class({
 
 	// set jenkins logo for notification source icon
 	createNotificationIcon: function() {
-		return Utils.createNotificationIcon('jenkins_headshot');
+		return Icon.createNotificationIcon('jenkins_headshot');
 	},
 
 	// gets called when a notification is clicked

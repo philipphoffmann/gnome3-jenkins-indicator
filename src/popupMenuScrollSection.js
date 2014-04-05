@@ -9,7 +9,7 @@ const PopupMenu = imports.ui.popupMenu;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const ServerPopupMenuItem = Me.imports.src.serverPopupMenuItem;
-const Utils = Me.imports.src.utils;
+const Utils = Me.imports.src.helpers.utils;
 
 /*
  * Server name and link in the popup menu.

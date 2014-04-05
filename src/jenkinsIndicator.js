@@ -11,7 +11,8 @@ const PopupMenu = imports.ui.popupMenu;
 const PanelMenu = imports.ui.panelMenu;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Utils = Me.imports.src.utils;
+const Utils = Me.imports.src.helpers.utils;
+const Icon = Me.imports.src.helpers.icon;
 const ServerPopupMenu = Me.imports.src.serverPopupMenu;
 
 // set text domain for localized strings
@@ -41,7 +42,7 @@ const JenkinsIndicator = new Lang.Class({
 		this._isRequesting = false;
 
 		// start off with a blue overall indicator
-		this._iconActor = Utils.createStatusIcon(Utils.jobStates.getIcon(Utils.jobStates.getDefaultState(), this.settings.green_balls_plugin));
+		this._iconActor = Icon.createStatusIcon(Utils.jobStates.getIcon(Utils.jobStates.getDefaultState(), this.settings.green_balls_plugin));
 		this.actor.add_actor(this._iconActor);
 
 		// add server popup menu

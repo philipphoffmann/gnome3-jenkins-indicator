@@ -13,7 +13,7 @@ const PopupMenu = imports.ui.popupMenu;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Convenience = Me.imports.lib.convenience;
 const Settings = Me.imports.src.settings;
-const Utils = Me.imports.src.utils;
+const Utils = Me.imports.src.helpers.utils;
 const JenkinsIndicator = Me.imports.src.jenkinsIndicator;
 
 let _indicators = [];
