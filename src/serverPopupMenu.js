@@ -9,9 +9,9 @@ const Gtk = imports.gi.Gtk;
 const PopupMenu = imports.ui.popupMenu;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const ServerPopupMenuItem = Me.imports.serverPopupMenuItem;
-const JobPopupMenuItem = Me.imports.jobPopupMenuItem;
-const PopupMenuScrollSection = Me.imports.popupMenuScrollSection;
+const ServerPopupMenuItem = Me.imports.src.serverPopupMenuItem;
+const JobPopupMenuItem = Me.imports.src.jobPopupMenuItem;
+const PopupMenuScrollSection = Me.imports.src.popupMenuScrollSection;
 
 // set text domain for localized strings
 const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;
@@ -96,7 +96,7 @@ const ServerPopupMenu = new Lang.Class({
 			}
 		}
 		
-    	// check for jobs that need to be removed
+		// check for jobs that need to be removed
 		for( let j = 0 ; j<this.jobSection.numMenuItems ; ++j )
 		{
 			let job_found = false;
@@ -119,15 +119,15 @@ const ServerPopupMenu = new Lang.Class({
 	
 	// update settings
 	updateSettings: function(settings) {
-	    this.settings = settings;
+		this.settings = settings;
 
 		this.serverMenuItem.updateSettings(this.settings);
-	    
-	    // push new settings to job menu items
-	    for( let j = 0 ; j<this.jobSection.numMenuItems ; ++j )
+		
+		// push new settings to job menu items
+		for( let j = 0 ; j<this.jobSection.numMenuItems ; ++j )
 		{
 			if( this.jobSection._getMenuItems()[j] instanceof JobPopupMenuItem.JobPopupMenuItem )
-		        this.jobSection._getMenuItems()[j].updateSettings(this.settings);
+				this.jobSection._getMenuItems()[j].updateSettings(this.settings);
 		}
 	}
 });

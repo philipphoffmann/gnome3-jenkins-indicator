@@ -11,8 +11,8 @@ const Soup = imports.gi.Soup;
 const MessageTray = imports.ui.messageTray;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Utils = Me.imports.utils;
-const JobNotificationSource = Me.imports.jobNotificationSource;
+const Utils = Me.imports.src.utils;
+const JobNotificationSource = Me.imports.src.jobNotificationSource;
 
 // set text domain for localized strings
 const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;
@@ -24,21 +24,21 @@ const JobPopupMenuItem = new Lang.Class({
 	Name: 'JobPopupMenuItem',
 	Extends: PopupMenu.PopupBaseMenuItem,
 
-    _init: function(parentMenu, job, notification_source, settings, httpSession, params) {
-    	this.parent(params);
-    	
+	_init: function(parentMenu, job, notification_source, settings, httpSession, params) {
+		this.parent(params);
+		
 		this.parentMenu = parentMenu;
-    	this.notification_source = notification_source;
-    	this.settings = settings;
+		this.notification_source = notification_source;
+		this.settings = settings;
 		this.httpSession = httpSession;
-    	
-        this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
+		
+		this.box = new St.BoxLayout({ style_class: 'popup-combobox-item' });
 
 		// icon representing job state
-        this.icon = Utils.createStatusIcon(Utils.jobStates.getIcon(job.color, this.settings.green_balls_plugin));
+		this.icon = Utils.createStatusIcon(Utils.jobStates.getIcon(job.color, this.settings.green_balls_plugin));
 	
 		// button used to trigger the job
-        this.icon_build = Utils.createStatusIcon('jenkins_clock');
+		this.icon_build = Utils.createStatusIcon('jenkins_clock');
 
 		this.button_build = new St.Button({ child: this.icon_build });
 		
@@ -68,11 +68,11 @@ const JobPopupMenuItem = new Lang.Class({
 		// menu item label (job name)
 		this.label = new St.Label({ text: job.name });
 
-        this.box.add(this.icon);
-        this.box.add(this.label);
+		this.box.add(this.icon);
+		this.box.add(this.label);
 
 		// For Gnome 3.8 and below
-        if( typeof this.addActor != 'undefined' ) {
+		if( typeof this.addActor != 'undefined' ) {
 			this.addActor(this.box);
 
 			// let the build button use the rest of the box and align it to the right
@@ -86,11 +86,11 @@ const JobPopupMenuItem = new Lang.Class({
 			this.actor.add_child(this.button_build, {span: -1, align: St.Align.END});
 		}
 
-        
-        // clicking a job menu item opens the job in web frontend with default browser
-        this.connect("activate", Lang.bind(this, function(){
-            Gio.app_info_launch_default_for_uri(Utils.urlAppend(this.settings.jenkins_url, 'job/' + this.getJobName()), global.create_app_launch_context());
-        }));
+		
+		// clicking a job menu item opens the job in web frontend with default browser
+		this.connect("activate", Lang.bind(this, function(){
+			Gio.app_info_launch_default_for_uri(Utils.urlAppend(this.settings.jenkins_url, 'job/' + this.getJobName()), global.create_app_launch_context());
+		}));
 	},
 
 	// return job name
@@ -108,17 +108,17 @@ const JobPopupMenuItem = new Lang.Class({
 				this.notification_source = new JobNotificationSource.JobNotificationSource(this.settings.name);
 			
 			// create notification for the finished job
-		    let notification = new MessageTray.Notification(this.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, Utils.jobStates.getName(job.color)), {
-		    	bannerMarkup: true,
-		    	icon: Utils.createStatusIcon(Utils.jobStates.getIcon(job.color, this.settings.green_balls_plugin))
-		    });
-		    
-		    // use transient messages if persistent messages are disabled in settings
-		    if( this.settings.stack_notifications==false )
-		    	notification.setTransient(true);
-		    
-		    // notify the user
-		    this.notification_source.notify(notification);
+			let notification = new MessageTray.Notification(this.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, Utils.jobStates.getName(job.color)), {
+				bannerMarkup: true,
+				icon: Utils.createStatusIcon(Utils.jobStates.getIcon(job.color, this.settings.green_balls_plugin))
+			});
+			
+			// use transient messages if persistent messages are disabled in settings
+			if( this.settings.stack_notifications==false )
+				notification.setTransient(true);
+			
+			// notify the user
+			this.notification_source.notify(notification);
 		}
 		
 		this.label.text = job.name;
@@ -127,7 +127,7 @@ const JobPopupMenuItem = new Lang.Class({
 	
 	// update settings
 	updateSettings: function(settings) {
-	    this.settings = settings;
+		this.settings = settings;
 	}
 });
 
