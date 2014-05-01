@@ -17,7 +17,7 @@ let DefaultSettings = {
 			"green_balls_plugin": false,
 
 			"autorefresh": true,
-			"autorefresh_interval": 5,
+			"autorefresh_interval": 30,
 			
 			"notification_finished_jobs": true,
 			"stack_notifications": false,
