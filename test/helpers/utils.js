@@ -35,7 +35,52 @@ function testSuite() {
 		});
 	});
 
-	describe('jobMaches', function() {
+	describe('filterJobs', function() {
+		var jobs = [
+			{name: "SomeJob", color: "blue"},
+			{name: "AnotherJob", color: "red"}
+		];
+		var settings = {
+			show_successful_jobs: true,
+			show_failed_jobs: true
+		};
+
+		it('should filter no jobs by name if filter is set to "all"', function() {
+			settings["jobs_to_show"] = "all";
+
+			var filteredJobs = Utils.filterJobs(jobs, settings);
+			expect(filteredJobs.length).toEqual(2);
+			expect(filteredJobs[0]).toEqual(jobs[0]);
+			expect(filteredJobs[1]).toEqual(jobs[1]);
+		});
+
+		it('should filter no jobs by name if filter is set to ""', function() {
+			settings["jobs_to_show"] = "";
+
+			var filteredJobs = Utils.filterJobs(jobs, settings);
+			expect(filteredJobs.length).toEqual(2);
+			expect(filteredJobs[0]).toEqual(jobs[0]);
+			expect(filteredJobs[1]).toEqual(jobs[1]);
+		});
+
+		it('should filter jobs by name', function() {
+			settings["jobs_to_show"] = "Another";
+
+			var filteredJobs = Utils.filterJobs(jobs, settings);
+			expect(filteredJobs.length).toEqual(1);
+			expect(filteredJobs[0]).toEqual(jobs[1]);
+		});
+
+		it('should filter jobs by state', function() {
+			settings["show_successful_job"] = false;
+
+			var filteredJobs = Utils.filterJobs(jobs, settings);
+			expect(filteredJobs.length).toEqual(1);
+			expect(filteredJobs[0]).toEqual(jobs[1]);
+		});
+	});
+
+	describe('jobMatches', function() {
 
 		var testPatterns = [
 			'testJob',

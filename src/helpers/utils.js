@@ -1,26 +1,27 @@
 // append a uri to a domain regardless whether domains ends with '/' or not
-function urlAppend(domain, uri)
-{
-	if( domain.length>=1 )
+function urlAppend(domain, uri) {
+	if( domain.length>=1 ) {
 		return domain + (domain.charAt(domain.length-1)!='/' ? '/' : '') + uri;
-	else
+	}
+	else {
 		return uri;
+	}
 }
 
 // call operation on all elements of array2 which are not in array1 using a compare function
-function arrayOpCompare(array1, array2, compare_func, operation_func)
-{
-	for( var i=0 ; i<array1.length ; ++i )
-	{
+function arrayOpCompare(array1, array2, compare_func, operation_func) {
+	for( var i=0 ; i<array1.length ; ++i ) 	{
 		let found_in_array2 = false;
-		for( var j=0 ; j<array2.length ; ++j )
-		{
-			if( compare_func(array1[i], array2[j]) )
+
+		for( var j=0 ; j<array2.length ; ++j ) {
+			if( compare_func(array1[i], array2[j]) ) {
 				found_in_array2 = true;
+			}
 		}
 
-		if( !found_in_array2 )
+		if( !found_in_array2 ) {
 			operation_func(i, array1[i]);
+		}
 	}
 }
 
@@ -48,8 +49,36 @@ function versionIsAtLeast(currentVersion, thresholdVersion) {
 	return true;
 }
 
+// filters jobs according to filter settings
+function filterJobs(jobs, settings) {
+	jobs = jobs || [];
+	let showAllJobs = false;
+	let filteredJobs = [];
+	let jobToShow = settings['jobs_to_show'].trim().split(",");
+
+	if ((jobToShow.length == 1) && jobToShow[0] == "all") {
+		showAllJobs = true;
+	}
+
+	for (var i=0 ; i<jobs.length ; ++i) {
+		// filter job if user decided not to show jobs with this state (in settings dialog)
+		let filterJobState = settings[jobStates.getFilter(jobs[i].color)];
+		// filter job if user decided not to show jobs with this name (in settings dialog)
+		let filterJobByName = true;
+		if (!showAllJobs) {
+			filterJobByName = jobMatches(jobs[i], jobToShow);
+		}
+
+		if(filterJobState && filterJobByName){
+			filteredJobs[filteredJobs.length] = jobs[i];
+		}
+	}
+
+	return filteredJobs;
+}
+
 // return if a job matches a list of patterns ('!' char negates a pattern)
-function jobMatches(job, patterns){
+function jobMatches(job, patterns) {
 	var patternsLength = patterns.length;
 	for (var i = 0; i < patternsLength; i++) {
 		var pattern = patterns[i];
@@ -94,62 +123,59 @@ const jobStates = new function() {
 
 	// returns the rank of a job state, highest rank is 0, -1 means that the job state is unknown
 	// this is used to determine the state of the overall indicator which shows the state of the highest ranked job
-	this.getRank = function(job_color)
-	{
-		for( let i=0 ; i<states.length ; ++i )
-		{
+	this.getRank = function(job_color) {
+		for( let i=0 ; i<states.length ; ++i ) {
 			if( job_color==states[i].color ) return i;
 		}
 		return -1;
 	};
 
 	// returns the corresponding icon name of a job state
-	this.getIcon = function(job_color, with_green_balls)
-	{
-		for( let i=0 ; i<states.length ; ++i )
-		{
+	this.getIcon = function(job_color, with_green_balls) {
+		for( let i=0 ; i<states.length ; ++i ) {
 			// use green balls plugin if actived
-			if( with_green_balls && job_color=='blue' ) return 'jenkins_green';
-
+			if( with_green_balls && job_color=='blue' ) {
+				return 'jenkins_green';
+			}
 			// if not just return a regular icon
-			else if( job_color==states[i].color ) return 'jenkins_' + states[i].icon;
+			else if( job_color==states[i].color ) {
+				return 'jenkins_' + states[i].icon;
+			}
 		}
 		// if job color is unknown, use the grey icon
 		return 'jenkins_grey';
 	};
 
 	// returns the corresponding icon name of a job state
-	this.getFilter = function(job_color)
-	{
-		for( let i=0 ; i<states.length ; ++i )
-		{
-			if( job_color==states[i].color ) return states[i].filter;
+	this.getFilter = function(job_color) {
+		for( let i=0 ; i<states.length ; ++i ) {
+			if( job_color==states[i].color ) {
+				return states[i].filter;
+			}
 		}
 		// if job color is unknown, use the filter setting for disabled jobs
 		return 'show_disabled_jobs';
 	};
 
 	// returns the corresponding icon name of a job state
-	this.getName = function(job_color)
-	{
-		for( let i=0 ; i<states.length ; ++i )
-		{
-			if( job_color==states[i].color ) return _(states[i].name);
+	this.getName = function(job_color) {
+		for( let i=0 ; i<states.length ; ++i ) {
+			if( job_color==states[i].color ) {
+				return _(states[i].name);
+			}
 		}
 		// if job color is unknown, use the filter setting for disabled jobs
 		return 'unknown';
 	};
 
 	// returns the default job state to use for overall indicator
-	this.getDefaultState = function()
-	{
+	this.getDefaultState = function() {
 		// return lowest ranked job state
 		return states[states.length-1].color;
 	};
 
 	// return the color of the error state for the overall indicator
-	this.getErrorState = function()
-	{
+	this.getErrorState = function() {
 		return "red";
 	};
 };

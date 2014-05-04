@@ -20,8 +20,7 @@ function init() {
 }
 
 // builds a line (icon + label + switch) for a setting
-function buildIconSwitchSetting(icon, label, setting_name, server_num)
-{
+function buildIconSwitchSetting(icon, label, setting_name, server_num) {
 	let hboxFilterJobs = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
 	let iconFilterJobs = new Gtk.Image({file: Me.dir.get_path() + "/icons/prefs/" + icon + ".png"});
 	let labelFilterJobs = new Gtk.Label({label: label, xalign: 0});
@@ -37,16 +36,14 @@ function buildIconSwitchSetting(icon, label, setting_name, server_num)
 }
 
 // update json settings for server in settings schema
-function updateServerSetting(server_num, setting, value)
-{
+function updateServerSetting(server_num, setting, value) {
 	settingsJSON = Settings.getSettingsJSON(settings);
 	settingsJSON["servers"][server_num][setting] = value;
 	settings.set_string("settings-json", JSON.stringify(settingsJSON));
 }
 
 // create a new server tab and add it to the notebook
-function addTabPanel(notebook, server_num)
-{
+function addTabPanel(notebook, server_num) {
 	// use server name as tab label
 	let tabLabel = new Gtk.Label({ label: settingsJSON['servers'][server_num]['name']});
 	
@@ -245,8 +242,7 @@ function addTabPanel(notebook, server_num)
 	let btnRemoveServer = new Gtk.Button({image: iconRemoveServer});
 		
 	btnRemoveServer.connect('clicked', Lang.bind(notebook, function(){
-		if( notebook.get_n_pages()>1 )
-		{
+		if( notebook.get_n_pages()>1 ) {
 			// remove server from settings
 			settingsJSON['servers'].splice(notebook.page_num(tabContent), 1);
 			settings.set_string("settings-json", JSON.stringify(settingsJSON));
@@ -274,8 +270,7 @@ function buildPrefsWidget() {
 	// *** tab panel ***
 	let notebook = new Gtk.Notebook();
 	
-	for( let i=0 ; i<settingsJSON['servers'].length ; ++i )
-	{
+	for( let i=0 ; i<settingsJSON['servers'].length ; ++i )	{
 		// add tab panels for each server
 		addTabPanel(notebook, i);
 	}

@@ -59,8 +59,9 @@ const JenkinsIndicator = new Lang.Class({
 		// create new main loop
 		this._mainloop = Mainloop.timeout_add(this.settings.autorefresh_interval*1000, Lang.bind(this, function(){
 			// request new job states if auto-refresh is enabled
-			if( this.settings.autorefresh )
+			if( this.settings.autorefresh ) {
 				this.request();
+			}
 
 			// returning true is important for restarting the mainloop after timeout
 			return true;
@@ -70,28 +71,25 @@ const JenkinsIndicator = new Lang.Class({
 	// request local jenkins server for current state
 	request: function() {
 		// only update if no update is currently running
-		if( !this._isRequesting )
-		{
+		if( !this._isRequesting ) {
 			this._isRequesting = true;
 			// ajax request to local jenkins server
 			let request = Soup.Message.new('GET', Utils.urlAppend(this.settings.jenkins_url, 'api/json'));
 
 			// append authentication header (if necessary)
 			// jenkins only supports preemptive authentication so we have to provide authentication info on first request
-			if( this.settings.use_authentication )
+			if( this.settings.use_authentication ) {
 				request.request_headers.append('Authorization', 'Basic ' + Glib.base64_encode(this.settings.auth_user + ':' + this.settings.api_token));
+			}
 
-			if( request )
-			{
+			if( request ) {
 				this.httpSession.queue_message(request, Lang.bind(this, function(httpSession, message) {
 					// http error
-					if( message.status_code!==200 )
-					{
+					if( message.status_code!==200 )	{
 						this.showError(_("Invalid Jenkins CI Server web frontend URL (HTTP Error %s)").format(message.status_code));
 					}
 					// http ok
-					else
-					{
+					else {
 						// parse json
 						try {
 							let jenkinsState = JSON.parse(request.response_body.data);
@@ -102,8 +100,7 @@ const JenkinsIndicator = new Lang.Class({
 							// update indicator (icon and popupmenu contents)
 							this.update();
 						}
-						catch( e )
-						{
+						catch( e ) {
 							global.log(e)
 							this.showError(_("Invalid Jenkins CI Server web frontend URL"));
 						}
@@ -114,8 +111,7 @@ const JenkinsIndicator = new Lang.Class({
 				}));
 			}
 			// no valid url was provided in settings dialog
-			else
-			{
+			else {
 				this.showError(_("Invalid Jenkins CI Server web frontend URL"));
 
 				// we're done updating and ready for the next request
@@ -127,7 +123,7 @@ const JenkinsIndicator = new Lang.Class({
 	// update indicator icon and popupmenu contents
 	update: function() {
 		// filter jobs to be shown
-		let displayJobs = this._filterJobs(this.jobs);
+		let displayJobs = Utils.filterJobs(this.jobs, this.settings);
 
 		// update popup menu
 		this.menu.updateJobs(displayJobs);
@@ -138,49 +134,21 @@ const JenkinsIndicator = new Lang.Class({
 		let overallState = Utils.jobStates.getDefaultState();
 
 		// set state to red if there are no jobs
-		if( displayJobs.length<=0 )
+		if( displayJobs.length<=0 ) {
 			overallState = Utils.jobStates.getErrorState();
-		else
-		{
+		}
+		else {
 			// determine jobs overall state for the indicator
-			for( let i=0 ; i<displayJobs.length ; ++i )
-			{
+			for( let i=0 ; i<displayJobs.length ; ++i )	{
 				// set overall job state to highest ranked (most important) state
-				if( Utils.jobStates.getRank(displayJobs[i].color)>-1 && Utils.jobStates.getRank(displayJobs[i].color)<Utils.jobStates.getRank(overallState) )
+				if( Utils.jobStates.getRank(displayJobs[i].color)>-1 && Utils.jobStates.getRank(displayJobs[i].color)<Utils.jobStates.getRank(overallState) ) {
 					overallState = displayJobs[i].color;
+				}
 			}
 		}
 
 		// set new overall indicator icon representing current jenkins state
 		this._iconActor.icon_name = Utils.jobStates.getIcon(overallState, this.settings.green_balls_plugin);
-	},
-
-	// filters jobs according to filter settings
-	_filterJobs: function(jobs) {
-		jobs = jobs || [];
-		let showAllJobs = false;
-		let filteredJobs = [];
-		let jobToShow = this.settings['jobs_to_show'].trim().split(",");
-
-		if ((jobToShow.length == 1) && jobToShow[0] == "all") {
-			showAllJobs = true;
-		}
-
-		for (var i=0 ; i<jobs.length ; ++i) {
-			// filter job if user decided not to show jobs with this state (in settings dialog)
-			let filterJobState = this.settings[Utils.jobStates.getFilter(jobs[i].color)];
-			// filter job if user decided not to show jobs with this name (in settings dialog)
-			let filterJobByName = true;
-			if (!showAllJobs) {
-				filterJobByName = Utils.jobMatches(jobs[i], jobToShow);
-			}
-
-			if(filterJobState && filterJobByName){
-				filteredJobs[filteredJobs.length] = jobs[i];
-			}
-		}
-
-		return filteredJobs;
 	},
 
 	// update settings

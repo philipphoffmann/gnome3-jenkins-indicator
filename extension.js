@@ -25,8 +25,7 @@ let event_signals = [];
 const _httpSession = new Soup.SessionAsync();
 Soup.Session.prototype.add_feature.call(_httpSession, new Soup.ProxyResolverDefault());
 
-function createIndicator(server_num)
-{
+function createIndicator(server_num) {
 	// create indicator and add to status area
 	_indicators[server_num] = new JenkinsIndicator.JenkinsIndicator(settingsJSON['servers'][server_num], _httpSession);
 	Main.panel.addToStatusArea("jenkins-indicator-"+settingsJSON['servers'][server_num]['id'], _indicators[server_num]);
@@ -71,8 +70,7 @@ function enable() {
 		});
 		
 		// update all indicators
-		for( let i=0 ; i<_indicators.length ; ++i )
-		{
+		for( let i=0 ; i<_indicators.length ; ++i )	{
 			_indicators[i].updateSettings(settingsJSON['servers'][i]);
 			_indicators[i].request();
 		}
@@ -80,12 +78,14 @@ function enable() {
 }
 
 function disable() {
-	for( var i=0 ; i<_indicators.length ; ++i )
+	for( var i=0 ; i<_indicators.length ; ++i ) {
 		_indicators[i].destroy();
+	}
 
 	_indicators = [];
 	
 	// disconnect all signal listeners
-	for( var i=0 ; i<event_signals.length ; ++i )
+	for( var i=0 ; i<event_signals.length ; ++i ) {
 		settings.disconnect(event_signals[i]);
+	}
 }

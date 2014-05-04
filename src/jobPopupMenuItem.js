@@ -51,11 +51,11 @@ const JobPopupMenuItem = new Lang.Class({
 			// jenkins only supports preemptive authentication (authentication on first request)
 			// any request not sending an authentication header is rejected right away
 			// unfortunately Soup doesnt support that, so we have to provide the authentication header manually
-			if( this.settings.use_authentication )
+			if( this.settings.use_authentication ) {
 				request.request_headers.append('Authorization', 'Basic ' + Glib.base64_encode(this.settings.auth_user + ':' + this.settings.api_token));
+			}
 
-			if( request )
-			{
+			if( request ) {
 				// kick off request
 				this.httpSession.queue_message(request, Lang.bind(this, function(httpSession, message) {
 					// we could try to refresh all jobs here but jenkins delays builds by 5 seconds so we wont see any difference
@@ -102,11 +102,12 @@ const JobPopupMenuItem = new Lang.Class({
 	// update menu item text and icon
 	updateJob: function(job) {
 		// notification for finished job if job icon used to be clock (if enabled in settings)
-		if( this.settings.notification_finished_jobs && this.icon.icon_name=='jenkins_clock' && Utils.jobStates.getIcon(job.color, this.settings.green_balls_plugin)!='jenkins_clock' )
-		{
+		if( this.settings.notification_finished_jobs && this.icon.icon_name=='jenkins_clock' && Utils.jobStates.getIcon(job.color, this.settings.green_balls_plugin)!='jenkins_clock' )	{
+
 			// create notification source first time we have to display notifications or if server name changed
-			if( typeof this.notification_source === 'undefined' || this.notification_source.title !== this.settings.name )
+			if( typeof this.notification_source === 'undefined' || this.notification_source.title !== this.settings.name ) {
 				this.notification_source = new JobNotificationSource.JobNotificationSource(this.settings.name);
+			}
 			
 			// create notification for the finished job
 			let notification = new MessageTray.Notification(this.notification_source, _('Job finished building'), _('Your Jenkins job %s just finished building (<b>%s</b>).').format(job.name, Utils.jobStates.getName(job.color)), {
@@ -115,8 +116,9 @@ const JobPopupMenuItem = new Lang.Class({
 			});
 			
 			// use transient messages if persistent messages are disabled in settings
-			if( this.settings.stack_notifications==false )
+			if( this.settings.stack_notifications==false ) {
 				notification.setTransient(true);
+			}
 			
 			// notify the user
 			this.notification_source.notify(notification);

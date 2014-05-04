@@ -71,25 +71,23 @@ const ServerPopupMenu = new Lang.Class({
 	// insert, delete and update all job items in popup menu
 	updateJobs: function(new_jobs) {
 		// provide error message if no jobs were found
-		if( new_jobs.length==0 )
-		{
+		if( new_jobs.length==0 ) {
 			this.indicator.showError(_("No jobs found"));
 			return;
 		}
 		
 		// remove previous error message
-		if( this.jobSection.firstMenuItem && this.jobSection.firstMenuItem instanceof PopupMenu.PopupMenuItem )
+		if( this.jobSection.firstMenuItem && this.jobSection.firstMenuItem instanceof PopupMenu.PopupMenuItem ) {
 			this.jobSection.firstMenuItem.destroy();
+		}
 
 		// check all new job items
-		for( let i=0 ; i<new_jobs.length ; ++i )
-		{
+		for( let i=0 ; i<new_jobs.length ; ++i ) {
+
 			// try to find matching job
 			let matching_job = null;
-			for( let j = 0 ; j<this.jobSection.numMenuItems ; ++j )
-			{
-				if( new_jobs[i].name==this.jobSection._getMenuItems()[j].getJobName() )
-				{
+			for( let j = 0 ; j<this.jobSection.numMenuItems ; ++j )	{
+				if( new_jobs[i].name==this.jobSection._getMenuItems()[j].getJobName() )	{
 					// we found a matching job
 					matching_job = this.jobSection._getMenuItems()[j];
 					break;
@@ -97,33 +95,28 @@ const ServerPopupMenu = new Lang.Class({
 			}
 
 			// update matched job
-			if( matching_job!=null )
-			{
+			if( matching_job!=null ) {
 				matching_job.updateJob(new_jobs[i]);
 			}
 			// otherwise insert as new job
-			else
-			{
+			else {
 				this.jobSection.addMenuItem( new JobPopupMenuItem.JobPopupMenuItem(this, new_jobs[i], this.notification_source, this.settings, this.httpSession) );
 			}
 		}
 		
 		// check for jobs that need to be removed
-		for( let j = 0 ; j<this.jobSection.numMenuItems ; ++j )
-		{
+		for( let j = 0 ; j<this.jobSection.numMenuItems ; ++j ) {
 			let job_found = false;
-			for( let i=0 ; i<new_jobs.length ; ++i )
-			{
-				if( new_jobs[i].name==this.jobSection._getMenuItems()[j].getJobName() )
-				{
+
+			for( let i=0 ; i<new_jobs.length ; ++i ) {
+				if( new_jobs[i].name==this.jobSection._getMenuItems()[j].getJobName() ) {
 					job_found = true;
 					break;
 				}
 			}
 
 			// remove job if not found
-			if( !job_found )
-			{
+			if( !job_found ) {
 				this.jobSection._getMenuItems()[j].destroy();
 			}
 		}
@@ -136,10 +129,10 @@ const ServerPopupMenu = new Lang.Class({
 		this.serverMenuItem.updateSettings(this.settings);
 		
 		// push new settings to job menu items
-		for( let j = 0 ; j<this.jobSection.numMenuItems ; ++j )
-		{
-			if( this.jobSection._getMenuItems()[j] instanceof JobPopupMenuItem.JobPopupMenuItem )
+		for( let j = 0 ; j<this.jobSection.numMenuItems ; ++j )	{
+			if( this.jobSection._getMenuItems()[j] instanceof JobPopupMenuItem.JobPopupMenuItem ) {
 				this.jobSection._getMenuItems()[j].updateSettings(this.settings);
+			}
 		}
 	}
 });

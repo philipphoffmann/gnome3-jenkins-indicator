@@ -35,20 +35,18 @@ let DefaultSettings = {
 }
 
 // helper to prevent weird errors if possible settings change in future updates by using default settings
-function getSettingsJSON(settings)
-{
+function getSettingsJSON(settings) {
 	let settingsJSON = JSON.parse(settings.get_string("settings-json"));
 	
 	// assert that at least default settings are available
 	settingsJSON = settingsJSON || DefaultSettings;
 	settingsJSON.servers = settingsJSON.servers || DefaultSettings.servers;
 	
-	for( let i=0 ; i<settingsJSON.servers.length ; ++i )
-	{
-		for( var setting in DefaultSettings.servers[0] )
-		{
-			if( !(setting in settingsJSON.servers[i]) )
+	for( let i=0 ; i<settingsJSON.servers.length ; ++i ) {
+		for( var setting in DefaultSettings.servers[0] ) {
+			if( !(setting in settingsJSON.servers[i]) ){
 				settingsJSON.servers[i][setting] = DefaultSettings.servers[0][setting];
+			}
 		}
 	}
 	
