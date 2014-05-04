@@ -90,7 +90,7 @@ const JobPopupMenuItem = new Lang.Class({
 		
 		// clicking a job menu item opens the job in web frontend with default browser
 		this.connect("activate", Lang.bind(this, function(){
-			Gio.app_info_launch_default_for_uri(Utils.urlAppend(this.settings.jenkins_url, 'job/' + this.getJobName()), global.create_app_launch_context());
+			Gio.app_info_launch_default_for_uri(Utils.urlAppend(this.settings.jenkins_url, 'job/' + this.getJobName()), global.create_app_launch_context(0, -1));
 		}));
 	},
 

@@ -24,6 +24,30 @@ function arrayOpCompare(array1, array2, compare_func, operation_func)
 	}
 }
 
+// checks if currentVersion (e.g. "3.12.1") is greater or equal than thresholdVersion (e.g. "3.10")
+function versionIsAtLeast(currentVersion, thresholdVersion) {
+	currentVersion = currentVersion.split('.');
+	thresholdVersion = thresholdVersion.split('.');
+
+	// iterate over three version levels ("major.minor.patch")
+	for( var i = 0 ; i < 3 ; ++i ) {
+		// sanitize version levels
+		currentVersion[i] = currentVersion[i] || 0;
+		thresholdVersion[i] = thresholdVersion[i] || 0;
+
+		if( currentVersion[i] > thresholdVersion[i] ) {
+			return true;
+		}
+		else if( currentVersion[i] < thresholdVersion[i] ) {
+			return false;
+		}
+		// otherwise the current level is equal and therefor we need to check the next level
+	}
+
+	// in this case all version levels are equal, we consider this as a match
+	return true;
+}
+
 // return if a job matches a list of patterns ('!' char negates a pattern)
 function jobMatches(job, patterns){
 	var patternsLength = patterns.length;

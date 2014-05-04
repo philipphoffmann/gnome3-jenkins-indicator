@@ -7,11 +7,13 @@ const Shell = imports.gi.Shell;
 const St = imports.gi.St;
 const Gtk = imports.gi.Gtk;
 const PopupMenu = imports.ui.popupMenu;
+const Config = imports.misc.config;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const ServerPopupMenuItem = Me.imports.src.serverPopupMenuItem;
 const JobPopupMenuItem = Me.imports.src.jobPopupMenuItem;
 const PopupMenuScrollSection = Me.imports.src.popupMenuScrollSection;
+const Utils = Me.imports.src.helpers.utils;
 
 // set text domain for localized strings
 const _ = imports.gettext.domain(Me.metadata['gettext-domain']).gettext;
@@ -50,8 +52,18 @@ const ServerPopupMenu = new Lang.Class({
 		this._menu_settings.connect("activate", function(){
 			// call gnome settings tool for this extension
 			let app = Shell.AppSystem.get_default().lookup_app("gnome-shell-extension-prefs.desktop");
-			if( app!=null )
-				app.launch(global.display.get_current_time_roundtrip(), ['extension:///' + Me.uuid], -1, null);
+			if( app!=null ) {
+				// for Gnome >= 3.12
+				if( Utils.versionIsAtLeast(Config.PACKAGE_VERSION, "3.12") ) {
+					let info = app.get_app_info();
+	 				let timestamp = global.display.get_current_time_roundtrip();
+					info.launch_uris([Me.uuid], global.create_app_launch_context(timestamp, -1));
+				}
+				// for Gnome < 3.12
+				else {
+					app.launch(global.display.get_current_time_roundtrip(), ['extension:///' + Me.uuid], -1, null);
+				}
+			}
 		});
 		this.addMenuItem(this._menu_settings);
 	},

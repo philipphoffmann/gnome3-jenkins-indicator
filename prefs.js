@@ -83,7 +83,6 @@ function addTabPanel(notebook, server_num)
 		// use authentication
 		let hboxUseAuthentication = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
 		let labelUseAuthentication = new Gtk.Label({label: _("Use authentication"), xalign: 0});
-		global.log(JSON.stringify(settingsJSON['servers'][server_num]));
 		let inputUseAuthentication = new Gtk.Switch({active: settingsJSON['servers'][server_num]['use_authentication']});
 
 		inputUseAuthentication.connect("notify::active", Lang.bind(this, function(input){

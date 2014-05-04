@@ -41,7 +41,7 @@ const ServerPopupMenuItem = new Lang.Class({
 		
 		// clicking the server menu item opens the servers web frontend with default browser
 		this.connect("activate", Lang.bind(this, function(){
-			Gio.app_info_launch_default_for_uri(this.settings.jenkins_url, global.create_app_launch_context());
+			Gio.app_info_launch_default_for_uri(this.settings.jenkins_url, global.create_app_launch_context(0, -1));
 		}));
 	},
 

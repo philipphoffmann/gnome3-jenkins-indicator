@@ -11,6 +11,30 @@ function testSuite() {
 		});
 	});
 
+	describe('versionMatches', function() {
+		it('should not match earlier versions', function() {
+			expect(Utils.versionIsAtLeast("3.10", "3.12")).toBeFalsy();
+			expect(Utils.versionIsAtLeast("3.10.1", "3.12")).toBeFalsy();
+			expect(Utils.versionIsAtLeast("3.10", "3.12.1")).toBeFalsy();
+			expect(Utils.versionIsAtLeast("3.12", "3.12.1")).toBeFalsy();
+			expect(Utils.versionIsAtLeast("3.12.0", "3.12.1")).toBeFalsy();
+		});
+
+		it('should match equal versions', function() {
+			expect(Utils.versionIsAtLeast("3.12", "3.12")).toBeTruthy();
+			expect(Utils.versionIsAtLeast("3.12", "3.12.0")).toBeTruthy();
+			expect(Utils.versionIsAtLeast("3.12.1", "3.12.1")).toBeTruthy();
+		});
+
+		it('should match greater versions', function() {
+			expect(Utils.versionIsAtLeast("3.12", "3.10")).toBeTruthy();
+			expect(Utils.versionIsAtLeast("3.12.1", "3.10")).toBeTruthy();
+			expect(Utils.versionIsAtLeast("3.12", "3.10.1")).toBeTruthy();
+			expect(Utils.versionIsAtLeast("3.12.1", "3.10.1")).toBeTruthy();
+			expect(Utils.versionIsAtLeast("3.12.1", "3.12.0")).toBeTruthy();
+		});
+	});
+
 	describe('jobMaches', function() {
 
 		var testPatterns = [
