@@ -45,7 +45,7 @@ const JobPopupMenuItem = new Lang.Class({
 		
 		this.button_build.connect("clicked", Lang.bind(this, function(){
 			// request to trigger the build
-			let request = Soup.Message.new('GET', Utils.urlAppend(this.settings.jenkins_url, 'job/' + this.getJobName() + '/build'));
+			let request = Soup.Message.new('GET', Utils.urlAppend(this.getJobUrl(), 'build'));
 			
 			// append authentication header (if necessary)
 			// jenkins only supports preemptive authentication (authentication on first request)
@@ -68,6 +68,7 @@ const JobPopupMenuItem = new Lang.Class({
 
 		// menu item label (job name)
 		this.label = new St.Label({ text: job.name });
+                this.jobUrl = job.url;
 
 		this.box.add(this.icon);
 		this.box.add(this.label);
@@ -90,13 +91,18 @@ const JobPopupMenuItem = new Lang.Class({
 		
 		// clicking a job menu item opens the job in web frontend with default browser
 		this.connect("activate", Lang.bind(this, function(){
-			Gio.app_info_launch_default_for_uri(Utils.urlAppend(this.settings.jenkins_url, 'job/' + this.getJobName()), global.create_app_launch_context(0, -1));
+			Gio.app_info_launch_default_for_uri(this.getJobUrl(), global.create_app_launch_context(0, -1));
 		}));
 	},
 
 	// return job name
 	getJobName: function() {
 		return this.label.text;
+	},
+
+	// return job url
+	getJobUrl: function() {
+		return this.jobUrl;
 	},
 
 	// update menu item text and icon
