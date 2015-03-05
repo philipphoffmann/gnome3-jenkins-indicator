@@ -45,7 +45,7 @@ const JobPopupMenuItem = new Lang.Class({
 		
 		this.button_build.connect("clicked", Lang.bind(this, function(){
 			// request to trigger the build
-			let request = Soup.Message.new('GET', Utils.urlAppend(this.getJobUrl(), 'build'));
+			let request = Soup.Message.new('POST', Utils.urlAppend(this.getJobUrl(), 'build'));
 			
 			// append authentication header (if necessary)
 			// jenkins only supports preemptive authentication (authentication on first request)
