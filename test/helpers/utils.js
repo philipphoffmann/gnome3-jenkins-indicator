@@ -163,7 +163,7 @@ function testSuite() {
 
 	describe('jobStates::getErrorState', function() {
 		it('should be red', function() {
-			expect(Utils.jobStates.getErrorState()).toBe('red');
+			expect(Utils.jobStates.getErrorState()).toBe('error');
 		});
 	});
 }

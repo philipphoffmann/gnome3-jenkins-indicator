@@ -118,8 +118,8 @@ const jobStates = new function() {
 		{ color: 'grey',          icon: 'grey',   filter: 'show_neverbuilt_jobs', name: 'never built' },
 		{ color: 'notbuilt',      icon: 'grey',   filter: 'show_notbuilt_jobs',   name: 'notbuilt' },
 		{ color: 'aborted',       icon: 'grey',   filter: 'show_aborted_jobs',    name: 'aborted' },
-		{ color: 'disabled',      icon: 'grey',   filter: 'show_disabled_jobs',   name: 'disabled' },
-		{ color: 'error',         icon: 'error',  filter: null,                   name: 'error' }
+		{ color: 'error',         icon: 'error',  filter: null,                   name: 'error' },
+		{ color: 'disabled',      icon: 'grey',   filter: 'show_disabled_jobs',   name: 'disabled' }
 	];
 
 	// returns the rank of a job state, highest rank is 0, -1 means that the job state is unknown
