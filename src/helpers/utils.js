@@ -118,6 +118,7 @@ const jobStates = new function() {
 		{ color: 'grey',          icon: 'grey',   filter: 'show_neverbuilt_jobs', name: 'never built' },
 		{ color: 'notbuilt',      icon: 'grey',   filter: 'show_notbuilt_jobs',   name: 'notbuilt' },
 		{ color: 'aborted',       icon: 'grey',   filter: 'show_aborted_jobs',    name: 'aborted' },
+		{ color: 'error',         icon: 'error',  filter: null,                   name: 'error' },
 		{ color: 'disabled',      icon: 'grey',   filter: 'show_disabled_jobs',   name: 'disabled' }
 	];
 
@@ -176,6 +177,6 @@ const jobStates = new function() {
 
 	// return the color of the error state for the overall indicator
 	this.getErrorState = function() {
-		return "red";
+		return "error";
 	};
 };
