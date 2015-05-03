@@ -1,5 +1,5 @@
 {
-	"shell-version": ["3.6", "3.8", "3.10", "3.12", "3.14"],
+	"shell-version": ["3.6", "3.8", "3.10", "3.12", "3.14", "3.16"],
 	"uuid": "jenkins-indicator@philipphoffmann.de",
 	"name": "Jenkins CI Server Indicator",
 	"description": "Provides an overview of all jobs on your Jenkins CI Server.",
