@@ -1,7 +1,7 @@
 // log information to gnome-session logs
 function log_info(msg) {
 	var prefix = 'Jenkins CI Server Indicator: '
-	global.log(prefix + msg);
+	log(prefix + msg);
 }
 
 // append a uri to a domain regardless whether domains ends with '/' or not
@@ -99,7 +99,8 @@ function jobMatches(job, patterns) {
 			pattern = pattern.substring(1);
 		}
 		// if matches the apttern and we are looking for matches
-		var matchingPattern = job.name.match(pattern);
+		var theMatch = job.name.match(pattern);
+		var matchingPattern = !!theMatch;
 		if (positiveSearch) {
 			passedFilters = passedFilters && matchingPattern;
 			if (passedFilters) {
@@ -113,6 +114,7 @@ function jobMatches(job, patterns) {
 		}
 	})
 	// return match result
+	// log_info("Job " + job.name + " is passed: " + passedFilters);
 	return passedFilters;
 }
 
