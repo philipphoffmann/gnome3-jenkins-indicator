@@ -1,3 +1,4 @@
 *.sublime-project
 *.sublime-workspace
 gnome3-jenkins.zip
+.DS_Store
