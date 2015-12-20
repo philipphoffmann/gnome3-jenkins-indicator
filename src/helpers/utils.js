@@ -1,3 +1,9 @@
+// log information to gnome-session logs
+function log_info(msg) {
+	var prefix = 'Jenkins CI Server Indicator: '
+	log(prefix + msg);
+}
+
 // append a uri to a domain regardless whether domains ends with '/' or not
 function urlAppend(domain, uri) {
 	if( domain.length>=1 ) {
@@ -55,6 +61,7 @@ function filterJobs(jobs, settings) {
 	let showAllJobs = false;
 	let filteredJobs = [];
 	let jobToShow = settings['jobs_to_show'].trim().split(",");
+	log_info('Will apply the job name filters: ' + jobToShow);
 
 	if ((jobToShow.length == 1) && jobToShow[0] == "all") {
 		showAllJobs = true;
@@ -79,24 +86,36 @@ function filterJobs(jobs, settings) {
 
 // return if a job matches a list of patterns ('!' char negates a pattern)
 function jobMatches(job, patterns) {
-	var patternsLength = patterns.length;
-	for (var i = 0; i < patternsLength; i++) {
-		var pattern = patterns[i];
-		var positive_search = true;
-		if (pattern.indexOf("!") == 0) {
-			positive_search = false;
+	var passedFilters = true;
+	patterns.forEach(function(pattern) {
+		// early exit check
+		if (!passedFilters) {
+			// breaking loop early, since no need to do pattern matching further
+			log_info('Not matching job ' + job.name + ' further');
+			return;
+		}
+		var positiveSearch = pattern.indexOf("!") !== 0;
+		if (!positiveSearch) {
 			pattern = pattern.substring(1);
 		}
 		// if matches the apttern and we are looking for matches
-		if(job.name.match(pattern) && positive_search) {
-			return true;
-		// if it does not match the pattern and we are looking for not matches
-		} else if (!job.name.match(pattern) && !positive_search) {
-			return true;
+		var theMatch = job.name.match(pattern);
+		var matchingPattern = !!theMatch;
+		if (positiveSearch) {
+			passedFilters = passedFilters && matchingPattern;
+			if (passedFilters) {
+				log_info('Positive match for job ' + job.name + ' for pattern [' + pattern + ']');
+			}
+		} else {
+			passedFilters = passedFilters && !matchingPattern;
+			if (passedFilters) {
+				log_info('Negative match for job ' + job.name + ' for pattern [' + pattern + ']');
+			}
 		}
-	}
-	// if it did not match any pattern
-	return false
+	})
+	// return match result
+	// log_info("Job " + job.name + " is passed: " + passedFilters);
+	return passedFilters;
 }
 
 // returns icons and state ranks for job states

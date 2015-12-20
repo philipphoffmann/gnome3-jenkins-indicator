@@ -101,6 +101,15 @@ function testSuite() {
 			}
 		});
 
+		it('should match all test positive patterns', function() {
+			var job = {
+				name: 'testJob'
+			};
+
+			// try to match all test patterns
+			expect(Utils.jobMatches(job, testPatterns)).toBe(true);
+		});
+
 		it('should not match negative patterns', function() {
 			var job = {
 				name: 'testJob'
@@ -112,6 +121,42 @@ function testSuite() {
 			}
 
 			expect(Utils.jobMatches(job, ['anotherJob'])).toBe(false);
+		});
+
+		it('should not match all of the negative patterns', function() {
+			var job = {
+				name: 'testJob'
+			};
+
+			// try to not match all negative test patterns
+			var negatedAll = testPatterns.map(function(p) {
+				return '!' + p;
+			});
+			expect(Utils.jobMatches(job, negatedAll)).toBe(false);
+
+			var oneOnlyNegated = testPatterns.slice();
+			oneOnlyNegated[testPatterns.length - 1] = '!' + testPatterns[testPatterns.length - 1]
+			expect(Utils.jobMatches(job, oneOnlyNegated)).toBe(false);
+		});
+
+		it('should have partial match with some test jobs exluded', function() {
+			var testJobs = [{name: 'testJob123'},
+							{name: 'My testJob 1 23'},
+							{name: 'Before testJob'},
+							{name: 'Any-test-in-it'},
+							{name: 'Any-test-in-it'},
+							{name: 'HAPPY'},
+							{name: 'HAPPY MORE'}];
+			var expected = testJobs.slice(-2);
+
+
+			// try to not match all negative test patterns
+			var negatedAll = testPatterns.map(function(p) {
+				return '!' + p;
+			});
+			expected.forEach(function(testJob) {
+				expect(Utils.jobMatches(testJob, negatedAll)).toBe(true);
+			});
 		});
 	});
 
