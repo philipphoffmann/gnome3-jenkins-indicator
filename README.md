@@ -1,3 +1,8 @@
+# Attention!
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-no-red.svg)](https://bitbucket.org/lbesson/ansi-colors)
+
+I decided to not maintain this project any longer. I have not been using this project myself for a while now, which makes it difficult to provide the necessary support and maintenance it requires. Nevertheless, I will leave the project on github in case anybody wants to fork and continue.
+
 # gnome3-jenkins-indicator
 
 ## description:
